@@ -1,0 +1,7 @@
+node_modules
+dist
+coverage
+package-lock.json
+public/fonts/*.woff2
+# Approved audit snapshots: preserved verbatim, not reformatted.
+docs

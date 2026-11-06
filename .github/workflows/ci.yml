@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Gates 1-11 + audits
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: 1. Format
+        run: npm run format:check
+
+      - name: 2. Lint and layer boundaries
+        run: npm run lint
+
+      - name: 3. Typecheck
+        run: npm run typecheck
+
+      - name: 4-5. Unit tests and coverage
+        run: npm run test
+
+      - name: 6. i18n parity and Latin leak
+        run: npm run check:i18n
+
+      - name: 7. Logical-property audit
+        run: npm run check:rtl
+
+      - name: 8. Secret scan
+        run: npm run check:secrets
+
+      - name: 9. Forbidden dependencies
+        run: npm run check:deps
+
+      - name: 10. Seed-in-production guard
+        run: npm run check:seed
+
+      - name: 11. Static build
+        run: npm run build
+
+      - name: 12. Bundle budgets
+        run: npm run audit:bundle
+
+      - name: Offline-origin audit
+        run: npm run check:origins

@@ -71,7 +71,8 @@ for (const code of codes) {
 
 const leaks = [];
 for (const [key, value] of reference.entries()) {
-  const words = String(value).match(/[A-Za-z][A-Za-z0-9_-]*/g) ?? [];
+  const withoutPlaceholders = String(value).replace(/\{\{[^}]+\}\}/g, '');
+  const words = withoutPlaceholders.match(/[A-Za-z][A-Za-z0-9_-]*/g) ?? [];
   for (const word of words) {
     if (!ALLOWED_LATIN.has(word)) leaks.push(`${key}: "${word}" in "${value}"`);
   }

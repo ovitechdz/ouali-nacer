@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   verify:
-    name: Gates 1-11 + audits
+    name: Gates 1-12 + audits
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -55,10 +55,13 @@ jobs:
       - name: 10. Seed-in-production guard
         run: npm run check:seed
 
-      - name: 11. Static build
+      - name: 11. Domain purity and determinism
+        run: npm run check:domain
+
+      - name: 12. Static build
         run: npm run build
 
-      - name: 12. Bundle budgets
+      - name: 13. Bundle budgets
         run: npm run audit:bundle
 
       - name: Offline-origin audit

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 2,
+  "farmId": "farm-v2",
+  "createdAt": "2026-08-01T09:00:00.000Z",
+  "updatedAt": "2026-08-01T09:00:00.000Z",
+  "settings": {
+    "farmName": "Farm",
+    "region": "",
+    "flockLabel": "",
+    "locale": "ar",
+    "demoMode": false,
+    "scanStaleDays": 3,
+    "engineId": "DDNE",
+    "engineVersion": "DDNE-REF-1.0",
+    "pens": ["P1"]
+  },
+  "operator": {
+    "id": "op-legacy",
+    "displayName": "Operator",
+    "authority": "field",
+    "createdAt": "2026-08-01T09:00:00.000Z",
+    "updatedAt": "2026-08-01T09:00:00.000Z"
+  },
+  "animals": [],
+  "weights": [],
+  "healthEvents": [],
+  "recommendations": [],
+  "feedLots": [],
+  "auditEvents": [],
+  "signoffs": []
+}

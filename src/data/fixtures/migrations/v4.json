@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 4,
+  "farmId": "farm-v4",
+  "createdAt": "2026-08-01T09:00:00.000Z",
+  "updatedAt": "2026-08-01T09:00:00.000Z",
+  "settings": {
+    "farmName": "Farm",
+    "region": "",
+    "flockLabel": "",
+    "locale": "ar",
+    "demoMode": false,
+    "scanStaleDays": 3,
+    "engineId": "DDNE",
+    "engineVersion": "DDNE-REF-1.0",
+    "pens": ["P1"]
+  },
+  "operator": {
+    "id": "op-legacy",
+    "displayName": "Operator",
+    "authority": "production",
+    "createdAt": "2026-08-01T09:00:00.000Z",
+    "updatedAt": "2026-08-01T09:00:00.000Z"
+  },
+  "animals": [
+    {
+      "id": "an-v4",
+      "farmId": "farm-v4",
+      "code": "OV-4001",
+      "rfid": "RFID-V4",
+      "sex": "M",
+      "breed": "Ouled Djellal",
+      "birthDate": "2024-01-01",
+      "weightKg": 60,
+      "bcs": 3,
+      "stage": "engraissement",
+      "pen": "P1",
+      "status": "actif",
+      "lastScanAt": null,
+      "adgKg": 0.2,
+      "expectedLambingAt": null,
+      "damId": null,
+      "sireId": null,
+      "notes": "",
+      "createdAt": "2026-08-01T09:00:00.000Z",
+      "updatedAt": "2026-08-01T09:00:00.000Z"
+    }
+  ],
+  "weights": [],
+  "healthEvents": [],
+  "recommendations": [
+    {
+      "id": "rec-v4",
+      "animalId": "an-v4",
+      "engineId": "DDNE",
+      "engineVersion": "DDNE-REF-0.9",
+      "createdAt": "2026-08-01T09:00:00.000Z",
+      "inputsHash": "v4hash",
+      "ration": {
+        "forageKg": 1.05,
+        "concentrateKg": 0.75,
+        "mineralG": 21,
+        "waterL": 6.2,
+        "cpPercent": 15,
+        "meMj": 18.3,
+        "dmiKg": 1.8
+      },
+      "notes": [{ "key": "domain.note.humanExecution" }],
+      "confidence": "haute",
+      "missingInputs": [],
+      "evidence": [
+        { "key": "domain.evidence.identity", "params": { "code": "OV-4001", "rfid": "RFID-V4" } }
+      ],
+      "approvedBy": null,
+      "servedAt": null,
+      "servedBy": null,
+      "stocksDeducted": false,
+      "legacyApprovedBy": "Chef de production",
+      "legacyServedBy": null
+    }
+  ],
+  "feedLots": [],
+  "auditEvents": [],
+  "signoffs": []
+}

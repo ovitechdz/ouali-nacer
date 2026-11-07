@@ -1,0 +1,141 @@
+{
+  "format": "ovitech-backup",
+  "version": 1,
+  "exportedAt": "2026-08-02T12:00:00.000Z",
+  "engine": "DDNE-REF-0.9",
+  "checksum": "2f74a5c69f85a3c6a816ed26d5a1c778037c34ca635b0085730ead556e127b93",
+  "state": {
+    "role": "production",
+    "network": "offline",
+    "currentFarmId": "farm-legacy",
+    "lastSyncedAt": "2026-08-01T09:00:00.000Z",
+    "animals": [
+      {
+        "id": "an-1",
+        "rfid": "RFID-1",
+        "code": "OV-2401",
+        "sex": "M",
+        "breed": "Ouled Djellal",
+        "birthDate": "2026-03-01",
+        "weightKg": 45,
+        "bcs": 3,
+        "stage": "engraissement",
+        "pen": "P1",
+        "status": "actif",
+        "lastScanAt": "2026-08-01T09:00:00.000Z",
+        "adgKg": 0.25,
+        "notes": ""
+      },
+      {
+        "id": "an-2",
+        "rfid": "RFID-2",
+        "code": "OV-2410",
+        "sex": "F",
+        "breed": "Ouled Djellal",
+        "birthDate": "2024-01-01",
+        "weightKg": null,
+        "bcs": 3,
+        "stage": "brebis_entretien",
+        "pen": "P2",
+        "status": "actif",
+        "lastScanAt": null,
+        "adgKg": null,
+        "notes": ""
+      }
+    ],
+    "weights": [
+      {
+        "id": "w-1",
+        "animalId": "an-1",
+        "kg": 45,
+        "at": "2026-08-01T09:00:00.000Z",
+        "source": "terrain"
+      }
+    ],
+    "healthEvents": [
+      {
+        "id": "h-1",
+        "animalId": "an-1",
+        "type": "observation",
+        "at": "2026-08-01T09:00:00.000Z",
+        "by": "legacy",
+        "note": "observation"
+      }
+    ],
+    "recs": [
+      {
+        "id": "rec-1",
+        "animalId": "an-1",
+        "createdAt": "2026-08-01T09:00:00.000Z",
+        "engineVersion": "DDNE-REF-0.9",
+        "ration": {
+          "forageKg": 0.85,
+          "concentrateKg": 0.78,
+          "mineralG": 16,
+          "waterL": 4.9,
+          "cpPercent": 15,
+          "meMj": 17,
+          "dmiKg": 1.63
+        },
+        "notes": ["NEC basse"],
+        "confidence": "haute",
+        "missingInputs": [],
+        "evidence": ["Poids 45 kg"],
+        "approvedBy": "Chef de production",
+        "servedAt": null,
+        "servedBy": null
+      },
+      {
+        "id": "rec-2",
+        "animalId": "an-2",
+        "createdAt": "2026-08-02T09:00:00.000Z",
+        "engineVersion": "DDNE-REF-0.9",
+        "ration": null,
+        "notes": ["Refus moteur"],
+        "confidence": "insuffisante",
+        "missingInputs": ["poids vif"],
+        "evidence": [],
+        "approvedBy": null,
+        "servedAt": null,
+        "servedBy": null
+      }
+    ],
+    "feed": [
+      {
+        "id": "f-1",
+        "name": "Forage",
+        "kind": "fourrage",
+        "stockKg": 500,
+        "costPerKg": 3,
+        "available": true,
+        "origin": "local"
+      }
+    ],
+    "signoffs": [
+      {
+        "id": "sig-1",
+        "name": "Expert",
+        "specialty": "nutrition",
+        "signedAt": "2026-08-01T09:00:00.000Z",
+        "protocol": "verification",
+        "notes": "",
+        "engineVersion": "DDNE-REF-0.9",
+        "passed": 7,
+        "total": 7,
+        "caseIds": ["TC-01"]
+      }
+    ],
+    "events": [
+      {
+        "id": "ev-1",
+        "type": "saisie",
+        "animalId": "an-1",
+        "at": "2026-08-01T09:00:00.000Z",
+        "label": "Saisie terrain",
+        "detail": "45 kg"
+      }
+    ],
+    "energy": null,
+    "kpiSeries": []
+  }
+}

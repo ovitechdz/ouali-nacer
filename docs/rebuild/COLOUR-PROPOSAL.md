@@ -1,8 +1,9 @@
 # Colour proposal — pre-Phase 5
 
-**Status:** proposal only. **No design token was changed and no source file was
-touched.** This document records what the style site renders, how it maps to the
-approved tokens, and the smallest option that satisfies WCAG AA.
+**Status:** **accepted and applied** (D-0035, 2026-11-08). This document began
+as a proposal; the token layer now carries the values in §1. §4 records the
+recommendation that was adopted, and §5 records the one deferred item (header
+blur).
 
 **Measured:** 2026-11-08 against the authenticated style site
 `https://ovitech-mvp-4ip1.arcada.app` on `/`, `/dashboard`, `/cheptel`,
@@ -95,3 +96,16 @@ primary fill. Use the darker foreground on solid green buttons. The only
 outstanding visual choice is whether to swap `--color-accent` from `#10b981` to
 `#00d492` for exact v4 fidelity; both are AA-compliant on the approved dark
 surfaces.
+
+## 5. Application status (2026-11-08)
+
+- `--color-accent-strong` is now `#009966` (v4 emerald-600) and
+  `--color-accent` is `#00d492` (v4 emerald-400). `--color-accent-contrast`
+  remains `#04120c` and is the label on every solid primary button.
+- `--color-surface-header: #111827d9` and
+  `--color-surface-header-solid: #101827` were added. The header currently uses
+  the **solid** fallback: the 12 px backdrop blur is deferred until a low-end
+  phone profile demonstrates smooth scrolling (K-61).
+- No other token changed.
+- `src/styles/tokens.test.ts` fails CI if any button pair or accent-on-surface
+  pair drops below 4.5:1 (normal text) or 3:1 (large text/UI).

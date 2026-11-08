@@ -10,7 +10,8 @@ describe('ui primitives', () => {
     render(<Button>Save</Button>);
     const button = screen.getByRole('button', { name: 'Save' });
     expect(button).toHaveAttribute('type', 'button');
-    expect(button.className).toContain('bg-accent');
+    expect(button.className).toContain('bg-accent-strong');
+    expect(button.className).toContain('text-accent-contrast');
   });
 
   it('supports secondary and ghost variants', () => {

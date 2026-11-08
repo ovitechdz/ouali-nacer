@@ -309,3 +309,27 @@ engineering for a competitive product, and retention of proprietary notices.
 **Consequence:** The skills are authoring/reference aids only. GSAP code or a
 dependency remains a Phase 5 decision and must be measured against the bundle
 budget before adoption. The skills are gitignored and add no runtime surface.
+
+## D-0035 - Design tokens aligned with the style site, AA-safe
+
+**Date:** 2026-11-08
+**Decision:** Apply the accepted colour proposal before Phase 5.
+`--color-accent-strong` becomes `#009966` (Tailwind v4 emerald-600) and is
+the fill of every solid primary button, with the existing
+`--color-accent-contrast` `#04120c` as the label. `--color-accent` becomes
+`#00d492` (v4 emerald-400) for dots, labels and icons. Add
+`--color-surface-header: #111827d9` for the translucent header and
+`--color-surface-header-solid: #101827` as the fallback. The header uses the
+solid fallback for now: the 12 px backdrop blur is deferred because no low-end
+phone profile has demonstrated smooth scrolling (K-61). No other token changes.
+Add `src/styles/tokens.test.ts`, which parses `tokens.css` and fails CI when a
+button text/fill pair or an accent-on-surface pair drops below 4.5:1 (normal
+text) or 3:1 (large text/UI).
+**Evidence:** `src/styles/tokens.css`; `src/app/shell/Header.tsx`;
+`src/components/ui/button.tsx`; `src/pages/NotFoundPage.tsx`;
+`src/styles/tokens.test.ts`; `docs/rebuild/COLOUR-PROPOSAL.md`;
+`PRODUCT.md`.
+**Consequence:** Solid CTAs keep the site fill with AA labels (5.24:1);
+`#00d492` is only the accent text/dot/icon colour (9.66:1 / 9.15:1). The
+contrast test makes a future palette regression a CI failure. Phase 5 is still
+not started.

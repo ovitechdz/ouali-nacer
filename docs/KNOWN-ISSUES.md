@@ -121,3 +121,9 @@ belongs to another project or should be moved out of `docs/rebuild/`.
 | K-58 | GSAP skills are third-party documents with no version field | `skills-lock.json`; source commit `aed9cfd`; `gsap-*/SKILL.md:1-5` | An update can change guidance silently | Record the source commit and hashes; re-run the read-only review after any update |
 | K-59 | The published `gsap` npm package ships no standalone licence file | `gsap@3.15.1` tarball: `/LICENSE` and `/LICENSE.txt` 404; repo root has no licence file | Licence provenance depends on package metadata and a website | Cite `package.json:66`, `README.md:90-93` and the canonical URL; recorded in `DESIGN-TOOLING.md` |
 | K-60 | `gsap-frameworks` references examples the installer did not copy | `gsap-frameworks/SKILL.md:23,94` | Following the paths fails; no runnable sample locally | Use the inlined prose; do not fetch the missing examples |
+
+## Design tokens and header blur (2026-11-08)
+
+| ID | Issue | Evidence | Impact | Mitigation |
+|---|---|---|---|---|
+| K-61 | The sticky header uses the solid `#101827` fallback because the 12 px backdrop blur has not been proven smooth on a low-end phone | `Header.tsx`; `tokens.css`; D-0035 | Slightly less translucent than the style site on capable devices | Keep the solid fallback; measure scroll frames under CPU/network throttling on a low-end profile before enabling `--color-surface-header` + `backdrop-filter: blur(12px)` |

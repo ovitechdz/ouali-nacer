@@ -92,8 +92,10 @@ Confirmed in Phase 4:
 - Typography is binding: **Inter** for Latin and **Cairo** as the only Arabic
   family, self-hosted WOFF2, no runtime Google Fonts.
 - Visual tokens are binding and live in `src/styles/tokens.css`: dark-only
-  surfaces `#0b1220` / `#111827` / `#1a2332`, border `#243044`, accent
-  `#10b981`, radii 8/12/16/24 px, 4 px spacing base, 72 rem container.
+  surfaces `#0b1220` / `#111827` / `#1a2332`, header `#111827d9` with a solid
+  `#101827` fallback, border `#243044`, solid primary `#009966` with `#04120c`
+  labels, accent text/dot/icon `#00d492`, radii 8/12/16/24 px, 4 px spacing
+  base, 72 rem container.
 - Shell: vertical sidebar fixed on desktop, Drawer on mobile, right side in RTL;
   logical CSS properties only.
 - Honest surface: simulated capabilities stay labelled; no fabricated customers,

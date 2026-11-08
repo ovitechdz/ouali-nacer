@@ -14,7 +14,7 @@ export function NotFoundPage() {
         <p className="text-sm leading-relaxed text-fg-muted">{t('notFound.body')}</p>
         <Link
           to="/"
-          className="inline-flex h-[42px] items-center justify-center rounded-xl bg-accent px-4 text-sm font-semibold text-accent-contrast shadow-accent transition-colors hover:bg-accent-strong"
+          className="inline-flex h-[42px] items-center justify-center rounded-xl bg-accent-strong px-4 text-sm font-semibold text-accent-contrast shadow-accent transition-colors hover:bg-accent"
         >
           {t('notFound.action')}
         </Link>

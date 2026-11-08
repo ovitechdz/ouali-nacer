@@ -13,7 +13,7 @@ export function Header({ drawerOpen, onOpenMenu }: HeaderProps) {
   const { t } = useTranslation();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-surface-2/85 backdrop-blur-md">
+    <header className="sticky top-0 z-30 border-b border-border bg-surface-header-solid">
       <div className="flex h-16 items-center gap-3 px-4 sm:px-6 lg:px-8">
         <button
           type="button"

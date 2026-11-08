@@ -14,11 +14,16 @@
   --color-surface: #0b1220;
   --color-surface-2: #111827;
   --color-surface-3: #1a2332;
+  /* Header: translucent value is reserved for the backdrop-blur path. The
+     12 px blur is deferred until a low-end profile passes (D-0035), so the
+     solid fallback is the active value. */
+  --color-surface-header: #111827d9;
+  --color-surface-header-solid: #101827;
   --color-border: #243044;
   --color-border-strong: #334155;
 
-  --color-accent: #10b981;
-  --color-accent-strong: #059669;
+  --color-accent: #00d492;
+  --color-accent-strong: #009966;
   --color-accent-soft: #064e3b;
   --color-accent-contrast: #04120c;
 

@@ -258,3 +258,54 @@ runtime, the approved token layer or D-0030/D-0031. **Phase 5 has not started.**
 The duplicated 19.5 MB impeccable binary and the ~78 MB total skill tree are a
 repository-weight and supply-chain consideration; they stay on disk but out of
 git. The Critical Risk flag on `design-taste-frontend` remains open for review.
+
+## D-0033 - Tooling hooks disabled; colour proposal, no token change
+
+**Date:** 2026-11-08
+**Decision:** Automatic skill hooks are disabled without deleting any skill
+file. The `design-taste-frontend` `Stop` block is removed from the
+`SKILL.md` frontmatter (six lines), `.codex/hooks.json` is reduced to
+`{"hooks": {}}`, and `.github/hooks/impeccable.json` to
+`{"version": 1, "hooks": {}}`. Quality gates are run manually. User-scope
+`DO_NOT_TRACK=1` and `IMPECCABLE_NO_TELEMETRY=1` are set.
+`impeccable generate-image`, `impeccable live`, runtime asset downloads, and
+copying external-origin skill templates/assets into `src/` or `public/` are
+forbidden. The colour proposal is recorded in
+`docs/rebuild/COLOUR-PROPOSAL.md`; no design token is changed.
+**Evidence:** `.agents/skills/design-taste-frontend/SKILL.md`;
+`.codex/hooks.json`; `.github/hooks/impeccable.json`;
+`docs/DESIGN-TOOLING.md`; `docs/rebuild/COLOUR-PROPOSAL.md`; authenticated
+computed styles for `/`, `/dashboard`, `/cheptel`, `/dossier`, `/cameras`,
+`/sante`, `/equipe` (FR and AR).
+**Consequence:** No automatic gate or detector runs on stop/edit; the skill
+trees stay on disk and gitignored, so a reinstall can restore hooks and needs
+the reproduction steps in `docs/DESIGN-TOOLING.md`. The style site's solid
+primary is `#009966` (Tailwind v4 emerald-600), not `#00d492`; `#00d492` is
+only the v4 emerald-400 text/dot/icon accent. White labels on `#009966` and
+`#059669` are 3.65:1 and 3.77:1 and fail AA normal text; the existing
+`--color-accent-contrast` `#04120c` gives 5.24:1 and 5.08:1 with no token
+change. Phase 5 remains unauthorised.
+
+## D-0034 - GSAP agent skills installed; gsap dependency not installed
+
+**Date:** 2026-11-08
+**Decision:** Install the official `greensock/gsap-skills` package (eight
+skills: `gsap-core`, `gsap-frameworks`, `gsap-performance`, `gsap-plugins`,
+`gsap-react`, `gsap-scrolltrigger`, `gsap-timeline`, `gsap-utils`) as
+gitignored agent documentation with
+`npx skills add https://github.com/greensock/gsap-skills --skill '*' --agent codex github-copilot opencode -y`.
+Do **not** run `npm install gsap` and do not add a GSAP dependency in this
+phase. A read-only review found no hooks, shell execution, runtime network
+requests, reads outside the project or hidden instructions; the skills contain
+only `SKILL.md`.
+**Evidence:** `.agents/skills/gsap-*/SKILL.md`; `skills-lock.json`; source
+commit `aed9cfd3277740755f6bfc1155c7aa645403b760`; `docs/DESIGN-TOOLING.md`.
+Licence: `gsap@3.15.1` declares the Standard "No Charge" GSAP License in
+`package.json:66` and `README.md:90-93` (no standalone `LICENSE` file is
+published). The canonical text at `https://gsap.com/standard-license`
+(effective 2025-04-30) permits commercial use, including ScrollTrigger and
+SplitText, subject to no competing visual animation builder, no reverse
+engineering for a competitive product, and retention of proprietary notices.
+**Consequence:** The skills are authoring/reference aids only. GSAP code or a
+dependency remains a Phase 5 decision and must be measured against the bundle
+budget before adoption. The skills are gitignored and add no runtime surface.

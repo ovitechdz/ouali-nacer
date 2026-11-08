@@ -1,6 +1,6 @@
 # Known Issues and Limitations
 
-**Updated:** 2026-11-05
+**Updated:** 2026-11-08
 **Scope:** governance + reference findings. Product defects live in
 `DOMAIN-FUNCTIONALITY-AUDIT.md` (D-101…D-116); this file tracks process,
 environment and open questions.
@@ -102,3 +102,22 @@ belongs to another project or should be moved out of `docs/rebuild/`.
 - Reference screenshots reflect the demonstrator with seed data on 2026-11-03.
 - Style-site and functional-reference captures were taken on 2026-11-05; the
   style site is a demo build with seeded data and a public login gate.
+
+## Design tooling hardening (2026-11-08)
+
+| ID | Issue | Evidence | Impact | Mitigation |
+|---|---|---|---|---|
+| K-52 | Automatic skill hooks could run on stop/edit | `SKILL.md` frontmatter; `.codex/hooks.json`; `.github/hooks/impeccable.json` | Unreviewed execution in the agent environment | Removed/emptied without deleting skill files; reproduction in `DESIGN-TOOLING.md` |
+| K-53 | White text on solid green CTAs fails AA normal text | `COLOUR-PROPOSAL.md`: 3.65:1 on `#009966`, 3.77:1 on `#059669` | Accessibility gap for 14-16 px labels | Use existing `--color-accent-contrast` `#04120c` (5.24:1 / 5.08:1); no token change |
+| K-54 | Header `#101827` is not a named token | `.glass` = `#111827d9` + 12 px blur | Ad-hoc surface value can drift | Documented; add `--color-surface-header` only if exact reproduction is required |
+| K-55 | `OPENAI_API_KEY` is absent from process, user and machine scope | environment name check, 2026-11-08 | Optional image fallback cannot run here | Intended: `impeccable generate-image` is forbidden |
+| K-56 | `designlang --cookie-file` cannot authenticate a localStorage-only app | `designlang src/utils-cookies.js:42-44` | Internal captures silently measure `/login` | Use computed styles through an authenticated browser/proxy; verify the page heading before trusting output |
+| K-57 | Skill trees are third-party and pinned only by lock/checksum | `skills-lock.json`; `engine-checksums.txt` | A reinstall can restore hooks and drift versions | Re-apply the hardening steps and verify hashes after every reinstall |
+
+## GSAP skills and licence review (2026-11-08)
+
+| ID | Issue | Evidence | Impact | Mitigation |
+|---|---|---|---|---|
+| K-58 | GSAP skills are third-party documents with no version field | `skills-lock.json`; source commit `aed9cfd`; `gsap-*/SKILL.md:1-5` | An update can change guidance silently | Record the source commit and hashes; re-run the read-only review after any update |
+| K-59 | The published `gsap` npm package ships no standalone licence file | `gsap@3.15.1` tarball: `/LICENSE` and `/LICENSE.txt` 404; repo root has no licence file | Licence provenance depends on package metadata and a website | Cite `package.json:66`, `README.md:90-93` and the canonical URL; recorded in `DESIGN-TOOLING.md` |
+| K-60 | `gsap-frameworks` references examples the installer did not copy | `gsap-frameworks/SKILL.md:23,94` | Following the paths fails; no runnable sample locally | Use the inlined prose; do not fetch the missing examples |

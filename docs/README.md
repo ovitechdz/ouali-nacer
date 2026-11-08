@@ -15,7 +15,7 @@ PHP/React deployment and its ownership is unresolved.
 | `REPOSITORY-IDENTITY.md` | Reference repository, baseline commit and provenance |
 | `SOURCE-PROTECTION-PLAN.md` | Read-only rules for the reference |
 | `REBUILD-EXECUTION-PLAN.md` | Phase plan and gates |
-| `DECISION-LOG.md` | D-0001…D-0026, including Gate 2 and the style-site directives |
+| `DECISION-LOG.md` | D-0001…D-0034, including Gate 2, the style-site directives and tooling hardening |
 | `PHASE-2-SUMMARY.md` | Approved architecture summary |
 | `PHASE-2-ARCHITECTURE.md` | Layers, ports, state, persistence, security, tokens |
 | `PHASE-2-DATA-MODEL.md` | Entities and invariants |
@@ -35,7 +35,7 @@ PHP/React deployment and its ownership is unresolved.
 | `VISUAL-REFERENCE-CATALOG.md` | Reference visual catalogue |
 | `PHASE-0-ENVIRONMENT-AUDIT.md` | Environment baseline |
 | `PHASE-1-FEATURE-INVENTORY.md` | Functional inventory |
-| `KNOWN-ISSUES.md` | Open risks K-1…K-33 |
+| `KNOWN-ISSUES.md` | Open risks K-1…K-60 |
 
 ## Design evidence
 
@@ -44,6 +44,7 @@ PHP/React deployment and its ownership is unresolved.
 | `design/EXTRACTION-REPORT.md` | Authoritative style-site tokens and font stack |
 | `design/ARABIC-FONT-VERIFICATION.md` | Cairo coverage proof and self-hosting plan |
 | `design/TEAM-PAGE-SOURCE.md` | `/equipe` anatomy, RTL findings and rebuild mapping |
+| `rebuild/COLOUR-PROPOSAL.md` | Authenticated colour measurements, Tailwind v3/v4 provenance and WCAG ratios (proposal only) |
 
 ## Glossary
 

@@ -15,6 +15,17 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
     css: false,
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/coverage/**',
+      '.agents/**',
+      '.claude/**',
+      '.codex/**',
+      '.github/**',
+      '.playwright/**',
+      '.playwright-cli/**',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json-summary'],

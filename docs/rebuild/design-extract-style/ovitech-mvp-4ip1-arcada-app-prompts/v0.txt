@@ -1,0 +1,24 @@
+Build a landing page with this exact visual language.
+COLORS:
+  #e5e7eb
+  #6a7282
+  #ffffff
+  #4a5565
+  #99a1af
+  #0b1220
+  #5ee9b5
+  #00d492
+  #009966
+  #00786f
+  #002c22
+  #006045
+FONTS: [object Object]
+SPACING: 4, 8, 12, 16, 20, 24, 28, 32
+RADIUS: 12, 24
+SHADOWS: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.378 -0.0755699 0.0147714 / 0.4) 0px 10px 15px -3px, oklab(0.378 -0.0755699 0.0147714 / 0.4) 0px 4px 6px -4px | rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0 0 0 / 0.5) 0px 25px 50px -12px
+MATERIAL LANGUAGE: flat
+VOICE: Tone: playful · Headings: Sentence case · CTA verbs: [object Object], [object Object], [object Object]
+LIBRARY: Use plain Tailwind CSS without a component library.
+SECTIONS (in order):
+- hero — heading: "Connexion"
+Use Tailwind. Match these tokens exactly. Keep the material language consistent.

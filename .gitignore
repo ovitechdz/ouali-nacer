@@ -14,3 +14,16 @@ npm-debug.log*
 !.vscode/extensions.json
 .idea/
 *.tsbuildinfo
+# Playwright CLI output (may contain credentials)
+.playwright/
+.playwright-cli/
+
+# Installed agent skills and design tooling: third-party, not application source.
+# Recorded in docs/DESIGN-TOOLING.md; reinstall from there, never commit the trees.
+.agents/
+.claude/skills/
+.codex/
+.github/skills/
+.github/agents/
+.github/hooks/
+skills-lock.json

@@ -40,7 +40,23 @@ const LAYER_IMPORTS = {
 };
 
 export default tseslint.config(
-  { ignores: ['dist', 'coverage', 'node_modules', 'public/fonts'] },
+  {
+    ignores: [
+      'dist',
+      'coverage',
+      'node_modules',
+      'public/fonts',
+      'docs',
+      '.agents',
+      '.claude',
+      '.codex',
+      '.github/skills',
+      '.github/agents',
+      '.github/hooks',
+      '.playwright',
+      '.playwright-cli',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

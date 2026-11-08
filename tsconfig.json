@@ -23,5 +23,16 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src", "vite.config.ts", "vitest.config.ts", "vitest.setup.ts"]
+  "include": ["src", "vite.config.ts", "vitest.config.ts", "vitest.setup.ts"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "coverage",
+    ".agents",
+    ".claude",
+    ".codex",
+    ".github",
+    ".playwright",
+    ".playwright-cli"
+  ]
 }

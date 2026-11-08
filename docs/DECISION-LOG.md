@@ -183,3 +183,78 @@ Entries are append-only. Each decision records evidence and consequence.
 **Decision:** The read-only preparation phase is complete: Playwright CLI installed, designlang run, screenshots captured for the style site and the functional reference, the team page archived, tokens and fonts extracted and verified, and Phase 2 documents amended. Results are presented to the user; **Phase 3 is still not authorized**.
 **Evidence:** `design-extract-style/EXTRACTION-REPORT.md`, `design-extract-style/ARABIC-FONT-VERIFICATION.md`, `team-page-source/README.md`, updated Phase 2 and governance documents.
 **Consequence:** No repository, dependency, application file, secret or deployment was created. `C:\Users\ASUS\ovitech-rebuild` remains absent; the reference remains clean at `f99cd02` with its push URL disabled.
+
+<!-- This file is the approved Phase 0-2 snapshot. D-0027..D-0031 live in the
+     authoritative audit workspace. D-0032 is copied here deliberately with the
+     design-tooling commit. -->
+
+## D-0032 - Design tooling installed, Phase 5 still not started
+
+**Date:** 2026-11-07
+**Decision:** Install the requested design/QA tooling as **development-only**
+assets, without adding any npm dependency to `package.json`. The installed set:
+
+| Tool | Version | Source | Notes |
+|---|---|---|---|
+| `skills` CLI | 1.7.6 | `npx skills` | Installer for the agent skills. |
+| `design-taste-frontend` (tasteskill) | 2.5.1 | `Leonxlnx/taste-skill` | Lock hash `974e1bb8...326ec7`. Installer flagged **Critical Risk (Gen) / Med Risk (Snyk)**; review before use. |
+| `impeccable` | skill 4.8.0, engine 0.1.18 (windows-x64) | `npx impeccable install` | Installed into `.agents` and `.github`; the 19.5 MB `impeccable.exe` is duplicated in both trees. |
+| `transitions-dev` | unversioned snapshot | `Jakubantalik/transitions.dev` | Lock hash `b8f0f695...3aa7c5`. |
+| `transitions-polish` | unversioned snapshot | `Jakubantalik/transitions.dev` | Lock hash `e456d8cc...15a785`. |
+| `transitions-ui-generation` | not installed | `Jakubantalik/transitions.dev` | Installer skipped it: YAML parse error (`Nested mappings are not allowed in compact mappings`). Only two of the three transitions skills are present. |
+| `@playwright/cli` | 0.1.23 | npm global | `playwright-cli install --skills` added `.claude/skills/playwright-cli` and `.playwright-cli/` to `.gitignore`. |
+| `designlang` | 13.4.0 | `npx designlang` | Used for the second token extraction. |
+| Node / npm used | 24.21.0 / 11.19.0 | environment | Recorded for reproducibility. |
+
+The skill and tool directories (`.agents`, `.claude`, `.codex`,
+`.github/skills`, `.github/agents`, `.github/hooks`, `.playwright`,
+`.playwright-cli`) are excluded from Prettier, ESLint, TypeScript, Vitest and
+Tailwind source scanning. `npm run ci` remains green: 254 tests, entry JS
+130.98 kB gzip (Vite) / 127.7 kB gzip (audit, level 9), CSS 24.97 kB raw /
+5.78 kB gzip. No runtime code, dependency or bundle changed.
+
+`/impeccable init` wrote `PRODUCT.md` from the approved Phase 1/2 documents and
+`src/styles/tokens.css`; inferred fields (persona labels, WCAG 2.2 AA) are
+marked as inferred.
+
+The style-site team page was archived read-only to
+`docs/rebuild/team-page-source/` (FR/AR, 1440/420 screenshots, HTML, text,
+compiled CSS, Google Fonts CSS + WOFF2, logo, manifest, computed styles). It
+was not converted.
+
+`designlang` was run and compared in
+`docs/rebuild/design-extract-style/COMPARISON-WITH-TOKENS.md`. No token was
+edited. GSAP and React Bits were **not** installed; they remain blocked pending
+a measured entry-JS budget under 180 kB gzip and explicit approval.
+
+**Reproduction.** Node `24.21.0`, npm `11.19.0`. The tool trees are gitignored;
+reinstall them with the commands below, then verify against `skills-lock.json`
+and `scripts/engine-checksums.txt`. Do not re-run them as part of the build.
+
+```powershell
+npx skills@1.7.6 add Leonxlnx/taste-skill
+npx impeccable install
+npx skills@1.7.6 add Jakubantalik/transitions.dev
+npm install -g @playwright/cli@0.1.23
+playwright-cli install --skills
+npx designlang@13.4.0 --version    # used ad hoc for the extraction; not installed
+npx skills list                    # expected: 5 skills
+```
+
+Expected versions: `design-taste-frontend` 2.5.1; `impeccable` skill 4.8.0
+with engine 0.1.18; `transitions-dev` and `transitions-polish` snapshots;
+`@playwright/cli` 0.1.23; `designlang` 13.4.0; `skills` CLI 1.7.6.
+`transitions-ui-generation` is still skipped by its installer (YAML parse
+error). Full manifest and the read-only security findings:
+`docs/DESIGN-TOOLING.md`.
+
+**Evidence:** `skills-lock.json`; `.prettierignore`; `eslint.config.js`;
+`tsconfig.json`; `vitest.config.ts`; `src/styles/base.css`; `PRODUCT.md`;
+`docs/DESIGN-TOOLING.md`; `docs/rebuild/team-page-source/`;
+`docs/rebuild/design-extract-style/`; `npm run ci` green.
+**Consequence:** The tooling configuration is committed separately as
+`chore: design tooling config` (no push). It does not alter the application
+runtime, the approved token layer or D-0030/D-0031. **Phase 5 has not started.**
+The duplicated 19.5 MB impeccable binary and the ~78 MB total skill tree are a
+repository-weight and supply-chain consideration; they stay on disk but out of
+git. The Critical Risk flag on `design-taste-frontend` remains open for review.

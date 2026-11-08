@@ -3,5 +3,15 @@ dist
 coverage
 package-lock.json
 public/fonts/*.woff2
+# Installed agent skills and design tooling: third-party, not application source.
+.agents
+.claude
+.codex
+.github/skills
+.github/agents
+.github/hooks
+.playwright
+.playwright-cli
+skills-lock.json
 # Approved audit snapshots: preserved verbatim, not reformatted.
 docs

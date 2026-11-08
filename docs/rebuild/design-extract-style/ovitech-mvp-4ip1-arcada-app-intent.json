@@ -1,0 +1,72 @@
+{
+  "pageIntent": {
+    "type": "landing",
+    "confidence": 0.45,
+    "path": "/",
+    "title": "Ovitech v3.0 — MVP Démonstration",
+    "description": "Ovitech MVP offline-first — gestion ovine Sidi Bel Abbès, mode rural hors ligne.",
+    "signals": [
+      {
+        "kind": "url",
+        "type": "landing",
+        "weight": 0.45,
+        "detail": "root-path"
+      }
+    ],
+    "alternates": [],
+    "needsSmart": true
+  },
+  "sectionRoles": {
+    "sections": [
+      {
+        "index": 0,
+        "tag": "header",
+        "role": "nav",
+        "subrole": null,
+        "confidence": 0.4,
+        "heading": null,
+        "bounds": {
+          "x": 64,
+          "y": 0,
+          "w": 1152,
+          "h": 67
+        },
+        "buttonCount": 0,
+        "cardCount": 2,
+        "slots": {
+          "lede": "🐑\nOvitech v3.0\nMVP · Sidi Bel Abbès\nConnexion sécurisée"
+        },
+        "needsSmart": true
+      },
+      {
+        "index": 1,
+        "tag": "main",
+        "role": "hero",
+        "subrole": null,
+        "confidence": 0.85,
+        "heading": "Connexion",
+        "bounds": {
+          "x": 0,
+          "y": 67,
+          "w": 1280,
+          "h": 733
+        },
+        "buttonCount": 4,
+        "cardCount": 4,
+        "slots": {
+          "heading": "Connexion",
+          "ctaCount": 4
+        },
+        "needsSmart": false
+      }
+    ],
+    "counts": {
+      "nav": 1,
+      "hero": 1
+    },
+    "readingOrder": [
+      "nav",
+      "hero"
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://designlang.app/schemas/gradients.json",
+  "source": "https://ovitech-mvp-4ip1.arcada.app",
+  "generated": "2026-11-07T19:10:21.638Z",
+  "count": 2,
+  "gradients": [
+    {
+      "raw": "linear-gradient(to right bottom, rgb(7, 13, 24) 0%, oklab(0.183114 -0.00355966 -0.0306859 / 0.95) 50%, oklab(0.220017 -0.0288864 0.00207976 / 0.9) 100%)",
+      "type": "linear",
+      "direction": "to right bottom",
+      "stops": [
+        {
+          "color": "rgb(7, 13, 24)",
+          "position": "0%"
+        },
+        {
+          "color": "oklab(0.183114 -0.00355966 -0.0306859 / 0.95)",
+          "position": "50%"
+        },
+        {
+          "color": "oklab(0.220017 -0.0288864 0.00207976 / 0.9)",
+          "position": "100%"
+        }
+      ],
+      "classification": "bold"
+    },
+    {
+      "raw": "linear-gradient(to right, oklch(0.596 0.145 163.225) 0%, oklch(0.704 0.14 182.503) 50%, oklch(0.765 0.177 163.223) 100%)",
+      "type": "linear",
+      "direction": "to right",
+      "stops": [
+        {
+          "color": "oklch(0.596 0.145 163.225)",
+          "position": "0%"
+        },
+        {
+          "color": "oklch(0.704 0.14 182.503)",
+          "position": "50%"
+        },
+        {
+          "color": "oklch(0.765 0.177 163.223)",
+          "position": "100%"
+        }
+      ],
+      "classification": "bold"
+    }
+  ]
+}

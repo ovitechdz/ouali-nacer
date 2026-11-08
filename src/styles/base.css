@@ -2,6 +2,17 @@
 @import './tokens.css';
 @import './fonts.css';
 
+/* Tooling, skills, docs and build output are not application source. */
+@source not '../../.agents';
+@source not '../../.claude';
+@source not '../../.codex';
+@source not '../../.github';
+@source not '../../.playwright';
+@source not '../../.playwright-cli';
+@source not '../../docs';
+@source not '../../dist';
+@source not '../../coverage';
+
 @layer base {
   *,
   ::after,

@@ -1,0 +1,21 @@
+{
+  "links": [
+    "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&display=swap",
+    "https://ovitech-mvp-4ip1.arcada.app/assets/index-DGhN7NLy.css"
+  ],
+  "styles": [],
+  "imgs": [
+    {
+      "src": "https://ovitech-mvp-4ip1.arcada.app/images/ovitech-logo.png",
+      "alt": "Ovitech",
+      "w": 1024,
+      "h": 1024
+    },
+    {
+      "src": "https://ovitech-mvp-4ip1.arcada.app/images/ovitech-logo.png",
+      "alt": "Ovitech",
+      "w": 1024,
+      "h": 1024
+    }
+  ]
+}

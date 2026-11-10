@@ -4,10 +4,10 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  type RouteComponent,
 } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { ComponentType } from 'react';
 
 import { buildDemoDocument } from '@/app/seed-demo';
 import { services } from '@/app/services';
@@ -49,7 +49,7 @@ interface RouteCase {
   path: string;
   /** Route pattern when the visited URL contains a dynamic segment. */
   routePath?: string;
-  page: ComponentType;
+  page: RouteComponent;
 }
 
 const ROUTES: readonly RouteCase[] = [

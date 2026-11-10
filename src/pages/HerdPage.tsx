@@ -16,6 +16,7 @@ import { Table, TableWrap, Td, Th } from '@/components/ui/table';
 import { useToast } from '@/components/ui/toast-context';
 import { cn } from '@/lib/cn';
 import { formatDate, formatNumber } from '@/lib/format';
+import { useGsapReveal } from '@/motion/use-gsap-reveal';
 import { useFarm } from '@/store/use-farm';
 
 type Filter = 'all' | 'alerte' | 'suivi' | 'ok';
@@ -64,9 +65,16 @@ export function HerdPage() {
     .sort((a, b) => a.animal.code.localeCompare(b.animal.code));
 
   const pens = document?.settings.pens ?? [];
+  const reveal = useGsapReveal<HTMLDivElement>({
+    selector: 'tbody tr',
+    offsetY: 8,
+    stagger: 0.015,
+    duration: 0.3,
+    watch: filter,
+  });
 
   return (
-    <div className="space-y-5">
+    <div ref={reveal} className="space-y-5">
       <PageHeader
         kicker={t('herd.kicker')}
         title={t('herd.title')}

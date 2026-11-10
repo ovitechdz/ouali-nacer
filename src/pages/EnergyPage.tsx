@@ -5,12 +5,14 @@ import { PageHeader } from '@/components/PageHeader';
 import { Card } from '@/components/ui/card';
 import { Notice, SimulationBadge } from '@/components/ui/feedback';
 import { StatCard } from '@/components/ui/stat';
+import { useGsapReveal } from '@/motion/use-gsap-reveal';
 
 export function EnergyPage() {
   const { t } = useTranslation();
+  const reveal = useGsapReveal<HTMLDivElement>({ stagger: 0.08 });
 
   return (
-    <div className="space-y-5">
+    <div ref={reveal} className="space-y-5">
       <PageHeader
         kicker={t('energy.kicker')}
         title={t('energy.title')}
@@ -22,7 +24,7 @@ export function EnergyPage() {
         {t('energy.simulationBody')}
       </Notice>
 
-      <section aria-labelledby="energy-targets" className="space-y-3">
+      <section aria-labelledby="energy-targets" data-reveal className="space-y-3">
         <div>
           <h2 id="energy-targets" className="text-base font-bold text-fg-strong">
             {t('energy.targetsTitle')}
@@ -47,7 +49,11 @@ export function EnergyPage() {
         </div>
       </section>
 
-      <section aria-labelledby="energy-arch" className="grid gap-4 lg:grid-cols-[1.1fr_1fr]">
+      <section
+        aria-labelledby="energy-arch"
+        data-reveal
+        className="grid gap-4 lg:grid-cols-[1.1fr_1fr]"
+      >
         <Card className="space-y-3">
           <h2 id="energy-arch" className="text-base font-bold text-fg-strong">
             {t('energy.architectureTitle')}

@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Notice } from '@/components/ui/feedback';
+import { SpotlightCard } from '@/components/ui/spotlight-card';
 
 const PILLARS = ['vision.pillar1', 'vision.pillar2', 'vision.pillar3', 'vision.pillar4'] as const;
 const PROOF = [
@@ -34,15 +35,15 @@ export function InvestorsPage() {
         }
       />
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="ov-stagger grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {PILLARS.map((key) => (
-          <Card key={key} className="space-y-2">
+          <SpotlightCard key={key} className="space-y-2">
             <span className="grid size-8 place-items-center rounded-lg bg-accent/10 text-accent">
               <BadgeCheck className="size-4" aria-hidden="true" />
             </span>
             <p className="text-sm font-semibold text-fg">{t(key)}</p>
             <p className="text-xs text-fg-muted">{t(`${key}Role`)}</p>
-          </Card>
+          </SpotlightCard>
         ))}
       </div>
 

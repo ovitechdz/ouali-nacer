@@ -15,9 +15,11 @@ import { NAV_GROUPS } from '@/app/shell/nav-items';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Notice } from '@/components/ui/feedback';
+import { SpotlightCard } from '@/components/ui/spotlight-card';
 import { StatCard } from '@/components/ui/stat';
 import type { MessageKey } from '@/i18n/messages';
 import { formatNumber } from '@/lib/format';
+import { useGsapReveal } from '@/motion/use-gsap-reveal';
 import { useFarm } from '@/store/use-farm';
 
 const WORKFLOW = [
@@ -43,10 +45,11 @@ export function HomePage() {
 
   const alerts = rows.filter((row) => row.health.status === 'alerte').length;
   const ready = rows.filter((row) => row.rec?.approvedBy && !row.rec.servedAt).length;
+  const reveal = useGsapReveal<HTMLDivElement>({ stagger: 0.06 });
 
   return (
-    <div className="space-y-6">
-      <section className="ov-rise overflow-hidden rounded-3xl border border-border bg-surface-2 p-5 sm:p-8">
+    <div ref={reveal} className="space-y-6">
+      <SpotlightCard data-reveal className="overflow-hidden rounded-3xl p-5 sm:p-8">
         <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-center">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">
@@ -105,7 +108,7 @@ export function HomePage() {
             />
           </div>
         </div>
-      </section>
+      </SpotlightCard>
 
       <section aria-labelledby="home-modules" className="space-y-3">
         <div>
@@ -114,13 +117,18 @@ export function HomePage() {
           </h2>
           <p className="mt-0.5 text-sm text-fg-muted">{t('home.modulesBody')}</p>
         </div>
-        <div className="ov-stagger grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {NAV_GROUPS.map((group) => {
             const first = group.items[0];
             if (!first) return null;
             const Icon = first.icon;
             return (
-              <Link key={group.id} to={group.items[0]?.to ?? '/'} className="group block">
+              <Link
+                key={group.id}
+                to={group.items[0]?.to ?? '/'}
+                data-reveal
+                className="group block"
+              >
                 <Card className="flex h-full flex-col gap-2 transition-colors duration-150 group-hover:border-border-strong group-hover:bg-surface-3/60">
                   <span className="grid size-9 place-items-center rounded-lg bg-accent/10 text-accent">
                     <Icon className="size-4" aria-hidden="true" />
@@ -139,7 +147,11 @@ export function HomePage() {
         </div>
       </section>
 
-      <section aria-labelledby="home-workflow" className="grid gap-4 lg:grid-cols-[1.2fr_1fr]">
+      <section
+        aria-labelledby="home-workflow"
+        data-reveal
+        className="grid gap-4 lg:grid-cols-[1.2fr_1fr]"
+      >
         <Card className="space-y-3">
           <h2 id="home-workflow" className="text-base font-bold text-fg-strong">
             {t('home.workflowTitle')}

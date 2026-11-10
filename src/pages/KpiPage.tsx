@@ -10,6 +10,7 @@ import { ProgressBar, StatCard } from '@/components/ui/stat';
 import { FEED_KINDS, type FeedKind } from '@/domain';
 import type { MessageKey } from '@/i18n/messages';
 import { formatDate, formatNumber } from '@/lib/format';
+import { useGsapReveal } from '@/motion/use-gsap-reveal';
 import { useFarm } from '@/store/use-farm';
 
 const KIND_KEY: Record<FeedKind, MessageKey> = {
@@ -23,6 +24,7 @@ export function KpiPage() {
   const { t, i18n } = useTranslation();
   const { document, rows, kpis } = useFarm();
   const locale = i18n.resolvedLanguage ?? 'ar';
+  const reveal = useGsapReveal<HTMLDivElement>({ stagger: 0.08 });
 
   const weightSeries = useMemo(() => {
     if (!document) return { points: [] as number[], labels: [] as string[] };
@@ -65,10 +67,10 @@ export function KpiPage() {
   const maxFeed = Math.max(1, ...feedByKind.map((entry) => entry.stock));
 
   return (
-    <div className="space-y-5">
+    <div ref={reveal} className="space-y-5">
       <PageHeader kicker={t('kpi.kicker')} title={t('kpi.title')} subtitle={t('kpi.subtitle')} />
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div data-reveal className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label={t('kpi.herdSize')}
           value={formatNumber(rows.length, locale)}
@@ -123,7 +125,7 @@ export function KpiPage() {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div data-reveal className="grid gap-4 lg:grid-cols-2">
         <Card className="space-y-3">
           <div>
             <h2 className="text-base font-bold text-fg-strong">{t('kpi.weightTitle')}</h2>

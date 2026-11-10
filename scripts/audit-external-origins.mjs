@@ -16,6 +16,7 @@ const ALLOWED_HOSTS = new Set([
   'locize.com', // i18next's default backend string (never configured here)
   'localhost', // i18next's unused default loadPath
   'json-schema.org', // Zod's JSON-Schema dialect identifier (never fetched)
+  'gsap.com', // GSAP licence URL embedded in its bundle (never fetched)
 ]);
 const HARD_BLOCK = [/fonts\.googleapis\.com/i, /fonts\.gstatic\.com/i, /vercel\.app/i, /grok/i];
 

@@ -48,8 +48,22 @@ const js = assets.filter((asset) => asset.file.endsWith('.js'));
 const css = assets.filter((asset) => asset.file.endsWith('.css'));
 const html = assets.filter((asset) => asset.file.endsWith('.html'));
 
-const isEntry = (file) => /[\\/]index-/.test(file);
+// The entry is the script the HTML actually loads, not every chunk whose
+// basename happens to start with "index" (dynamic imports inherit that name).
+const HTML_FILE = path.join(DIST, 'index.html');
+const entryNames = new Set();
+if (fs.existsSync(HTML_FILE)) {
+  const html = fs.readFileSync(HTML_FILE, 'utf8');
+  for (const match of html.matchAll(/<script[^>]+src="[^"]*\/([^"/]+\.js)"/g)) {
+    entryNames.add(match[1]);
+  }
+}
+const isEntry = (file) => entryNames.has(path.basename(file));
 const entryJs = js.filter((asset) => isEntry(asset.file));
+if (entryJs.length === 0) {
+  console.error('[bundle] could not identify the entry script from dist/index.html.');
+  process.exit(1);
+}
 const lazyJs = js.filter((asset) => !isEntry(asset.file));
 const initialJs = entryJs.reduce((sum, asset) => sum + asset.gzip, 0);
 const totalJs = js.reduce((sum, asset) => sum + asset.gzip, 0);

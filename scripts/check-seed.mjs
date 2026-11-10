@@ -33,6 +33,8 @@ for (const seed of seedFiles) {
   const base = path.basename(seed).replace(/\.(ts|tsx|js|mjs)$/, '');
   for (const file of sourceFiles) {
     if (file === seed) continue;
+    // Tests and test helpers never ship: they may import seed fixtures directly.
+    if (/\.(test|spec)\.(ts|tsx)$/.test(file) || /[\\/]src[\\/]test[\\/]/.test(file)) continue;
     const source = fs.readFileSync(file, 'utf8');
     if (!new RegExp(`from\\s+['"]@?[^'"]*${base}['"]`).test(source)) continue;
     if (!/import\.meta\.env\.DEV/.test(source)) {

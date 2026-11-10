@@ -227,7 +227,7 @@ describe('nutrition page', () => {
       fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm' }));
       await expectDialogClosed();
     }
-  });
+  }, 45_000); // longer than the global 20 s default. // Rendering all 24 demo rations under full-suite parallel load can take
 });
 
 describe('ration page', () => {

@@ -11,7 +11,7 @@ import { Table, TableWrap, Td, Th } from '@/components/ui/table';
 import { AUDIT_EVENT_TYPES, type AuditEventType } from '@/domain';
 import type { MessageKey } from '@/i18n/messages';
 import { cn } from '@/lib/cn';
-import { formatDateTime } from '@/lib/format';
+import { formatDateTime, formatDate } from '@/lib/format';
 import { useFarm } from '@/store/use-farm';
 
 type TypeFilter = 'all' | AuditEventType;
@@ -82,7 +82,14 @@ export function JournalPage() {
         actions={<Badge tone="neutral">{t('journal.count', { count: events.length })}</Badge>}
       />
 
-      <div className="flex flex-col gap-3">
+      <div className="ov-print-only border-b border-border pb-2">
+        <p className="text-sm font-bold">{document?.settings.farmName}</p>
+        <p className="text-xs">
+          {document?.settings.region} · {document ? formatDate(document.updatedAt, locale) : null}
+        </p>
+      </div>
+
+      <div className="ov-no-print flex flex-col gap-3">
         <FilterChips
           label={t('journal.filterType')}
           options={typeOptions}

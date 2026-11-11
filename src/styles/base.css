@@ -165,3 +165,82 @@
 .ov-stagger > *:nth-child(8) {
   animation-delay: 210ms;
 }
+
+/* Print: ration sheets and reports. Shell chrome and controls never print. */
+.ov-print-only {
+  display: none;
+}
+
+@media print {
+  .ov-print-only {
+    display: block !important;
+  }
+
+  @page {
+    margin: 12mm;
+  }
+
+  html {
+    color-scheme: light;
+    background: #ffffff !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #111827 !important;
+    font-size: 11pt;
+  }
+
+  header,
+  footer,
+  aside,
+  nav,
+  .ov-no-print {
+    display: none !important;
+  }
+
+  .ov-print-reset {
+    margin-inline-start: 0 !important;
+  }
+
+  main {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .overflow-x-auto {
+    overflow: visible !important;
+  }
+
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr {
+    break-inside: avoid;
+  }
+
+  .ov-print-sheet th,
+  .ov-print-sheet td {
+    border: 1px solid #d1d5db !important;
+    padding: 4px 6px !important;
+  }
+
+  .ov-print-break {
+    break-before: page;
+  }
+
+  .ov-stagger > * {
+    animation: none !important;
+  }
+
+  a[href]::after {
+    content: '';
+  }
+}

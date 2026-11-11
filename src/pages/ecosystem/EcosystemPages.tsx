@@ -32,7 +32,12 @@ export function EcosystemHubPage() {
         kicker={t('eco.kicker')}
         title={t('eco.title')}
         subtitle={t('eco.subtitle')}
-        actions={<Badge tone="warn">{t('eco.statusNone')}</Badge>}
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <Badge tone="warn">{t('common.simulation')}</Badge>
+            <Badge tone="warn">{t('eco.statusNone')}</Badge>
+          </div>
+        }
       />
 
       <Notice tone="info" title={t('eco.statusTitle')}>
@@ -99,7 +104,12 @@ function EcosystemModule({ kicker, title, subtitle, bulletKeys, icon: Icon }: Mo
         kicker={t(kicker)}
         title={t(title)}
         subtitle={t(subtitle)}
-        actions={<Badge tone="warn">{t('eco.notConnected')}</Badge>}
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <Badge tone="warn">{t('common.simulation')}</Badge>
+            <Badge tone="warn">{t('eco.notConnected')}</Badge>
+          </div>
+        }
       />
 
       <div className="grid gap-4 lg:grid-cols-2">

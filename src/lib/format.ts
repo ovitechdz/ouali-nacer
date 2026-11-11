@@ -56,3 +56,13 @@ export function relativeDays(iso: string | null, now: Date): number | null {
   if (Number.isNaN(date.getTime())) return null;
   return Math.floor((now.getTime() - date.getTime()) / 86_400_000);
 }
+
+/** Keeps both ends of a long label so the farm name stays recognisable. */
+export function middleTruncate(value: string, max = 32): string {
+  const chars = Array.from(value);
+  if (chars.length <= max) return value;
+  if (max < 5) return chars.slice(0, max).join('');
+  const head = Math.ceil((max - 1) * 0.65);
+  const tail = max - 1 - head;
+  return `${chars.slice(0, head).join('')}…${chars.slice(-tail).join('')}`;
+}

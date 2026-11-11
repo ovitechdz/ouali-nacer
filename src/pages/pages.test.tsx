@@ -29,7 +29,8 @@ describe('phase-5 pages', () => {
   it('lists what actually works on the status page', () => {
     render(<StatusPage />);
     expect(screen.getByRole('heading', { level: 1, name: 'حالة النظام' })).toBeInTheDocument();
-    expect(screen.getByText('محول ذاكرة للاختبار فقط — لا قاعدة بيانات بعد')).toBeInTheDocument();
+    expect(screen.getByText('سجل القدرات')).toBeInTheDocument();
+    expect(screen.getAllByText('محاكاة').length).toBeGreaterThan(0);
   });
 
   it('renders the offline placeholder', () => {

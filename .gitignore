@@ -18,6 +18,9 @@ npm-debug.log*
 .playwright/
 .playwright-cli/
 
+# Designlang extraction output (generated tooling artefact, never application source).
+design-extract-output/
+
 # Installed agent skills and design tooling: third-party, not application source.
 # Recorded in docs/DESIGN-TOOLING.md; reinstall from there, never commit the trees.
 .agents/

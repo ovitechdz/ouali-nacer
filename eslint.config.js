@@ -55,6 +55,7 @@ export default tseslint.config(
       '.github/hooks',
       '.playwright',
       '.playwright-cli',
+      'design-extract-output',
     ],
   },
   js.configs.recommended,

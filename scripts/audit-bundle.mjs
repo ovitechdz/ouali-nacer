@@ -10,8 +10,9 @@ import zlib from 'node:zlib';
 const DIST = path.resolve('dist');
 const FONT_DIR = path.resolve('public/fonts');
 
-const JS_BUDGET = 180 * 1024; // initial JS, gzip
+const JS_BUDGET = 180 * 1024; // initial/entry JS, gzip
 const CHUNK_BUDGET = 120 * 1024; // any single JS chunk, gzip
+const LAZY_CHUNK_BUDGET = 60 * 1024; // each lazy route/locale chunk, gzip
 const FONT_BUDGET = 120 * 1024; // self-hosted WOFF2 total
 
 if (!fs.existsSync(DIST)) {
@@ -47,6 +48,24 @@ const js = assets.filter((asset) => asset.file.endsWith('.js'));
 const css = assets.filter((asset) => asset.file.endsWith('.css'));
 const html = assets.filter((asset) => asset.file.endsWith('.html'));
 
+// The entry is the script the HTML actually loads, not every chunk whose
+// basename happens to start with "index" (dynamic imports inherit that name).
+const HTML_FILE = path.join(DIST, 'index.html');
+const entryNames = new Set();
+if (fs.existsSync(HTML_FILE)) {
+  const html = fs.readFileSync(HTML_FILE, 'utf8');
+  for (const match of html.matchAll(/<script[^>]+src="[^"]*\/([^"/]+\.js)"/g)) {
+    entryNames.add(match[1]);
+  }
+}
+const isEntry = (file) => entryNames.has(path.basename(file));
+const entryJs = js.filter((asset) => isEntry(asset.file));
+if (entryJs.length === 0) {
+  console.error('[bundle] could not identify the entry script from dist/index.html.');
+  process.exit(1);
+}
+const lazyJs = js.filter((asset) => !isEntry(asset.file));
+const initialJs = entryJs.reduce((sum, asset) => sum + asset.gzip, 0);
 const totalJs = js.reduce((sum, asset) => sum + asset.gzip, 0);
 const totalCss = css.reduce((sum, asset) => sum + asset.gzip, 0);
 const totalHtml = html.reduce((sum, asset) => sum + asset.gzip, 0);
@@ -66,7 +85,10 @@ for (const asset of assets.slice(0, 8)) {
   );
 }
 console.log(
-  `  total JS (gzip)   ${(totalJs / 1024).toFixed(1)} kB / ${(JS_BUDGET / 1024).toFixed(0)} kB`,
+  `  entry JS (gzip)   ${(initialJs / 1024).toFixed(1)} kB / ${(JS_BUDGET / 1024).toFixed(0)} kB`,
+);
+console.log(
+  `  lazy JS (gzip)    ${((totalJs - initialJs) / 1024).toFixed(1)} kB across ${lazyJs.length} chunk(s) / ${(LAZY_CHUNK_BUDGET / 1024).toFixed(0)} kB each`,
 );
 console.log(`  total CSS (gzip)  ${(totalCss / 1024).toFixed(1)} kB`);
 console.log(`  total HTML (gzip) ${(totalHtml / 1024).toFixed(1)} kB`);
@@ -75,16 +97,20 @@ console.log(
 );
 
 const failures = [];
-if (totalJs > JS_BUDGET)
-  failures.push(`initial JS ${(totalJs / 1024).toFixed(1)} kB exceeds budget`);
+if (initialJs > JS_BUDGET)
+  failures.push(`entry JS ${(initialJs / 1024).toFixed(1)} kB exceeds budget`);
 
 // The entry bundle is the initial payload and is governed by JS_BUDGET above.
-// Route/locale chunks have their own, tighter budget.
-for (const chunk of js) {
-  if (/[\\/]index-/.test(chunk.file)) continue;
+// Route/locale chunks are lazy: they get the tighter per-chunk budget.
+for (const chunk of lazyJs) {
+  if (chunk.gzip > LAZY_CHUNK_BUDGET) {
+    failures.push(
+      `${chunk.file} ${(chunk.gzip / 1024).toFixed(1)} kB exceeds the ${(LAZY_CHUNK_BUDGET / 1024).toFixed(0)} kB lazy-chunk budget`,
+    );
+  }
   if (chunk.gzip > CHUNK_BUDGET) {
     failures.push(
-      `${chunk.file} ${(chunk.gzip / 1024).toFixed(1)} kB exceeds the per-chunk budget`,
+      `${chunk.file} ${(chunk.gzip / 1024).toFixed(1)} kB exceeds the absolute per-chunk budget`,
     );
   }
 }

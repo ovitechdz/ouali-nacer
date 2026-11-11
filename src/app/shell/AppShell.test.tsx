@@ -12,21 +12,28 @@ describe('application shell', () => {
       '#main-content',
     );
     expect(screen.getByRole('main')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 1, name: 'أساس المنصة' })).toBeInTheDocument();
     expect(
-      screen.getAllByText('المرحلة 3 — أساس نظيف. لا وظائف إنتاجية بعد.').length,
+      screen.getByRole('heading', { level: 1, name: 'قرارات القطيع، حتى دون شبكة' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByText('المرحلة 5 — مكوّنات واجهة مشتركة وإعادة بناء الصفحات.').length,
     ).toBeGreaterThan(0);
   });
 
   it('marks the current route in the sidebar', async () => {
     await renderApp('/equipe');
-    expect(screen.getByRole('heading', { level: 1, name: 'فريق العمل' })).toBeInTheDocument();
+    // The archived team page keeps its French title in every locale.
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Équipe de travail' }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'الفريق' })).toHaveAttribute('aria-current', 'page');
   });
 
   it('serves the approved /team alias with the same page', async () => {
     await renderApp('/team');
-    expect(screen.getByRole('heading', { level: 1, name: 'فريق العمل' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Équipe de travail' }),
+    ).toBeInTheDocument();
   });
 
   it('opens the mobile drawer and closes it with Escape', async () => {

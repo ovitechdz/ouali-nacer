@@ -14,6 +14,9 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
+    // Router-rendering suites are CPU-heavy when the whole matrix runs in
+    // parallel; 5 s caused false timeouts without masking real failures.
+    testTimeout: 20000,
     css: false,
     exclude: [
       '**/node_modules/**',

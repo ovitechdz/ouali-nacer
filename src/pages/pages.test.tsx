@@ -1,23 +1,29 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { HomePage } from './HomePage';
+import { renderApp } from '@/test/render-app';
 import { OfflinePage } from './OfflinePage';
 import { StatusPage } from './StatusPage';
 import { TeamPage } from './TeamPage';
 
-describe('phase-3 pages', () => {
-  it('renders the home placeholder in Arabic', () => {
-    render(<HomePage />);
-    expect(screen.getByRole('heading', { level: 1, name: 'أساس المنصة' })).toBeInTheDocument();
-    expect(screen.getByText('محلي أولاً')).toBeInTheDocument();
+describe('phase-5 pages', () => {
+  it('renders the real home dashboard in Arabic', async () => {
+    // The page links into the router, so it must render inside the real shell.
+    await renderApp('/');
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'قرارات القطيع، حتى دون شبكة' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('كيف يعمل')).toBeInTheDocument();
   });
 
-  it('renders the team placeholder without inventing members', () => {
+  it('renders the archived team page without inventing members', () => {
     render(<TeamPage />);
-    expect(screen.getByRole('heading', { level: 1, name: 'فريق العمل' })).toBeInTheDocument();
-    expect(screen.getByText('الصفحة قيد النقل')).toBeInTheDocument();
-    expect(screen.queryByText(/Ouali/)).not.toBeInTheDocument();
+    // The archive keeps its French title and member names in every locale.
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Équipe de travail' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Ouali Nacer')).toBeInTheDocument();
+    expect(screen.getByText('Sebaï Salah')).toBeInTheDocument();
   });
 
   it('lists what actually works on the status page', () => {

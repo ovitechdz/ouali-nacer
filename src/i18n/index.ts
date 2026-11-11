@@ -1,7 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-import ar from './locales/ar.json';
 import {
   DEFAULT_LOCALE,
   LOCALE_STORAGE_KEY,
@@ -13,7 +12,9 @@ import {
 
 type Catalog = Record<string, string>;
 
-const lazyLoaders: Record<Exclude<Locale, 'ar'>, () => Promise<{ default: Catalog }>> = {
+// Every catalogue is a lazy chunk: the entry bundle only carries app code.
+const lazyLoaders: Record<Locale, () => Promise<{ default: Catalog }>> = {
+  ar: () => import('./locales/ar.json'),
   fr: () => import('./locales/fr.json'),
   en: () => import('./locales/en.json'),
 };
@@ -35,7 +36,7 @@ function applyDocumentLocale(locale: Locale): void {
 }
 
 export async function loadLocale(locale: Locale): Promise<void> {
-  if (locale === 'ar' || i18n.hasResourceBundle(locale, 'translation')) return;
+  if (i18n.hasResourceBundle(locale, 'translation')) return;
   const catalog = await lazyLoaders[locale]();
   i18n.addResourceBundle(locale, 'translation', catalog.default, true, true);
 }
@@ -52,12 +53,10 @@ export async function changeLanguage(locale: Locale): Promise<void> {
 
 export async function initI18n(): Promise<typeof i18n> {
   const initial = readStoredLocale();
-  const resources: Record<string, { translation: Catalog }> = { ar: { translation: ar } };
-
-  if (initial !== 'ar') {
-    const catalog = await lazyLoaders[initial]();
-    resources[initial] = { translation: catalog.default };
-  }
+  const catalog = await lazyLoaders[initial]();
+  const resources: Record<string, { translation: Catalog }> = {
+    [initial]: { translation: catalog.default },
+  };
 
   await i18n.use(initReactI18next).init({
     resources,

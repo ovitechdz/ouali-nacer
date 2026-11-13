@@ -7,13 +7,13 @@ import {
 
 import { RouteError } from '@/app/error-boundary';
 import { AppShell } from '@/app/shell/AppShell';
-import { HomePage } from '@/pages/HomePage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 /**
- * Every non-home route is its own lazy chunk. The shell keeps the entry bundle
- * small and the Suspense boundary in AppShell shows the page skeleton.
+ * Every route is its own lazy chunk. The shell keeps the entry bundle small and
+ * the Suspense boundary in AppShell shows the page skeleton.
  */
+const HomePage = lazyRouteComponent(() => import('@/pages/HomePage'), 'HomePage');
 const JourneePage = lazyRouteComponent(() => import('@/pages/JourneePage'), 'Journee');
 const ScanPage = lazyRouteComponent(() => import('@/pages/ScanPage'), 'ScanPage');
 const HerdPage = lazyRouteComponent(() => import('@/pages/HerdPage'), 'HerdPage');

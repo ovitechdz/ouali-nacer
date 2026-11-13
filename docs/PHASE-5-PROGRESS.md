@@ -93,3 +93,23 @@ can be attempted again. `interactions.test.tsx` runs 58.6 s for 13 tests alone (
 under the full parallel matrix - parallel CPU contention, not this change; the 20 s per-test timeout
 still holds.
 
+
+## Session 2 - Batch 2 reviewed (2026-11-13, OpenCode)
+
+Read-only taste review of 24 screens x {420, 1440} x {ar, fr}. No page modified.
+
+- Offline gate (requested before the review): `dist` served, loaded once, then offline. SW active and
+  in control, 58 precache entries contain `services-BPAdanm4.js`, offline reload renders onboarding,
+  offline onboarding submit creates the farm and reaches the shell, zero console/page errors,
+  services chunk `transferSize 0` with `workerStart 388 ms`. Deferred chunk confirmed offline-safe.
+- Evidence defect found: `docs/rebuild/phase-5-verification` has 7 byte-identical ar/fr pairs
+  (journal 420/1440, nutrition 420/1440, sante 420/1440, troupeau 420) - folder marked unreliable,
+  96 fresh captures used instead (`ovitech-audit/docs/rebuild/phase-5b-taste`).
+- Measured invariants: 0 px horizontal overflow on 96 rows, correct `dir`/`lang`, radii only
+  8/12/16/24/9999, one shadow token, Inter (fr) + Cairo (ar) both self-hosted.
+- Findings written to `docs/TASTE-REVIEW.md`: P1 mobile KPI grid split (nutrition/ration/indicateurs
+  1-up vs home/equipe 2-up, 596/430/848 px of cards), journal 5-column table at 386 px with 61 px rows,
+  `fr-DZ` resolving to hour cycle h12 with a Latin "PM" plus a missing year in `formatDateTime`,
+  animal-code links 55-63 x 17 px, amber notice stacking; P2/P3 polish listed with fixes inside
+  existing tokens.
+- Gate: docs only, no build needed; `git status` clean except this doc. Awaiting approval for Batch 3.

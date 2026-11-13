@@ -1,0 +1,168 @@
+# Phase 5b · Batch 2 — Taste review (read-only)
+
+Status: **review complete, no page modified, waiting for approval.**
+Scope: 24 screens × {420, 1440} × {ar, fr} = 96 captures and 96 DOM measurements.
+Date: 2026-11-13 · branch `phase-5b` · HEAD `0c4ed6b`.
+
+---
+
+## 0. Offline proof (requested before the review)
+
+Build → serve `dist` → load once → go offline → first store action.
+
+| Step | Result |
+| --- | --- |
+| `npm run build` | 62 precache entries (1690.69 KiB), `services-BPAdanm4.js` in the manifest |
+| Serve + first load | SW active, scope `/`, 58 entries in `workbox-precache-v2` |
+| Reload (control) | `navigator.serviceWorker.controller === true` |
+| Offline reload | onboarding renders, zero network errors, `transferSize 0` + `workerStart 388 ms` for the services chunk |
+| First store action offline | onboarding submit → farm created → shell (`header`) rendered |
+
+**Verdict: the deferred services chunk is precached and the first store action works offline.**
+
+## 1. Method
+
+- Headless Chromium against `vite preview` for the offline proof, `vite dev` for captures
+  (`--host 127.0.0.1`; Vite 7 binds `localhost` to IPv6 only, which the local proxy answers 502).
+- Per screen: screenshot + DOM measurement of overflow, `dir`/`lang`, font stacks, radii, interfaces
+  under 24 px, text under 12 px, Arabic/Latin character counts.
+- Evidence: `C:\Users\ASUS\ovitech-audit\docs\rebuild\phase-5b-taste\<page>-<width>-<locale>.png`.
+  Raw measurements: `%TEMP%\opencode\taste-audit.json`.
+
+### Evidence defect found in the archived set (fixed by this review)
+
+`docs/rebuild/phase-5-verification` cannot be used as review evidence: **7 pairs of screenshots are
+byte-identical across locales**, i.e. the `ar` file *is* the `fr` file:
+
+```
+journal-420, journal-1440, nutrition-420, nutrition-1440,
+sante-420, sante-1440, troupeau-420
+```
+
+A visual verdict based on those files silently reviews one locale twice. All findings below come from
+the fresh 96-shot set instead. Recommend marking the archived folder as unreliable in the audit log so
+no later batch cites it.
+
+## 2. What is already solid (verified, not impressions)
+
+- **0 px horizontal overflow** on all 96 combinations; `dir`/`lang` correct everywhere (`rtl`+`ar`,
+  `ltr`+`fr`).
+- **One radius scale** (8 / 12 / 16 / 24 px + full pills) and **one shadow token** across the app.
+- **Font pairing is deliberate and self-hosted**: Inter for Latin, Cairo for Arabic
+  (`src/styles/fonts.css`), no external origin.
+- Mirroring is correct: header order, chips, table headers, arrows and search icon all flip between
+  `ar` and `fr`; filter chips wrap to two rows at 420 without clipping; stat cards keep equal heights.
+
+## 3. Findings, prioritised
+
+Each finding states **page · evidence · fix within existing tokens**. "Existing tokens" = the
+utilities already in use (`text-xs`, `text-sm`, `text-[11px]`, `rounded-xl`, `border-border`,
+`bg-surface-2`, `text-fg-muted`, `variant="secondary"` …). No token value changes are proposed.
+
+### P1 — fix before the next content batch
+
+**P1-1 · Two different mobile KPI layouts in one product**
+`nutrition` (6 cards), `ration` (4), `indicateurs` (8) render **one card per row** (388 px wide,
+86–106 px tall → **596 / 430 / 848 px** of vertical space before any real content). `home` and
+`equipe` render the same information **two per row** (167–188 px wide, 90–106 px, 1838 px band for the
+whole home grid, 192 px for the equipe KPI band).
+*Fix:* put nutrition / ration / indicateurs KPI blocks on `grid-cols-2 sm:grid-cols-4` like `home` and
+`equipe`. `StatCard` already works at 167 px, so this is a wrapper-class change only; it recovers
+≈300 px of first screen on `nutrition` and ≈1000 px on `indicateurs` at 420.
+
+**P1-2 · The audit table is a 5-column grid squeezed into 386 px at 420**
+`journal` · ar/fr 420: columns are 111 / 51 / 107 / 52 / 65 px, and rows grow to **61 px** because
+"تسجيل الحيوان" + "OV-2401" wrap onto two lines. Body text is 11–12 px.
+*Fix:* below `sm`, render each event as a stacked block — date + type on line 1 (`text-xs`,
+`text-fg-muted`), subject on line 2 (`text-sm`, `text-fg-strong`), severity as the existing badge —
+and keep the `<table>` from `md` up. Same shape applies to any 5-column table that lands in this breakpoint.
+
+**P1-3 · French timestamps fall back to a 12-hour clock with a Latin "PM"; the year is dropped**
+`journal` · fr 1440 shows `15 août, 07:33 AM`; `ar` correctly shows `15 أغسطس 07:31 ص`.
+Cause: `formatDateTime` uses `fr-DZ`, and Chromium's ICU resolves **`fr-DZ` to hour cycle `h12`**
+(measured: `resolvedOptions().hourCycle === 'h12'`; `fr-FR`/`en-GB` resolve to `h23`). Because
+`year` is not requested, an 18-month-old audit entry reads "15 août" with no year at all.
+*Fix in `src/lib/format.ts`:* keep `hourCycle` default for `ar`, pass `hourCycle: 'h23'` for
+`fr`/`en` (or format dates with `fr-FR` while keeping `fr-DZ` for numbers); add `year: 'numeric'` for
+journal / health / nutrition history rows. One function, affects every timestamp in the app.
+
+**P1-4 · Animal-code links are 17 px tall (WCAG 2.2 AA 2.5.8 asks for 24 px)**
+`nutrition` 420 + 1440 (fr), `troupeau` 1440 (fr), `sante` 1440 (fr): the `<Link>` around
+`OV-24xx` measures **55–63 × 17 px**. It is `text-sm font-bold` with no vertical padding.
+*Fix:* add `inline-flex min-h-6 items-center` (or `py-1`) to that link. Rows are already 44–61 px
+tall, so nothing reflows; hit area reaches 24 px without touching type size.
+
+**P1-5 · Demonstration status is repeated in the same amber as real warnings**
+Every page carries the global amber banner ("Mode démonstration — …"), and `scan` adds a second amber
+pill ("القراءة يدوية في هذا العرض التجريبي"), while `vision` and `etat` add a third style of amber pill
+("المرحلة 5 — إعادة النطاق"). Amber is the only warning hue in the system, so a build-phase label and a
+demo note compete with genuine warnings (health alerts, low stock).
+*Fix:* the banner stays the single demo statement; drop the per-page demo pills; move the phase label
+to `etat` only (or make it plain `text-fg-subtle` metadata in the eyebrow). Reserve warn/amber for state.
+
+### P2 — fix in the same batch if the diff stays small
+
+**P2-1 · Peer metrics get four arbitrary tints**
+`equipe` 420 + 1440: Membres (green), Départements (blue), Sur site (teal), Disponibles (purple) — four
+hues for four metrics of equal rank, none of them a state. Every other page reserves colour for
+accent/warn/danger.
+*Fix:* `tone="neutral"` for peer metrics; keep `accent`/`warn`/`danger` for state cards (`indicateurs`
+health alerts already use them correctly).
+
+**P2-2 · One primary CTA per member card**
+`equipe` 420 + 1440: five full-width saturated green "Contacter sur WhatsApp" buttons plus the page
+primary "Ajouter un membre" — six primaries on one screen, and the loudest element is a per-row action.
+*Fix:* `variant="secondary"` (or `outline`) for the per-member action; keep one primary per screen.
+
+**P2-3 · Text below 12 px is used for content, not only for labels**
+**684 instances under 12 px** at ar/420: 204 at 10 px (43 distinct strings) and 480 at 11 px.
+10 px is the drawer group label and the mono RFID line (`font-mono text-[10px] text-fg-subtle`) in
+herd/nutrition rows; 11 px is the `StatCard` label (uppercase + tracking, acceptable), table headers,
+captions, email lines.
+*Fix:* raise the mono RFID/meta line and the drawer group labels to `text-[11px]` (already in the
+codebase); keep uppercase tracked labels at 11 px; make table body cells `text-xs` at 420 so the
+`journal`/`troupeau` tables are not read at 11 px.
+
+**P2-4 · Empty states are a bare sentence**
+`scan` 420 "آخر القراءات" → "لا قراءات في هذه الجلسة." with no icon, no explanation, no next step.
+*Fix:* reuse the `Card` + one muted icon + one sentence + one `variant="ghost"` action; the pattern
+already exists elsewhere in `components/ui/feedback.tsx`.
+
+**P2-5 · Card inside card inside card**
+`vision` 420 "أربع ركائز": a `rounded-2xl` card holding four bordered `rounded-xl` sub-cards, each with
+its own padding — three borders and two radii inside a 372 px column.
+*Fix:* inner items become `border-t border-border pt-3` rows inside the existing card; drop the inner
+radius and one level of padding.
+
+### P3 — polish, only if the batch has room
+
+**P3-1 · Header farm line truncates at 420 in both locales**
+"مزرعة العرض — سيدي بلع…" / "…Ferme — Sidi Bel Abb…". The page `h1` already names the screen; the
+truncated line adds noise above it.
+*Fix:* hide the header subtitle below `sm` (`hidden sm:block`); keep `middleTruncate` for wide viewports.
+
+**P3-2 · Chart axis ticks are the faintest text on screen**
+`indicateurs` 1440: y-axis ticks (5 / 4 / 3) at ~10 px in a gray clearly weaker than body muted;
+the plot is readable only because the line is bright.
+*Fix:* `text-fg-muted` for tick labels and fewer ticks (3 instead of 5); no new token.
+
+## 4. Deliberate patterns — not defects
+
+- **Team page**: Arabic chrome around frozen French archive content (615 Arabic chars / 138 Latin
+  words). Archive parity, unchanged by decision.
+- **Inter + Cairo**: deliberate Latin/Arabic pairing, both self-hosted.
+- **Latin digits**: `numberSystem: 'latn'` is configured on purpose in `src/i18n/config.ts`.
+- **Demo banner**: required while there is no live mode; only its repetition (P1-5) is a defect.
+- **10 px uppercase drawer labels**: the tracking is correct; only the size floor is worth raising.
+
+## 5. Proposed Batch 3 scope (after approval)
+
+1. P1-1 mobile KPI grid (nutrition, ration, indicateurs) — wrapper classes only.
+2. P1-3 `format.ts` hour cycle + year — one file, all timestamps.
+3. P1-4 code-link hit area — three call sites.
+4. P1-2 journal stacked rows below `sm`.
+5. P1-5 amber notice consolidation (banner only).
+6. P2-1/P2-2 equipe tint + CTA demotion.
+7. P2-3 text floor, P2-4 empty states, P2-5 vision nesting — one commit each if time allows.
+
+Nothing in this list changes a token, a route, copy in the frozen team page, or the 14 CI gates.

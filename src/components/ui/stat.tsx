@@ -13,6 +13,12 @@ const TONES: Record<Tone, { value: string; icon: string; bar: string }> = {
   info: { value: 'text-info', icon: 'bg-info/10 text-info', bar: 'bg-info' },
 };
 
+/**
+ * The single KPI grid rule: two columns on a phone, four from `sm`.
+ * A page whose grid sits inside a narrower column (the home hero) re-narrows at `lg`.
+ */
+export const KPI_GRID = 'grid grid-cols-2 gap-3 sm:grid-cols-4';
+
 export interface StatCardProps {
   label: string;
   value: ReactNode;

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog } from '@/components/ui/dialog';
 import { EmptyState, Notice } from '@/components/ui/feedback';
-import { StatCard } from '@/components/ui/stat';
+import { StatCard, KPI_GRID } from '@/components/ui/stat';
 import { useToast } from '@/components/ui/toast-context';
 import { buildRationSheet } from '@/domain';
 import { formatCurrency, formatDate, formatNumber } from '@/lib/format';
@@ -65,7 +65,7 @@ export function RationPage() {
         </p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className={KPI_GRID}>
         <StatCard
           label={t('ration.forage')}
           value={formatNumber(sheet.forageKg, locale, 1)}

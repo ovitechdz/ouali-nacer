@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { Card } from '@/components/ui/card';
 import { LineChart } from '@/components/ui/charts';
 import { EmptyState } from '@/components/ui/feedback';
-import { ProgressBar, StatCard } from '@/components/ui/stat';
+import { ProgressBar, StatCard, KPI_GRID } from '@/components/ui/stat';
 import { FEED_KINDS, type FeedKind } from '@/domain';
 import type { MessageKey } from '@/i18n/messages';
 import { formatDate, formatNumber } from '@/lib/format';
@@ -70,7 +70,7 @@ export function KpiPage() {
     <div ref={reveal} className="space-y-5">
       <PageHeader kicker={t('kpi.kicker')} title={t('kpi.title')} subtitle={t('kpi.subtitle')} />
 
-      <div data-reveal className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div data-reveal className={KPI_GRID}>
         <StatCard
           label={t('kpi.herdSize')}
           value={formatNumber(rows.length, locale)}

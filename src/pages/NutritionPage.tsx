@@ -11,8 +11,10 @@ import { Card } from '@/components/ui/card';
 import { Dialog } from '@/components/ui/dialog';
 import { EmptyState, Notice } from '@/components/ui/feedback';
 import { FilterChips, type FilterOption } from '@/components/ui/filter-chips';
+import { KPI_GRID } from '@/components/ui/stat';
 import { useToast } from '@/components/ui/toast-context';
 import type { MessageKey } from '@/i18n/messages';
+import { cn } from '@/lib/cn';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { useFarm } from '@/store/use-farm';
 
@@ -94,7 +96,7 @@ export function NutritionPage() {
         }
       />
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className={cn(KPI_GRID, 'lg:grid-cols-5')}>
         {[
           ['all', t('nutrition.total'), counts.all, 'text-fg-strong'],
           ['pending', t('nutrition.pending'), counts.pending, 'text-info'],

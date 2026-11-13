@@ -16,8 +16,9 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Notice } from '@/components/ui/feedback';
 import { SpotlightCard } from '@/components/ui/spotlight-card';
-import { StatCard } from '@/components/ui/stat';
+import { StatCard, KPI_GRID } from '@/components/ui/stat';
 import type { MessageKey } from '@/i18n/messages';
+import { cn } from '@/lib/cn';
 import { formatNumber } from '@/lib/format';
 import { useGsapReveal } from '@/motion/use-gsap-reveal';
 import { useFarm } from '@/store/use-farm';
@@ -80,7 +81,7 @@ export function HomePage() {
             <p className="mt-4 text-[11px] text-fg-subtle">{t('home.offlineNote')}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className={cn(KPI_GRID, 'lg:grid-cols-2')}>
             <StatCard
               label={t('home.kpiHerd')}
               value={formatNumber(rows.length, locale)}

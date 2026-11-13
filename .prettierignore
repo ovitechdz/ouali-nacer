@@ -15,3 +15,9 @@ public/fonts/*.woff2
 skills-lock.json
 # Approved audit snapshots: preserved verbatim, not reformatted.
 docs
+
+# Agent harness layer (git-excluded, not application source).
+.dsh
+harness
+memory
+AGENTS.md

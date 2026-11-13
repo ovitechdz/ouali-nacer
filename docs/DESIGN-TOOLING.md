@@ -101,11 +101,13 @@ document says:
   Picsum, jsDelivr or another external origin into `src/` or `public/`.
 - Running any skill hook automatically. Quality gates are run manually.
 
-## GSAP skills — install and read-only review (2026-11-08)
+## GSAP skills — install and read-only review (2026-11-08, corrected 2026-11-12)
 
-The official GreenSock agent skills were installed for reference only. **`gsap`
-itself is not installed** (`npm install gsap` was deliberately not run), so no
-animation library enters the bundle or `package.json` yet.
+The official GreenSock agent skills were installed for reference only. At install time **`gsap`
+itself was not installed**. Current state (verified Phase 6): `gsap@3.15.1` **is** declared in
+`package.json` `dependencies` (and present in `node_modules`), but **no file under `src/` imports
+it** — the eight `gsap-*` skills remain reference material. Any actual use of gsap requires a
+measured bundle-budget check and explicit approval (see DECISION-LOG D-0034).
 
 Install command, run from the project root:
 

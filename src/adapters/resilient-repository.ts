@@ -2,6 +2,13 @@ import type { FarmDocument } from '@/domain/types';
 import type { FarmRepository } from '@/ports/repository';
 
 export type StorageMode = 'indexeddb' | 'memory';
+export type StorageIssue = 'quota' | 'unavailable';
+
+function isQuotaError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  const name = (error as { name?: unknown }).name;
+  return name === 'QuotaExceededError' || name === 'NS_ERROR_DOM_QUOTA_REACHED';
+}
 
 /**
  * Prefers IndexedDB and degrades to memory when the platform refuses it
@@ -9,9 +16,14 @@ export type StorageMode = 'indexeddb' | 'memory';
  * in memory so a later write failure does not lose the session's data. The
  * active mode is exposed so the UI can tell the operator that data will not
  * survive a reload.
+ *
+ * A quota failure is distinguished from a generic unavailability: the write
+ * still succeeds in memory, but the UI must offer the backup/free-space path
+ * instead of silently pretending the data is durable.
  */
 export class ResilientFarmRepository implements FarmRepository {
   private degraded = false;
+  private issue: StorageIssue | null = null;
   private last: FarmDocument | null = null;
 
   constructor(
@@ -23,6 +35,10 @@ export class ResilientFarmRepository implements FarmRepository {
     return this.degraded ? 'memory' : 'indexeddb';
   }
 
+  get storageIssue(): StorageIssue | null {
+    return this.issue;
+  }
+
   async load(): Promise<FarmDocument | null> {
     if (!this.degraded) {
       try {
@@ -30,7 +46,7 @@ export class ResilientFarmRepository implements FarmRepository {
         this.last = document;
         return document;
       } catch {
-        this.degrade();
+        this.degrade('unavailable');
       }
     }
     const document = await this.fallback.load();
@@ -43,8 +59,8 @@ export class ResilientFarmRepository implements FarmRepository {
         await this.primary.save(document);
         this.last = document;
         return;
-      } catch {
-        this.degrade(document);
+      } catch (error) {
+        this.degrade(isQuotaError(error) ? 'quota' : 'unavailable', document);
       }
     }
     await this.fallback.save(document);
@@ -58,14 +74,15 @@ export class ResilientFarmRepository implements FarmRepository {
         await this.primary.clear();
         return;
       } catch {
-        this.degrade();
+        this.degrade('unavailable');
       }
     }
     await this.fallback.clear();
   }
 
-  private degrade(document: FarmDocument | null = this.last): void {
+  private degrade(issue: StorageIssue, document: FarmDocument | null = this.last): void {
     this.degraded = true;
+    this.issue = issue;
     this.last = document;
     if (document) void this.fallback.save(document);
   }

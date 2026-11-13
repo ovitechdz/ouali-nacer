@@ -35,6 +35,7 @@ export default defineConfig({
       include: ['src/**/*.{ts,tsx}'],
       exclude: [
         'src/main.tsx',
+        'src/pwa/register-service-worker.ts', // browser-only SW bootstrap; covered by the offline E2E check
         'src/**/*.d.ts',
         'src/test/**',
         'src/ports/**', // interfaces only: no runtime statements

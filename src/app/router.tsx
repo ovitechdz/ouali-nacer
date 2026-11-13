@@ -133,6 +133,14 @@ const syncRoute = createRoute({
   component: SyncPage,
 });
 
+// Phase 2 decision M-4 named the local data page `/donnees`; `/sync` stays as
+// the historical alias so existing links keep working.
+const dataRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/donnees',
+  component: SyncPage,
+});
+
 const proofRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/preuve',
@@ -233,6 +241,7 @@ const routeTree = rootRoute.addChildren([
   kpiRoute,
   journalRoute,
   syncRoute,
+  dataRoute,
   proofRoute,
   verificationRoute,
   ecosystemRoute,

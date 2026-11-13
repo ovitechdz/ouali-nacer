@@ -56,6 +56,10 @@ export default tseslint.config(
       '.playwright',
       '.playwright-cli',
       'design-extract-output',
+      // Agent harness layer: git-excluded setup scripts, not application source.
+      '.dsh',
+      'harness',
+      'memory',
     ],
   },
   js.configs.recommended,

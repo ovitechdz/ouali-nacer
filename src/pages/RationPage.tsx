@@ -12,7 +12,7 @@ import { EmptyState, Notice } from '@/components/ui/feedback';
 import { StatCard } from '@/components/ui/stat';
 import { useToast } from '@/components/ui/toast-context';
 import { buildRationSheet } from '@/domain';
-import { formatCurrency, formatNumber } from '@/lib/format';
+import { formatCurrency, formatDate, formatNumber } from '@/lib/format';
 import { useFarm } from '@/store/use-farm';
 
 export function RationPage() {
@@ -51,12 +51,19 @@ export function RationPage() {
         title={t('ration.title')}
         subtitle={t('ration.subtitle')}
         actions={
-          <Button variant="secondary" onClick={() => window.print()}>
+          <Button variant="secondary" onClick={() => window.print()} className="ov-no-print">
             <Printer className="size-4" aria-hidden="true" />
             {t('ration.print')}
           </Button>
         }
       />
+
+      <div className="ov-print-only border-b border-border pb-2">
+        <p className="text-sm font-bold">{document.settings.farmName}</p>
+        <p className="text-xs">
+          {document.settings.region} · {formatDate(document.updatedAt, locale)}
+        </p>
+      </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
@@ -119,7 +126,7 @@ export function RationPage() {
                     {t('common.unitKg')} · {formatCurrency(group.cost, locale)}
                   </p>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="ov-no-print flex flex-wrap items-center gap-2">
                   <Badge tone="accent">
                     {t('ration.ready')}: {formatNumber(group.ready, locale)}
                   </Badge>

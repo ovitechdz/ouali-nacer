@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { NAV_GROUPS, NAV_HOME } from '@/app/shell/nav-items';
 import { LanguageSwitcher } from '@/app/shell/LanguageSwitcher';
 import { useOnlineStatus } from '@/app/shell/use-online';
+import { middleTruncate } from '@/lib/format';
 import { useFarmStore } from '@/store/farm-store';
 
 export interface HeaderProps {
@@ -30,6 +31,7 @@ export function Header({ drawerOpen, onOpenMenu }: HeaderProps) {
   const label = usePageLabel();
   const storage = useFarmStore((state) => state.storage);
   const document = useFarmStore((state) => state.document);
+  const farmName = document?.settings.farmName ?? t('app.tagline');
 
   return (
     <header className="border-b border-border bg-surface-header-solid">
@@ -57,8 +59,8 @@ export function Header({ drawerOpen, onOpenMenu }: HeaderProps) {
 
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-fg-strong">{label}</p>
-          <p className="truncate text-[11px] text-fg-muted">
-            {document?.settings.farmName ?? t('app.tagline')}
+          <p className="truncate text-[11px] text-fg-muted" title={farmName}>
+            {middleTruncate(farmName, 34)}
           </p>
         </div>
 

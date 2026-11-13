@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 
 import { Footer } from '@/app/shell/Footer';
 import { Header } from '@/app/shell/Header';
+import { PwaNotice } from '@/app/shell/PwaNotice';
+import { StorageRecovery } from '@/app/shell/StorageRecovery';
 import { Sidebar } from '@/app/shell/Sidebar';
 import { SidebarDrawer } from '@/app/shell/SidebarDrawer';
 import { Skeleton } from '@/components/ui/feedback';
@@ -45,7 +47,7 @@ export function AppShell() {
 
       <Sidebar />
 
-      <div className="flex min-h-dvh flex-col lg:ms-64">
+      <div className="ov-print-reset flex min-h-dvh flex-col lg:ms-64">
         <div className="sticky top-0 z-30">
           {demo ? (
             <p className="flex items-center justify-center gap-2 border-b border-warn/30 bg-warn/10 px-3 py-1.5 text-center text-[11px] font-semibold text-warn">
@@ -71,6 +73,8 @@ export function AppShell() {
       </div>
 
       <SidebarDrawer open={drawerOpen} onClose={closeDrawer} />
+      <PwaNotice />
+      <StorageRecovery />
     </div>
   );
 }

@@ -9,6 +9,11 @@ import {
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
+// This file renders full pages (router + i18n + large lists) in jsdom, so a single
+// test costs 2-9 s. Setup cost was reduced first (demo document built once); the
+// remaining budget is render-dominated. 30 s headroom for the heaviest CI worker.
+vi.setConfig({ testTimeout: 30_000 });
+
 import { buildDemoDocument } from '@/app/seed-demo';
 import { services } from '@/app/services';
 import { AppShell } from '@/app/shell/AppShell';
@@ -31,6 +36,7 @@ import { VerificationPage } from '@/pages/VerificationPage';
 import { useFarmStore } from '@/store/farm-store';
 
 let demo = buildDemoDocument(services.clock.now());
+let baseDemo = demo;
 let animalId = demo.animals[0]?.id ?? 'missing';
 
 async function renderPage(path: string, page: RouteComponent, routePath?: string): Promise<void> {
@@ -68,6 +74,9 @@ async function expectDialogClosed(): Promise<void> {
 beforeAll(async () => {
   // Use the app helper so the English bundle is actually loaded.
   await changeLanguage('en');
+  // Build the demo document once: it is deterministic and each test only needs
+  // an isolated copy. Rebuilding it in every beforeEach cost ~4 s across the file.
+  baseDemo = buildDemoDocument(services.clock.now());
   Object.defineProperty(navigator, 'clipboard', {
     configurable: true,
     value: { writeText: vi.fn().mockResolvedValue(undefined) },
@@ -75,7 +84,7 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  demo = buildDemoDocument(services.clock.now());
+  demo = structuredClone(baseDemo);
   animalId = demo.animals[0]?.id ?? 'missing';
   await services.farm.replace(demo);
   useFarmStore.setState({

@@ -1,7 +1,7 @@
-# Phase 2 — Rebuild Roadmap (Phases 3–9)
+# Phase 2 â€” Rebuild Roadmap (Phases 3â€“9)
 
 **Status:** proposed, awaiting Approval Gate 2
-**Supersedes:** `REBUILD-EXECUTION-PLAN.md` §1 phase descriptions for Phases 3–9
+**Supersedes:** `REBUILD-EXECUTION-PLAN.md` Â§1 phase descriptions for Phases 3â€“9
 (the gate structure and the "no stage may be skipped" rule are unchanged)
 **Estimate basis:** one senior full-stack developer, part-time review, no
 parallel team. Ranges are effort, not calendar promises.
@@ -21,8 +21,8 @@ over. Phase 1 proved otherwise:
 - offline correctness depends on the precache and the repository, not on a sync
   queue.
 
-So the order becomes: **foundation → domain/data → UI → business completion →
-offline/hardening → release → certification.** The original Phase 6 ("data &
+So the order becomes: **foundation â†’ domain/data â†’ UI â†’ business completion â†’
+offline/hardening â†’ release â†’ certification.** The original Phase 6 ("data &
 sync") is dissolved: data moves earlier, sync is removed.
 
 ---
@@ -31,23 +31,23 @@ sync") is dissolved: data moves earlier, sync is removed.
 
 | Phase | Name | Gate | Effort (dev-days) |
 |---|---|---|---|
-| 3 | Clean foundation | Verification report | 6–9 |
-| 4 | Domain core and data layer | Domain acceptance | 10–14 |
-| 5 | Shell, design system and UI reconstruction | Visual parity report | 18–26 |
-| 6 | Business modules and offline | Offline suite + module acceptance | 14–20 |
-| 7 | Security, performance and QA | QA certification | 8–12 |
-| 8 | Hosting and release | Release approval | 4–6 |
-| 9 | Parity certification and handover | Final sign-off | 5–8 |
-| **Total** | | | **65–95** |
+| 3 | Clean foundation | Verification report | 6â€“9 |
+| 4 | Domain core and data layer | Domain acceptance | 10â€“14 |
+| 5 | Shell, design system and UI reconstruction | Visual parity report | 18â€“26 |
+| 6 | Business modules and offline | Offline suite + module acceptance | 14â€“20 |
+| 7 | Security, performance and QA | QA certification | 8â€“12 |
+| 8 | Hosting and release | Release approval | 4â€“6 |
+| 9 | Parity certification and handover | Final sign-off | 5â€“8 |
+| **Total** | | | **65â€“95** |
 
 These ranges exclude: hardware integration, a real backend, expert nutrition
 review, content authoring for `/vision` `/investisseurs` `/label`, and
 translation of those pages by a human writer. Each is listed as an external
-dependency in §10.
+dependency in Â§10.
 
 ---
 
-## 3. Phase 3 — Clean foundation
+## 3. Phase 3 â€” Clean foundation
 
 **Goal:** an empty but real project that builds, lints, type-checks and tests
 in CI, with the design tokens, fonts and i18n bootstrap in place. No product
@@ -67,8 +67,8 @@ behaviour yet.
    "no Google Fonts" build check (D-0022/D-0023).
 6. i18n boot: AR default, typed keys, FR/EN lazy, parity script.
 7. Ports: `Clock`, `IdGenerator`, `FarmRepository`, `BackupCodec`, `PdfRenderer`,
-   `AiProvider` — interfaces only, plus a memory adapter.
-8. CI skeleton with gates 1–11 from `PHASE-2-QUALITY-STRATEGY.md` §4.
+   `AiProvider` â€” interfaces only, plus a memory adapter.
+8. CI skeleton with gates 1â€“11 from `PHASE-2-QUALITY-STRATEGY.md` Â§4.
 9. `docs/` seeded with the audit set, decisions and glossary.
 10. `README.md` with an honest scope statement and the capability classes.
 
@@ -85,7 +85,7 @@ behaviour yet.
 
 ---
 
-## 4. Phase 4 — Domain core and data layer
+## 4. Phase 4 â€” Domain core and data layer
 
 **Goal:** the deterministic product exists and is proven before any screen
 depends on it.
@@ -94,15 +94,15 @@ depends on it.
 
 1. Port (REFACTOR) `nutrition`, `health`, `kpis`, `ration`, `feed`,
    `validation`, `authority`, `messages`.
-2. Test them to the coverage floors (domain ≥ 95 %).
-3. Implement `FarmDocument`, ULIDs, migrations `m001…m005`, validation.
+2. Test them to the coverage floors (domain â‰¥ 95 %).
+3. Implement `FarmDocument`, ULIDs, migrations `m001â€¦m005`, validation.
 4. IndexedDB adapter + memory adapter; repository contract test suite.
 5. Backup codec v2: checksum, schema gate, diff preview, optional encryption.
 6. Retention policy with export prompts (no silent deletion).
 7. Empty-document onboarding model (no seed in production).
 8. Development seed fixtures behind the demo flag.
 9. A tiny CLI/test harness that runs the full domain flow headlessly
-   (register → weigh → run engine → approve → serve → debit) so the flow is
+   (register â†’ weigh â†’ run engine â†’ approve â†’ serve â†’ debit) so the flow is
    proven without UI.
 
 ### Acceptance criteria
@@ -120,7 +120,7 @@ depends on it.
 
 ---
 
-## 5. Phase 5 — Shell, design system and UI reconstruction
+## 5. Phase 5 â€” Shell, design system and UI reconstruction
 
 **Goal:** visual parity at the page level, Arabic-first, with the real domain
 wired in.
@@ -134,7 +134,7 @@ wired in.
 3. Charts as small SVG components (gauge, donut, counter, line, area, flow).
 4. CSS entrance transitions replacing `Entrance`/`Reveal`, with a visibility
    test (DEV-09).
-5. Routes, in the order from `PHASE-2-MIGRATION-MATRIX.md` §15:
+5. Routes, in the order from `PHASE-2-MIGRATION-MATRIX.md` Â§15:
    `/`, `/journee`, `/scan`, `/troupeau`, `/troupeau/$id`, `/sante`,
    `/nutrition`, `/ration`.
 6. Bidi isolation for every code, unit and formula.
@@ -150,12 +150,12 @@ wired in.
 - [ ] Every identifier and measurement is inside `bdi[dir="ltr"]` in AR.
 - [ ] Keyboard-only navigation reaches every action.
 - [ ] axe-core: zero serious or critical violations on completed routes.
-- [ ] The full operational flow works through the UI, including approve→serve.
+- [ ] The full operational flow works through the UI, including approveâ†’serve.
 - [ ] AR visual suite green; FR smoke green.
 
 ---
 
-## 6. Phase 6 — Business modules and offline
+## 6. Phase 6 â€” Business modules and offline
 
 **Goal:** finish the remaining capabilities and make the product genuinely
 offline-capable.
@@ -170,7 +170,7 @@ offline-capable.
 4. `/etat` capability registry page.
 5. PWA: `vite-plugin-pwa` injectManifest, full precache, update prompt,
    offline route, install button, own manifest/icons.
-6. Offline test matrix from `PWA-OFFLINE-AUDIT.md` §7.
+6. Offline test matrix from `PWA-OFFLINE-AUDIT.md` Â§7.
 7. Print CSS for the ration sheet and reports (DEV-07).
 8. Cross-tab consistency via `BroadcastChannel`.
 9. Quota handling and blocking recovery panel.
@@ -179,7 +179,7 @@ offline-capable.
 
 - [ ] Load once, go offline, reload: every route renders with data.
 - [ ] Precache audit covers every route chunk; a missing route fails CI.
-- [ ] Update flow: waiting SW → prompt → activate → no data loss.
+- [ ] Update flow: waiting SW â†’ prompt â†’ activate â†’ no data loss.
 - [ ] Install prompt works on Chromium; iOS instructions shown on Safari.
 - [ ] Every class-C capability displays its simulation label in an E2E test.
 - [ ] `/etat` matches `capabilities.ts` and cannot be edited by data.
@@ -189,7 +189,7 @@ offline-capable.
 
 ---
 
-## 7. Phase 7 — Security, performance and QA
+## 7. Phase 7 â€” Security, performance and QA
 
 **Goal:** measurable quality, with no new features added.
 
@@ -201,19 +201,19 @@ offline-capable.
    VoiceOver), contrast audit on the navy palette, reduced-motion audit.
 3. Performance: budgets, LCP/INP/CLS, IndexedDB write benchmark, lazy routes,
    font subsetting review.
-4. Test completion: E-01…E-16 green, visual baselines curated, property tests
+4. Test completion: E-01â€¦E-16 green, visual baselines curated, property tests
    extended.
 5. Error handling: route error boundaries, persistence failure panel, local
    error log ring buffer.
 6. Arabic QA: full manual pass, Latin-leak allow-list review, glossary update.
 7. Honesty QA: claim audit across all pages, `/etat` verified, disclaimers
    visible.
-8. Optional: 6-digit local PIN (S-5) — only if approved.
+8. Optional: 6-digit local PIN (S-5) â€” only if approved.
 
 ### Acceptance criteria
 
-- [ ] All 16 CI gates blocking and green.
-- [ ] Lighthouse: PWA installable + offline; a11y ≥ 95; performance ≥ 90 on
+- [ ] All 14 CI gates blocking and green.
+- [ ] Lighthouse: PWA installable + offline; a11y â‰¥ 95; performance â‰¥ 90 on
       the agreed device profile.
 - [ ] Budgets met or amended by ADR.
 - [ ] No high/critical dependency advisories.
@@ -224,7 +224,7 @@ offline-capable.
 
 ---
 
-## 8. Phase 8 — Hosting and release
+## 8. Phase 8 â€” Hosting and release
 
 **Goal:** a real, reversible deployment of static assets only.
 
@@ -251,14 +251,14 @@ offline-capable.
 
 ---
 
-## 9. Phase 9 — Parity certification and handover
+## 9. Phase 9 â€” Parity certification and handover
 
 **Goal:** prove parity honestly and hand over.
 
 ### Work
 
 1. Side-by-side parity review against the 41 captures and the truth matrix.
-2. Deviation register DEV-01…DEV-16 confirmed and signed.
+2. Deviation register DEV-01â€¦DEV-16 confirmed and signed.
 3. Capability report: every one of the 77 rows mapped to
    implemented / changed / removed / deferred, with evidence.
 4. Technical debt register and known-issues delta.
@@ -319,7 +319,7 @@ request. No phase begins on a verbal "continue".
 
 | Gate | Evidence required | Default if unanswered |
 |---|---|---|
-| Phase 3 | Build + 11 CI gates green, shell screenshot | Stop |
+| Phase 3 | Build + 14 CI gates green, shell screenshot | Stop |
 | Phase 4 | Domain coverage report, flow harness output, migration fixtures | Stop |
 | Phase 5 | Visual diff report AR/FR at 4 widths, a11y report | Stop |
 | Phase 6 | Offline suite, simulation-label proofs, print samples | Stop |

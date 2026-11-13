@@ -121,8 +121,9 @@ export default tseslint.config(
     rules: { 'no-restricted-imports': 'off' },
   },
   {
+    // Scripts that drive a browser pass code into page.evaluate(), so browser globals are valid there.
     files: ['scripts/**/*.mjs'],
-    languageOptions: { globals: { ...globals.node } },
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
     rules: { 'no-console': 'off' },
   },
 );

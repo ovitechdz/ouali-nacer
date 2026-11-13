@@ -14,6 +14,9 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
+    // Date formatting is asserted against fixed instants; pin the zone so the
+    // suite does not depend on the machine's clock (Africa/Algiers is UTC+1, no DST).
+    env: { TZ: 'Africa/Algiers' },
     // Router-rendering suites are CPU-heavy when the whole matrix runs in
     // parallel; 5 s caused false timeouts without masking real failures.
     testTimeout: 20000,

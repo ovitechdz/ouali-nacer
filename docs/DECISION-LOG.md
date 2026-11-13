@@ -333,3 +333,20 @@ text) or 3:1 (large text/UI).
 `#00d492` is only the accent text/dot/icon colour (9.66:1 / 9.15:1). The
 contrast test makes a future palette regression a CI failure. Phase 5 is still
 not started.
+
+## D-0036 - Team page contact details publish with member consent (2026-11-12)
+
+**Decision:** The project owner confirmed that every team member consents to publishing their
+contact details on the public team page (`/equipe`, alias `/team`). Scope: **exactly the fields
+already present in the team-page archive** - email and WhatsApp link in the scheme-less `wa.me`
+form - for the members already in the archive. **No phone numbers** are published for archived
+members, and no new field is added now.
+
+**Consequence:** `src/pages/TeamPage.tsx` and the archive data stay byte-for-byte unchanged; this
+entry is the record of consent, not a content change.
+
+**Re-confirmation rule:** consent must be obtained again, in writing, before (a) adding any new
+member to the page, or (b) adding any new contact field for an existing member. A member may
+withdraw consent at any time; removal then takes priority over the published record.
+
+**Confirmed by:** project owner (Nacer), 2026-11-12.

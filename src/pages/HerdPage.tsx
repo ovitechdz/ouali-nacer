@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { services } from '@/app/services';
+import { AnimalCodeLink } from '@/components/AnimalCodeLink';
 import { AnimalForm } from '@/components/forms/AnimalForm';
 import { PageHeader } from '@/components/PageHeader';
 import { Badge } from '@/components/ui/badge';
@@ -151,13 +152,11 @@ export function HerdPage() {
                     className="transition-colors duration-150 hover:bg-surface-3/50"
                   >
                     <Td>
-                      <Link
-                        to="/troupeau/$id"
-                        params={{ id: animal.id }}
+                      <AnimalCodeLink
+                        id={animal.id}
+                        code={animal.code}
                         className="font-semibold text-fg-strong hover:text-accent"
-                      >
-                        {animal.code}
-                      </Link>
+                      />
                       <span className="block font-mono text-[10px] text-fg-subtle" dir="ltr">
                         {animal.rfid}
                       </span>

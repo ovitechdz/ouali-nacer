@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { services } from '@/app/services';
+import { AnimalCodeLink } from '@/components/AnimalCodeLink';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -208,13 +209,11 @@ export function HealthPage() {
                     <tr key={event.id} className="border-b border-border/60 last:border-0">
                       <td className="px-3 py-2.5 font-medium text-fg">
                         {animal ? (
-                          <Link
-                            to="/troupeau/$id"
-                            params={{ id: animal.id }}
+                          <AnimalCodeLink
+                            id={animal.id}
+                            code={animal.code}
                             className="hover:text-accent"
-                          >
-                            {animal.code}
-                          </Link>
+                          />
                         ) : (
                           '—'
                         )}

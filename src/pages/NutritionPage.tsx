@@ -1,9 +1,9 @@
-import { Link } from '@tanstack/react-router';
 import { BadgeCheck, Utensils } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { services } from '@/app/services';
+import { AnimalCodeLink } from '@/components/AnimalCodeLink';
 import { PageHeader } from '@/components/PageHeader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -139,13 +139,11 @@ export function NutritionPage() {
               <li key={rec.id} className="rounded-2xl border border-border bg-surface-2 p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <Link
-                      to="/troupeau/$id"
-                      params={{ id: animal.id }}
+                    <AnimalCodeLink
+                      id={animal.id}
+                      code={animal.code}
                       className="text-sm font-bold text-fg-strong hover:text-accent"
-                    >
-                      {animal.code}
-                    </Link>
+                    />
                     <p className="text-xs text-fg-muted">
                       {animal.pen} · {t(`domain.stage.${animal.stage}`)} ·{' '}
                       {formatDateTime(rec.createdAt, locale)}

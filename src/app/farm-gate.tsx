@@ -170,6 +170,8 @@ function Onboarding() {
 function FailureState() {
   const { t } = useTranslation();
   const initialize = useFarmStore((state) => state.initialize);
+  const errorKind = useFarmStore((state) => state.errorKind);
+  const chunkFailed = errorKind === 'chunk';
   return (
     <div className="grid min-h-dvh place-items-center bg-surface px-4">
       <Notice
@@ -177,9 +179,15 @@ function FailureState() {
         title={t('error.title')}
         className="max-w-md flex-col items-start gap-3"
       >
-        <p>{t('error.body')}</p>
-        <Button type="button" onClick={() => void initialize()}>
-          {t('common.retry')}
+        <p>{chunkFailed ? t('error.chunkBody') : t('error.body')}</p>
+        <Button
+          type="button"
+          onClick={() => {
+            if (chunkFailed) window.location.reload();
+            else void initialize();
+          }}
+        >
+          {chunkFailed ? t('common.reloadPage') : t('common.retry')}
         </Button>
       </Notice>
     </div>

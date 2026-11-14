@@ -45,6 +45,12 @@ interface FarmState {
   storageIssue: 'quota' | null;
   busy: boolean;
   failure: MessageDescriptor | null;
+  /**
+   * Which failure put the gate in `error`. A chunk failure cannot be retried in
+   * place - the browser caches the rejected dynamic import for the document - so
+   * the gate offers a reload instead of a retry that would do nothing.
+   */
+  errorKind: 'chunk' | 'storage' | null;
   initialize: () => Promise<void>;
   refresh: () => Promise<void>;
   onboard: (draft: OnboardingDraft) => Promise<boolean>;
@@ -67,14 +73,15 @@ export const useFarmStore = create<FarmState>((set, get) => ({
   storageIssue: null,
   busy: false,
   failure: null,
+  errorKind: null,
 
   async initialize() {
-    set({ status: 'loading', failure: null });
+    set({ status: 'loading', failure: null, errorKind: null });
     let services: Services;
     try {
       services = await loadServices();
     } catch {
-      set({ status: 'error', document: null });
+      set({ status: 'error', document: null, errorKind: 'chunk' });
       return;
     }
     try {
@@ -91,6 +98,7 @@ export const useFarmStore = create<FarmState>((set, get) => ({
         document,
         storage: services.repository.mode,
         storageIssue: quotaIssue(services),
+        errorKind: null,
       });
     } catch {
       set({
@@ -98,6 +106,7 @@ export const useFarmStore = create<FarmState>((set, get) => ({
         document: null,
         storage: services.repository.mode,
         storageIssue: quotaIssue(services),
+        errorKind: 'storage',
       });
     }
   },

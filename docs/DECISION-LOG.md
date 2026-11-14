@@ -350,3 +350,59 @@ member to the page, or (b) adding any new contact field for an existing member. 
 withdraw consent at any time; removal then takes priority over the published record.
 
 **Confirmed by:** project owner (Nacer), 2026-11-12.
+
+## D-0041 - Screenshots must prove their locale (2026-11-13)
+
+**Decision:** A screenshot is only evidence if the capture proves the locale it claims. `scripts/capture-screenshots.mjs` now writes the requested language into `localStorage` before the first navigation, asserts `documentElement.lang` and `dir` before every shutter, refuses frames with a hidden `[data-reveal]`/`[data-enter]` block, freezes the clock (the demo seed derives its timestamps from `new Date()`), waits for `document.fonts.ready` and every `<img>` decode, and hashes each PNG into `manifest.json`; `--verify` re-hashes the files and fails when the ar and fr shots of the same page and width are byte-identical.
+
+**Evidence:** `scripts/capture-screenshots.mjs`; `docs/KNOWN-ISSUES.md` K-74; `ovitech-audit/docs/rebuild/VISUAL-PARITY-REPORT.md` §1b; seven pairs recaptured 2026-11-13 in `ovitech-audit/docs/rebuild/phase-5b-fixes/2026-11-13/recapture/`; negative control (a copied ar file verified as fr) exits 1; two identical capture runs produce 16/16 identical hashes.
+
+**Consequence:** The Phase 5 parity verdict no longer rests on seven pairs that were one locale captured twice; the correction is recorded rather than quietly overwritten. Any future capture inherits the assertion, and an identical ar/fr pair is a hard failure.
+
+## D-0042 - One KPI grid rule for the four editable pages (2026-11-13)
+
+**Decision:** Mobile KPI grids follow one rule, `grid-cols-2 sm:grid-cols-4`, imported as `KPI_GRID` from `src/components/ui/stat.tsx` and used by home, nutrition, ration and indicateurs. Home re-narrows at `lg` (`lg:grid-cols-2`) because its grid lives in the ~470 px hero column; nutrition widens at `lg` (`lg:grid-cols-5`) so the fifth metric is not orphaned. `src/pages/TeamPage.tsx` is **not** changed: its `grid-cols-2 md:grid-cols-4` is part of the frozen team page.
+
+**Evidence:** Review finding P1 "mobile KPI grid split" (`docs/TASTE-REVIEW.md`); `design-taste-frontend` §4 ("one system") and §5 checklist ("equal edges", "every visual renders at 390"); measured at 360/420 on all four pages, both locales: 2 cards per row, 158-188 px wide, `pageOverflow=0`, no clipped number, unit or label; before/after in `phase-5b-fixes/2026-11-13/{before-a,after-a}`.
+
+**Consequence:** Nutrition, ration and indicateurs no longer stack 1-up on a phone. The `equipe` grid stays frozen for the reason above, so it is the only page whose rule is `md`-based; that is a documented exception, not drift.
+
+## D-0043 - The audit journal is a labelled card list below `sm` (2026-11-13)
+
+**Decision:** Below `sm`, each audit event renders as a card: a date header, the severity, and a `<dl>` of type, entity and summary, so every value keeps its label for assistive tech. From `sm` up the five-column table is unchanged. Only one branch is in the DOM tree of the accessibility layer at a time (`display: none`), so nothing is announced twice.
+
+**Evidence:** Review finding "journal 5-column table at 386 px with 61 px rows"; before/after at 360/420/1440 in `phase-5b-fixes/2026-11-13/{before-b,after-b}` (1440 pixel-identical, 420/360 differ only below the filter row); `README`-level a11y rule in `harness/AGENTS.md` (accessibility is a merge gate).
+
+**Consequence:** The journal row semantics are now "label: value" pairs on a phone. The table branch is duplicated in JSX on purpose: a `display: block` table loses its table semantics in several screen readers.
+
+## D-0044 - French and English read the clock on 24 hours, dates keep the year (2026-11-13)
+
+**Decision:** `formatDateTime` pins `hourCycle: 'h23'` for `fr` and `en` and always includes the year; Arabic keeps its day period (ص/م) and the `ar-DZ-u-nu-latn` Latin digits the tabular columns align on. `formatNumber` is untouched.
+
+**Evidence:** Review finding "fr-DZ resolves to hourCycle h12 causing Latin PM plus missing year in formatDateTime"; the journal rendered `14 août, 10:00 PM`; `src/lib/format.test.ts` asserts fr/en/ar against fixed instants with `TZ=Africa/Algiers` pinned in `vitest.config.ts`; all 20 call sites are JSX text - no formatted string is persisted, hashed or exported.
+
+**Consequence:** A February entry can no longer read like today's, and a 22:00 schedule is no longer `10:00 PM`. Arabic output is unchanged by design.
+
+## D-0045 - Animal codes are 24 px touch targets (2026-11-13)
+
+**Decision:** `AnimalCodeLink` wraps the animal code with `inline-flex min-h-6`, 6 px inline padding and a matching negative inline margin, so the hit area is at least 24 px without shifting the column. Used by the herd table, the health history and the nutrition cards.
+
+**Evidence:** Review finding "animal-code links 55-63x17px"; measured 66x24 (ar) and 71x24 (fr) at 1440, row height still 59 px; before/after in `phase-5b-fixes/2026-11-13/{before-d,after-d}`.
+
+**Consequence:** The most-tapped control in the herd table meets the 24 px minimum while table density is unchanged.
+
+## D-0046 - Amber belongs to the demo banner only (2026-11-13)
+
+**Decision:** Amber (`warn`) is reserved for the global demo banner and for genuine states (not connected, low stock, blocked, refused, alerts). Page-level development pills - `app.phase`, `common.simulation`, `common.demonstration`, `scan.demoNote` - are neutral. Internal phase numbers are removed from user-facing copy: `app.phase`, `footer.phase` and `status.engineValue` read `en développement` / `قيد التطوير` / `in development` from the catalogue. The Simulation and Demonstration labels stay, only their tone changes.
+
+**Evidence:** Review finding "amber notice stacking"; before/after at 360/420/1440 for `etat`, `scan`, `label`, `ecosysteme`, `cameras` in `phase-5b-fixes/2026-11-13/{before-e,after-e}`; `npm run check:i18n` green (1001 keys per locale, 0 Latin leaks in ar).
+
+**Consequence:** The one banner that must never be missed is the only amber chrome on a page. The remaining `phase 4/6` wording in `offline`, `notFound`, `sync` and `export` copy is listed in `HANDOFF.md` P2, not silently rewritten.
+
+## D-0047 - A failed chunk offers a reload, not a dead retry (2026-11-14)
+
+**Decision:** When the deferred services chunk cannot be fetched, `FarmGate` shows a dedicated message and a "reload the page" action instead of the retry button. The store records `errorKind: 'chunk' | 'storage'`; a storage failure keeps the in-place retry, which does work.
+
+**Evidence:** `scripts/verify-services-chunk-abort.mjs` aborts `services-*.js` on the built `dist` (Playwright `route.abort`) on a cold load and on a later load with `Network.clearBrowserCache`; the pre-fix run showed the error state but two retry clicks produced **no second chunk request** and no recovery, while a manual reload recovered. After the fix the same script passes 14/14 checks and both scenarios recover to onboarding. Screenshots in `phase-5b-fixes/2026-11-13/chunk-abort/`.
+
+**Consequence:** "Retry" is now honest: a browser-cached import rejection cannot be retried, so the gate asks for the one action that works. No blank screen in either scenario; no uncaught page error.

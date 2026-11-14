@@ -27,7 +27,7 @@ const MODULES = [
 export function EcosystemHubPage() {
   const { t } = useTranslation();
   return (
-    <div className="space-y-5">
+    <div className="ov-page-enter space-y-5">
       <PageHeader
         kicker={t('eco.kicker')}
         title={t('eco.title')}
@@ -99,7 +99,7 @@ function EcosystemModule({ kicker, title, subtitle, bulletKeys, icon: Icon }: Mo
   const { t } = useTranslation();
   const base = kicker.replace('.kicker', '');
   return (
-    <div className="space-y-5">
+    <div className="ov-page-enter space-y-5">
       <PageHeader
         kicker={t(kicker)}
         title={t(title)}

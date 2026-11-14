@@ -17,7 +17,7 @@ export function LabelPage() {
   const { t } = useTranslation();
 
   return (
-    <div className="space-y-5">
+    <div className="ov-page-enter space-y-5">
       <PageHeader
         kicker={t('label.kicker')}
         title={t('label.title')}

@@ -71,7 +71,7 @@ export function StatusPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="ov-page-enter space-y-6">
       <PageHeader
         title={t('status.title')}
         subtitle={t('status.subtitle')}

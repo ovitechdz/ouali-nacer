@@ -46,6 +46,12 @@
   --spacing: 0.25rem;
   --container-page: 72rem;
 
+  /* Motion scale (D-0048): the only durations and easing the product uses.
+     Time is not a design token like colour or radius - these two values exist
+     so a hover, a focus ring and a page entrance cannot drift apart again.
+     `--ease-out` is the single easing for every transition and entrance. */
+  --duration-quick: 150ms; /* colour, border and opacity feedback */
+  --duration-fast: 250ms; /* transform motion and the page entrance */
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
   --shadow-accent: 0 10px 15px -3px rgb(16 185 129 / 0.25), 0 4px 6px -4px rgb(16 185 129 / 0.2);
 }

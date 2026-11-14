@@ -140,6 +140,24 @@
   animation: ov-rise 220ms var(--ease-out) both;
 }
 
+/* Page entrance for routes that only had the shell fade (D-0048). Travel is
+   vertical, so Arabic and French read the same direction; only opacity and
+   transform animate, so the entrance cannot shift layout. */
+@keyframes ov-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ov-page-enter {
+  animation: ov-page-in var(--duration-fast) var(--ease-out) both;
+}
+
 /* Staggered list entry, capped at eight items. */
 .ov-stagger > * {
   animation: ov-rise 220ms var(--ease-out) both;
@@ -164,6 +182,21 @@
 }
 .ov-stagger > *:nth-child(8) {
   animation-delay: 210ms;
+}
+
+/* Reduced motion: no entrance, no stagger, no pop - not merely a short one.
+   The unlayered `!important` beats the layered guard above, so no animation
+   runs at all and the finished state is what paints first. */
+@media (prefers-reduced-motion: reduce) {
+  .ov-page-enter,
+  .ov-fade,
+  .ov-pop,
+  .ov-rise,
+  .ov-stagger > * {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* Print: ration sheets and reports. Shell chrome and controls never print. */

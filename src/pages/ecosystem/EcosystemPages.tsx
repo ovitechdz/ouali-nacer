@@ -34,7 +34,7 @@ export function EcosystemHubPage() {
         subtitle={t('eco.subtitle')}
         actions={
           <div className="flex flex-wrap gap-2">
-            <Badge tone="warn">{t('common.simulation')}</Badge>
+            <Badge tone="neutral">{t('common.simulation')}</Badge>
             <Badge tone="warn">{t('eco.statusNone')}</Badge>
           </div>
         }

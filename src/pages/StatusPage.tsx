@@ -75,7 +75,7 @@ export function StatusPage() {
       <PageHeader
         title={t('status.title')}
         subtitle={t('status.subtitle')}
-        actions={<Badge tone="warn">{t('app.phase')}</Badge>}
+        actions={<Badge tone="neutral">{t('app.phase')}</Badge>}
       />
 
       <Card className="space-y-3">

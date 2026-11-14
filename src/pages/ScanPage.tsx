@@ -73,7 +73,7 @@ export function ScanPage() {
         kicker={t('scan.kicker')}
         title={t('scan.title')}
         subtitle={t('scan.subtitle')}
-        actions={<Badge tone="warn">{t('scan.demoNote')}</Badge>}
+        actions={<Badge tone="neutral">{t('scan.demoNote')}</Badge>}
       />
 
       <Card className="space-y-4">

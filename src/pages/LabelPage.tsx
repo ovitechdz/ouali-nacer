@@ -22,7 +22,7 @@ export function LabelPage() {
         kicker={t('label.kicker')}
         title={t('label.title')}
         subtitle={t('label.lead')}
-        actions={<Badge tone="warn">{t('common.demonstration')}</Badge>}
+        actions={<Badge tone="neutral">{t('common.demonstration')}</Badge>}
       />
 
       <div className="grid gap-3 sm:grid-cols-2">

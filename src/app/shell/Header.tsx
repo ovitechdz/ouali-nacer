@@ -42,7 +42,7 @@ export function Header({ drawerOpen, onOpenMenu }: HeaderProps) {
           aria-label={t('common.menu')}
           aria-expanded={drawerOpen}
           aria-controls="app-drawer"
-          className="grid size-10 shrink-0 place-items-center rounded-xl border border-border bg-surface-2 text-fg-muted transition-colors hover:bg-surface-3 hover:text-fg lg:hidden"
+          className="grid size-10 shrink-0 place-items-center rounded-xl border border-border bg-surface-2 text-fg-muted transition-colors duration-[var(--duration-quick)] ease-out hover:bg-surface-3 hover:text-fg lg:hidden"
         >
           <Menu className="size-5" aria-hidden="true" />
         </button>

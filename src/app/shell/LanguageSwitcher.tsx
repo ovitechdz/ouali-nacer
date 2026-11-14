@@ -40,7 +40,7 @@ export function LanguageSwitcher() {
               title={LOCALES[locale].label}
               onClick={() => void changeLanguage(locale)}
               className={cn(
-                'rounded-lg px-2 py-1 text-[11px] font-semibold transition-colors duration-150 ease-out sm:px-2.5 sm:text-xs',
+                'rounded-lg px-2 py-1 text-[11px] font-semibold transition-colors duration-[var(--duration-quick)] ease-out sm:px-2.5 sm:text-xs',
                 active
                   ? 'bg-accent text-accent-contrast'
                   : 'text-fg-muted hover:bg-surface-3 hover:text-fg',

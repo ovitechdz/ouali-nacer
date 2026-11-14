@@ -65,14 +65,14 @@ export function HomePage() {
             <div className="mt-5 flex flex-wrap gap-2">
               <Link
                 to="/scan"
-                className="inline-flex h-[42px] items-center gap-2 rounded-xl bg-accent-strong px-4 text-sm font-semibold text-accent-contrast transition-colors duration-150 hover:bg-accent"
+                className="inline-flex h-[42px] items-center gap-2 rounded-xl bg-accent-strong px-4 text-sm font-semibold text-accent-contrast transition-colors duration-[var(--duration-quick)] ease-out hover:bg-accent"
               >
                 <ScanLine className="size-4" aria-hidden="true" />
                 {t('home.ctaScan')}
               </Link>
               <Link
                 to="/troupeau"
-                className="inline-flex h-[42px] items-center gap-2 rounded-xl border border-border bg-surface-3 px-4 text-sm font-semibold text-fg transition-colors duration-150 hover:border-border-strong hover:bg-surface-2"
+                className="inline-flex h-[42px] items-center gap-2 rounded-xl border border-border bg-surface-3 px-4 text-sm font-semibold text-fg transition-colors duration-[var(--duration-quick)] ease-out hover:border-border-strong hover:bg-surface-2"
               >
                 <Users className="size-4" aria-hidden="true" />
                 {t('home.ctaHerd')}
@@ -130,7 +130,7 @@ export function HomePage() {
                 data-reveal
                 className="group block"
               >
-                <Card className="flex h-full flex-col gap-2 transition-colors duration-150 group-hover:border-border-strong group-hover:bg-surface-3/60">
+                <Card className="flex h-full flex-col gap-2 transition-colors duration-[var(--duration-quick)] ease-out group-hover:border-border-strong group-hover:bg-surface-3/60">
                   <span className="grid size-9 place-items-center rounded-lg bg-accent/10 text-accent">
                     <Icon className="size-4" aria-hidden="true" />
                   </span>

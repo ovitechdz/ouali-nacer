@@ -23,7 +23,7 @@ export function AnimalCodeLink({
       to="/troupeau/$id"
       params={{ id }}
       className={cn(
-        'inline-flex min-h-6 items-center rounded-md px-1.5 -mx-1.5 transition-colors duration-150',
+        'inline-flex min-h-6 items-center rounded-md px-1.5 -mx-1.5 transition-colors duration-[var(--duration-quick)] ease-out',
         className,
       )}
     >

@@ -16,10 +16,10 @@ export function Disclosure({ summary, children, className, open }: DisclosurePro
       open={open}
       className={cn('group rounded-2xl border border-border bg-surface-2', className)}
     >
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-fg transition-colors duration-150 hover:text-fg-strong [&::-webkit-details-marker]:hidden">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-fg transition-colors duration-[var(--duration-quick)] ease-out hover:text-fg-strong [&::-webkit-details-marker]:hidden">
         <span>{summary}</span>
         <ChevronDown
-          className="size-4 shrink-0 text-fg-muted transition-transform duration-200 group-open:rotate-180"
+          className="size-4 shrink-0 text-fg-muted transition-transform duration-[var(--duration-fast)] ease-out group-open:rotate-180"
           aria-hidden="true"
         />
       </summary>

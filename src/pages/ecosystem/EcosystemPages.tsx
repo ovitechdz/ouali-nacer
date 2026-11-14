@@ -49,7 +49,7 @@ export function EcosystemHubPage() {
           const Icon = module.icon;
           return (
             <Link key={module.to} to={module.to} className="group block">
-              <Card className="flex h-full flex-col gap-2 transition-colors duration-150 group-hover:border-border-strong group-hover:bg-surface-3/60">
+              <Card className="flex h-full flex-col gap-2 transition-colors duration-[var(--duration-quick)] ease-out group-hover:border-border-strong group-hover:bg-surface-3/60">
                 <div className="flex items-start justify-between gap-2">
                   <span className="grid size-9 place-items-center rounded-lg bg-accent/10 text-accent">
                     <Icon className="size-4" aria-hidden="true" />

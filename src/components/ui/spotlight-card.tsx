@@ -33,7 +33,7 @@ export function SpotlightCard({ className, children, ...props }: HTMLAttributes<
     >
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 opacity-0 transition-opacity duration-300 ease-out group-hover/spot:opacity-100"
+        className="pointer-events-none absolute inset-0 -z-10 opacity-0 transition-opacity duration-[var(--duration-quick)] ease-out group-hover/spot:opacity-100"
         style={{
           background:
             'radial-gradient(220px circle at var(--ov-spot-x, 50%) var(--ov-spot-y, 50%), rgb(0 212 146 / 0.14), transparent 70%)',

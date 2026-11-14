@@ -22,7 +22,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
 
   const itemClass = (active: boolean) =>
     cn(
-      'flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] font-medium transition-colors duration-150 ease-out',
+      'flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] font-medium transition-colors duration-[var(--duration-quick)] ease-out',
       active ? 'bg-accent/10 text-accent' : 'text-fg-muted hover:bg-surface-3 hover:text-fg',
     );
 
@@ -46,7 +46,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
       <Link
         to="/scan"
         onClick={onNavigate}
-        className="flex items-center justify-center gap-2 rounded-xl bg-accent-strong px-3 py-2.5 text-sm font-semibold text-accent-contrast shadow-accent transition-colors duration-150 hover:bg-accent"
+        className="flex items-center justify-center gap-2 rounded-xl bg-accent-strong px-3 py-2.5 text-sm font-semibold text-accent-contrast shadow-accent transition-colors duration-[var(--duration-quick)] ease-out hover:bg-accent"
       >
         <NAV_SCAN.icon className="size-4" aria-hidden="true" />
         {t('nav.scan')}

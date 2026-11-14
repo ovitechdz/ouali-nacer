@@ -119,7 +119,7 @@ export function JournalPage() {
                 aria-pressed={severity === value}
                 onClick={() => setSeverity(value)}
                 className={cn(
-                  'rounded-full border px-3 py-1 text-xs font-semibold transition-colors duration-150',
+                  'rounded-full border px-3 py-1 text-xs font-semibold transition-colors duration-[var(--duration-quick)] ease-out',
                   severity === value
                     ? 'border-accent/50 bg-accent/10 text-accent'
                     : 'border-border bg-surface-2 text-fg-muted hover:text-fg',
@@ -211,7 +211,7 @@ export function JournalPage() {
                   {events.map((event) => (
                     <tr
                       key={event.id}
-                      className="transition-colors duration-150 hover:bg-surface-3/50"
+                      className="transition-colors duration-[var(--duration-quick)] ease-out hover:bg-surface-3/50"
                     >
                       <Td className="whitespace-nowrap text-xs text-fg-muted">
                         {formatDateTime(event.at, locale)}

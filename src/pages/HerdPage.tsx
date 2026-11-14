@@ -149,7 +149,7 @@ export function HerdPage() {
                 {visible.map(({ animal, rec, health }) => (
                   <tr
                     key={animal.id}
-                    className="transition-colors duration-150 hover:bg-surface-3/50"
+                    className="transition-colors duration-[var(--duration-quick)] ease-out hover:bg-surface-3/50"
                   >
                     <Td>
                       <AnimalCodeLink

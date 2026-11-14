@@ -140,7 +140,7 @@ export function HealthPage() {
                 <Link
                   to="/troupeau/$id"
                   params={{ id: animal.id }}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-danger/30 bg-danger/5 p-3 transition-colors duration-150 hover:bg-danger/10"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-danger/30 bg-danger/5 p-3 transition-colors duration-[var(--duration-quick)] ease-out hover:bg-danger/10"
                 >
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-fg-strong">

@@ -62,7 +62,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               <button
                 type="button"
                 onClick={() => remove(item.id)}
-                className="rounded-md p-0.5 text-fg-muted transition-colors duration-150 hover:text-fg"
+                className="rounded-md p-0.5 text-fg-muted transition-colors duration-[var(--duration-quick)] ease-out hover:text-fg"
                 aria-label={t('common.close')}
               >
                 <X className="size-3.5" aria-hidden="true" />

@@ -29,7 +29,8 @@
     "check:origins": "node scripts/audit-external-origins.mjs",
     "audit:bundle": "node scripts/audit-bundle.mjs",
     "audit:precache": "node scripts/audit-precache.mjs",
-    "ci": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run check:i18n && npm run check:rtl && npm run check:secrets && npm run check:deps && npm run check:seed && npm run check:domain && npm run build && npm run audit:bundle && npm run audit:precache && npm run check:origins"
+    "ci": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run check:i18n && npm run check:rtl && npm run check:secrets && npm run check:deps && npm run check:seed && npm run check:domain && npm run build && npm run audit:bundle && npm run audit:precache && npm run check:origins",
+    "verify:motion": "node scripts/verify-motion.mjs"
   },
   "dependencies": {
     "@tanstack/react-router": "^1.139.0",

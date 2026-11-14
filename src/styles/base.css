@@ -197,6 +197,13 @@
     opacity: 1;
     transform: none;
   }
+
+  /* Functional indicators (skeleton pulse, loading spin) stop as well: a
+     reduced-motion reader asked for no animation, not for a shorter one. */
+  .animate-pulse,
+  .animate-spin {
+    animation: none !important;
+  }
 }
 
 /* Print: ration sheets and reports. Shell chrome and controls never print. */

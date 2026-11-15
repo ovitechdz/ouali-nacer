@@ -222,3 +222,58 @@ P2-1 (text under 12 px, 684 instances) remains first in the P2 queue and is **no
 asked to wait for approval after this report. P2-2/P2-3/P2-4/P2-5 and P3-1/P3-2/P3-3/P3-4 are
 unchanged. New P3 candidate: home and herd still load GSAP for their reveal.
 
+
+## 7. P2-1 - text under 12 px (2026-11-15)
+
+### 7.1 What shipped
+
+44 sub-12 px utilities in 25 files became 12 px: 33 x `text-[11px]` and 11 x `text-[10px]`, zero left in
+`src/`. No token changed; `text-xs` is the existing 12 px step. Uppercase micro-labels (page kicker, table
+header, stat caption, sidebar group, farm-gate kicker, animal detail labels) share `.ov-micro` - 12 px,
+weight 600, `0.06em` tracking (was 0.06-0.16em) and `letter-spacing: 0` in Arabic. Density was solved with
+layout, not type: `leading-none` on pills and badges, wrapping, `min-w-0`. Nothing was truncated, hidden or
+dropped; the header farm name keeps its full text and `title`, only the visual ellipsis grows.
+
+Two findings beyond the size change, both fixed in the same families:
+
+- **Chart axis text could not be fixed with CSS.** The chart scales its viewBox to the card, so a 10 px
+  label rendered at **4.5 px** in the 286 px card at 360. `LineChart` now measures its own width and sizes
+  the ticks in viewBox units: **12.02 / 12.01 / 12.04 px rendered** at 360 / 420 / 1440, padding scaled with
+  the text.
+- **The Arabic chart read backwards.** The x-label row ran right-to-left while the plot stayed
+  left-to-right, so the same line meant "rising" in French and "falling" in Arabic. The row is now
+  `dir="ltr"` to follow the line: `15 أكتوبر 2026` sits at the left in both locales (DOM-verified, 37 px).
+  Mirroring the plot itself for RTL is a separate decision, not a text-size change.
+
+### 7.2 Evidence
+
+`phase-5b-text/2026-11-15/`: 144 before frames (24 routes x 360/420/1440 x ar/fr) and 192 per-family after
+frames (`1-chrome` 24, `2-badges` 30, `3-tables` 30, `4-micro-labels` 30, `5-charts-mono` 24 + 6 chart
+close-ups, `6-rows-notes` 36 + 6 animal-detail + 6 farm-gate). Every set passes the integrity check
+(lang and dir asserted, no byte-identical ar/fr pair).
+
+- Rendered text under 12 px: **2,912 instances -> 0**; SVG icon internals that inherited a size:
+  **984 -> 0** (nothing inherits a sub-12 px size any more). Measured over 24 routes x {420,1440} x {ar,fr},
+  identical between locales before and after, so the change is structural.
+- Layout probe (page overflow, clipped own text, overlapping siblings) on every family page: **0 page
+  overflow, 0 overlapping text** in all 24 + 30 + 30 + 36 + 24 combinations measured. The only clipped box
+  is the pre-existing header farm-name ellipsis (`title` + full accessible text kept).
+- `check:text-size` fails on a `text-[9px]` probe file with file and line and returns ok on the clean tree
+  (159 source files); 8 unit tests cover 10 px, 0.7 rem, 8 pt, 9 pt, 12 px, `text-xs`, an allowlisted
+  exception, a stale entry and an entry with no reason.
+- Budget unchanged: entry 132.8 kB / 180, lazy 167.1 kB across 48 chunks, CSS 9.8 kB.
+
+### 7.3 Arabic verdict at 12 px (Cairo) - no larger minimum needed
+
+Frames read at 360 (the densest case) in both locales: `troupeau-360-ar` (RFID + chips + status), `ration-360-ar`
+(table header row), `nutrition-360-fr` (badges + count pill), `vision-360-ar` (kicker + step badges),
+`journal-360-fr` (date + severity), `indicateurs-360-ar` (chart ticks), `equipe-360-ar` (department pill,
+contact line), `animal-360-ar` (identity labels), `farm-gate-360-ar`. Cairo at 12 px holds the Arabic
+letterforms, the dots and the descenders; `.ov-micro` drops tracking to 0 so the cursive joins are not spaced
+apart, and no label collides or clips. **12 px is therefore the floor for both scripts and no
+`TYPE-SCALE-PROPOSAL.md` is opened.**
+
+### 7.4 Gate
+
+`npm run check:text-size` is gate 15 in `npm run ci` (after `check:domain`); the allowlist starts empty and a
+stale entry fails. Documented gate count moved 14 -> 15 in `AGENTS.md`, this file and the audit `HANDOFF.md`.

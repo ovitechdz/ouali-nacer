@@ -463,3 +463,28 @@ convention and portable CSS pattern informed the `.ov-page-enter` keyframes and 
 
 **Consequence:** The next motion change should cite `transitions-polish` when tuning an existing transition and
 `transitions-dev` when adding a new one; neither skill may introduce a third duration or easing.
+
+## D-0053 - Twelve px is the text floor, and micro-labels get their own step (2026-11-15)
+
+**Decision:** No text renders below 12 px. The 44 sub-12 px utilities (33 x `text-[11px]`, 11 x `text-[10px]`)
+are raised to the existing `text-xs` step; no token changes, so the scale is unchanged. Uppercase micro-labels
+(paragraph kicker, table header, stat caption, sidebar group, farm-gate kicker, animal detail labels) share one
+class, `.ov-micro`: 12 px, weight 600, `0.06em` tracking instead of the old `0.06-0.16em`, and `letter-spacing: 0`
+under `html[lang='ar']` because Arabic is cursive. Density was fixed with layout (wrapping, `min-w-0`,
+`leading-none` on pills), never by shrinking text or dropping information. Chart axis text is the one place where
+a CSS size cannot hold the rendered size: an SVG `<text>` scales with its viewBox, so 10 px rendered at 4.5 px in
+a 286 px card. `LineChart` now measures its own width (ResizeObserver, jsdom-safe default) and sizes the ticks in
+viewBox units so they never render below 12 px, with the plot padding scaled by the same factor. `check:text-size`
+is now gate 15 and fails on any size below the floor outside an allowlist entry that must carry a reason.
+
+**Evidence:** `docs/rebuild/TEXT-SIZE-INVENTORY.md` (44 utilities in 25 files, 2,912 rendered text instances over
+24 routes x {420,1440} x {ar,fr}; 984 SVG icon internals excluded). Measured axis text 12.02 / 12.01 / 12.04 px at
+360 / 420 / 1440. Commits `0a97fb2`, `16d4fd1`, `de0f4fb`, `d864e56`, `0687404`, `750328e`, guard + gate, evidence
+in `phase-5b-text/2026-11-15/` (144 before shots, after shots per family, 6 chart close-ups, animal detail and
+farm gate outside the 24-route matrix).
+
+**Consequence:** Any future sub-12 px size needs an allowlist entry with a reason or the gate fails, and a stale
+entry fails too. Arabic stays at 12 px: it was checked on the densest surfaces (troupeau, ration, nutrition,
+journal, etat) and needs no larger minimum, so no `TYPE-SCALE-PROPOSAL.md` is opened. The chart x-label row is
+pinned `dir="ltr"` because the plot is not mirrored for RTL; mirroring the plot itself is a separate decision for
+a later batch, not a text-size change.

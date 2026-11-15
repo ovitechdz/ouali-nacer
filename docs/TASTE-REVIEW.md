@@ -165,7 +165,7 @@ the plot is readable only because the line is bright.
 6. P2-1/P2-2 equipe tint + CTA demotion.
 7. P2-3 text floor, P2-4 empty states, P2-5 vision nesting — one commit each if time allows.
 
-Nothing in this list changes a token, a route, copy in the frozen team page, or the 14 CI gates.
+Nothing in this list changes a token, a route, copy in the frozen team page, or the 15 CI gates.
 
 ---
 

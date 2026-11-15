@@ -1,3 +1,5 @@
+import { useLayoutEffect, useRef, useState } from 'react';
+
 import { cn } from '@/lib/cn';
 
 export interface ChartSeries {
@@ -19,7 +21,29 @@ export interface ChartProps {
 }
 
 const WIDTH = 640;
-const PAD = { top: 16, right: 12, bottom: 24, left: 40 };
+
+export interface ChartPad {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
+
+/**
+ * The product text floor (D-0053). An SVG `<text>` scales with its viewBox, so a
+ * CSS size alone cannot guarantee the rendered size: at a 286 px container a
+ * 10 px label renders at 4.5 px. The axis labels are therefore sized in viewBox
+ * units from the measured width, with the padding scaled by the same factor.
+ */
+const MIN_TEXT_PX = 12;
+const MAX_TEXT_UNITS = 30;
+const DEFAULT_TEXT_UNITS = 19;
+
+function textUnitsFor(width: number): number {
+  if (!Number.isFinite(width) || width <= 0) return DEFAULT_TEXT_UNITS;
+  const units = MIN_TEXT_PX / (width / WIDTH);
+  return Math.ceil(Math.min(MAX_TEXT_UNITS, Math.max(MIN_TEXT_PX, units)) * 10) / 10;
+}
 
 function build(values: number[][]): { min: number; max: number } {
   const flat = values.flat().filter((value) => Number.isFinite(value));
@@ -38,22 +62,23 @@ function pathFor(
   min: number,
   max: number,
   height: number,
+  pad: ChartPad,
   close: boolean,
 ): string {
-  const innerW = WIDTH - PAD.left - PAD.right;
-  const innerH = height - PAD.top - PAD.bottom;
+  const innerW = WIDTH - pad.left - pad.right;
+  const innerH = height - pad.top - pad.bottom;
   const span = max - min || 1;
   const step = points.length > 1 ? innerW / (points.length - 1) : 0;
   const coords = points.map((value, index) => {
-    const x = PAD.left + index * step;
-    const y = PAD.top + innerH - ((value - min) / span) * innerH;
+    const x = pad.left + index * step;
+    const y = pad.top + innerH - ((value - min) / span) * innerH;
     return `${x.toFixed(1)} ${y.toFixed(1)}`;
   });
   const line = `M ${coords.join(' L ')}`;
   if (!close || coords.length === 0) return line;
-  const firstX = PAD.left;
-  const lastX = PAD.left + (points.length - 1) * step;
-  const baseY = height - PAD.bottom;
+  const firstX = pad.left;
+  const lastX = pad.left + (points.length - 1) * step;
+  const baseY = height - pad.bottom;
   return `${line} L ${lastX.toFixed(1)} ${baseY} L ${firstX.toFixed(1)} ${baseY} Z`;
 }
 
@@ -65,41 +90,74 @@ export function LineChart({
   className,
   yFormat,
 }: ChartProps) {
+  const figureRef = useRef<HTMLElement>(null);
+  const [width, setWidth] = useState(0);
+
+  useLayoutEffect(() => {
+    const node = figureRef.current;
+    if (!node) return;
+    const measure = () => setWidth(node.getBoundingClientRect().width);
+    measure();
+    // jsdom (unit tests) has no ResizeObserver; the default unit then applies.
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  const unit = textUnitsFor(width);
   const { min, max } = build(series.map((entry) => entry.points));
-  const innerH = height - PAD.top - PAD.bottom;
   const ticks = [0, 0.5, 1].map((ratio) => {
     const value = min + (max - min) * ratio;
-    return { value, y: PAD.top + innerH - ratio * innerH };
+    return { ratio, label: String(yFormat ? yFormat(value) : Math.round(value)) };
   });
+  const widest = ticks.reduce((longest, tick) => Math.max(longest, tick.label.length), 1);
+  const pad: ChartPad = {
+    top: Math.round(unit * 0.85),
+    right: 12,
+    bottom: Math.round(unit * 1.15),
+    left: Math.round(widest * unit * 0.62 + unit * 0.7),
+  };
+  const innerH = height - pad.top - pad.bottom;
+  const plotted = ticks.map((tick) => ({
+    ...tick,
+    y: pad.top + innerH - tick.ratio * innerH,
+  }));
 
   return (
-    <figure className={cn('min-w-0', className)}>
+    <figure ref={figureRef} className={cn('min-w-0', className)}>
       <svg
         viewBox={`0 0 ${WIDTH} ${height}`}
         role="img"
         aria-label={summary}
         className="h-auto w-full"
       >
-        {ticks.map((tick) => (
-          <g key={tick.y}>
+        {plotted.map((tick) => (
+          <g key={tick.ratio}>
             <line
-              x1={PAD.left}
-              x2={WIDTH - PAD.right}
+              x1={pad.left}
+              x2={WIDTH - pad.right}
               y1={tick.y}
               y2={tick.y}
               stroke="currentColor"
               strokeWidth="1"
               className="text-border"
             />
-            <text x={4} y={tick.y + 4} className="fill-fg-subtle text-[10px]">
-              {yFormat ? yFormat(tick.value) : Math.round(tick.value)}
+            <text
+              x={pad.left - unit * 0.7}
+              y={tick.y + unit * 0.35}
+              fontSize={unit}
+              textAnchor="end"
+              className="fill-fg-subtle"
+            >
+              {tick.label}
             </text>
           </g>
         ))}
         {series.map((entry) => (
           <path
             key={`${entry.id}-area`}
-            d={pathFor(entry.points, min, max, height, true)}
+            d={pathFor(entry.points, min, max, height, pad, true)}
             fill="currentColor"
             className={cn('opacity-15', entry.tone)}
             aria-hidden="true"
@@ -108,7 +166,7 @@ export function LineChart({
         {series.map((entry) => (
           <path
             key={entry.id}
-            d={pathFor(entry.points, min, max, height, false)}
+            d={pathFor(entry.points, min, max, height, pad, false)}
             fill="none"
             stroke="currentColor"
             strokeWidth="2.5"
@@ -119,13 +177,16 @@ export function LineChart({
         ))}
       </svg>
       {labels && labels.length > 0 ? (
-        <div className="mt-1 flex justify-between gap-1 text-[10px] text-fg-subtle">
+        // The plot is not mirrored for RTL, so the labels must run in the same
+        // direction as the line; otherwise an Arabic reader reads the trend
+        // backwards.
+        <div dir="ltr" className="mt-1 flex justify-between gap-1 text-xs text-fg-subtle">
           <span>{labels[0]}</span>
           <span>{labels[Math.floor(labels.length / 2)]}</span>
           <span>{labels[labels.length - 1]}</span>
         </div>
       ) : null}
-      <figcaption className="mt-2 flex flex-wrap gap-3 text-[11px] text-fg-muted">
+      <figcaption className="mt-2 flex flex-wrap gap-3 text-xs text-fg-muted">
         {series.map((entry) => (
           <span key={entry.id} className="inline-flex items-center gap-1.5">
             <span

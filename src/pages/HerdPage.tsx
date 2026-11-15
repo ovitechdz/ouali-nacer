@@ -157,7 +157,7 @@ export function HerdPage() {
                         code={animal.code}
                         className="font-semibold text-fg-strong hover:text-accent"
                       />
-                      <span className="block font-mono text-[10px] text-fg-subtle" dir="ltr">
+                      <span className="block font-mono text-xs text-fg-subtle" dir="ltr">
                         {animal.rfid}
                       </span>
                     </Td>
@@ -211,7 +211,7 @@ export function HerdPage() {
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-fg-strong">{animal.code}</p>
-                      <p className="font-mono text-[10px] text-fg-subtle" dir="ltr">
+                      <p className="font-mono text-xs text-fg-subtle" dir="ltr">
                         {animal.rfid}
                       </p>
                     </div>

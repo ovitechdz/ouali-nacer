@@ -234,7 +234,7 @@ export function KpiPage() {
         </Card>
       </div>
 
-      <p className="text-[11px] text-fg-subtle">{t('kpi.targetNote')}</p>
+      <p className="text-xs text-fg-subtle">{t('kpi.targetNote')}</p>
     </div>
   );
 }

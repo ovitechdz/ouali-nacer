@@ -149,7 +149,7 @@ export function VisionPage() {
         </div>
       </div>
 
-      <p className="text-[11px] leading-relaxed text-fg-subtle">{t('vision.footer')}</p>
+      <p className="text-xs leading-relaxed text-fg-subtle">{t('vision.footer')}</p>
     </div>
   );
 }

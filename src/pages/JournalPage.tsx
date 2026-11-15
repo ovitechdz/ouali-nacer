@@ -163,10 +163,8 @@ export function JournalPage() {
               <li key={event.id}>
                 <Card className="p-4">
                   <div className="flex items-start justify-between gap-3">
-                    <p className="text-[11px] text-fg-muted">{formatDateTime(event.at, locale)}</p>
-                    <span
-                      className={cn('text-[11px] font-semibold', SEVERITY_CLASS[event.severity])}
-                    >
+                    <p className="text-xs text-fg-muted">{formatDateTime(event.at, locale)}</p>
+                    <span className={cn('text-xs font-semibold', SEVERITY_CLASS[event.severity])}>
                       {t(SEVERITY_KEY[event.severity])}
                     </span>
                   </div>

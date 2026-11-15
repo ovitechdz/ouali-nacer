@@ -53,9 +53,7 @@ export function HomePage() {
       <SpotlightCard data-reveal className="overflow-hidden rounded-3xl p-5 sm:p-8">
         <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-center">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">
-              {t('home.kicker')}
-            </p>
+            <p className="ov-micro text-accent">{t('home.kicker')}</p>
             <h1 className="mt-2 text-3xl font-bold text-fg-strong sm:text-4xl">
               {t('home.title')}
             </h1>
@@ -160,7 +158,7 @@ export function HomePage() {
           <ol className="space-y-3">
             {WORKFLOW.map((key, index) => (
               <li key={key} className="flex gap-3">
-                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-surface-3 text-[11px] font-bold text-accent">
+                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-surface-3 text-xs font-bold leading-none text-accent">
                   {index + 1}
                 </span>
                 <div className="min-w-0">

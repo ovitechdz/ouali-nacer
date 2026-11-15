@@ -46,9 +46,7 @@ export function StatCard({
       )}
     >
       <div className="flex items-start justify-between gap-2">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-muted">
-          {label}
-        </span>
+        <span className="ov-micro text-fg-muted">{label}</span>
         {Icon ? (
           <span
             className={cn('grid size-8 shrink-0 place-items-center rounded-lg', TONES[tone].icon)}

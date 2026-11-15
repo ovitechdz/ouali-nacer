@@ -29,7 +29,7 @@ export function LabelPage() {
         {CRITERIA.map(([title, now, need], index) => (
           <Card key={title} className="space-y-3">
             <p className="flex items-center gap-2 text-sm font-bold text-fg-strong">
-              <span className="grid size-6 place-items-center rounded-lg bg-accent/10 text-[11px] font-bold text-accent">
+              <span className="grid size-6 place-items-center rounded-lg bg-accent/10 text-xs font-bold leading-none text-accent">
                 {index + 1}
               </span>
               {t(title)}

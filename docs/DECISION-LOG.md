@@ -431,3 +431,35 @@ withdraw consent at any time; removal then takes priority over the published rec
 
 **Consequence:** A reader who asked for reduced motion gets the finished layout immediately, not a 0.01 ms version of the animation. The loading spinner becomes a static icon; the adjacent loading text remains the progress signal.
 
+## D-0051 - GSAP is reserved for what CSS cannot do well (2026-11-15)
+
+**Decision:** The owner approved removing the GSAP reveal from Energy and KPI, on the condition that GSAP is
+reserved for what CSS cannot do well - count-ups, chart entry, scroll-linked sequences - and never
+duplicates a CSS entrance on the same element. The CSS entrance (`.ov-page-enter`) is the default for a whole
+page; GSAP may only animate something CSS cannot express, and a page that already plays the CSS entrance must
+not also play a GSAP reveal.
+
+**Evidence:** Owner instruction 2026-11-15 (Batch 3 approval): "removing the GSAP reveal from Energy and KPI is
+approved, on the condition that GSAP is reserved for what CSS cannot do well (count-ups, chart entry,
+scroll-linked sequences) and never duplicates a CSS entrance on the same element." Batch 3 checks in
+`phase-5b-motion/2026-11-14/manifest.json`.
+
+**Consequence:** Home and herd keep `useGsapReveal` for now because they are not in the Batch 3 scope, but they
+are the only remaining users; any future GSAP addition must name the effect CSS cannot do and must not sit on an
+element inside `.ov-page-enter`. A single `.ov-page-enter` per page is the rule; the verifier already fails when
+the entrance is missing or duplicated per route.
+
+## D-0052 - Motion skill record for Batch 3 (2026-11-15)
+
+**Decision:** `transitions-polish` concretely drove Batch 3: its "match on usage, never on the nearest number"
+doctrine produced the two-duration scale (150 ms for colour/border/opacity feedback, 250 ms for transform and
+entrances) and the single `--ease-out` easing that replaced six ad-hoc durations in 26 class strings.
+`transitions-dev` was consulted only: no named `t-*` transition was installed, but its reduced-motion guard
+convention and portable CSS pattern informed the `.ov-page-enter` keyframes and the absolute
+`animation: none !important` block.
+
+**Evidence:** Repo `src/styles/tokens.css` and `src/styles/base.css`; 26 class strings in 20 files (`81d3ce0`);
+`scripts/verify-motion.mjs` transition audit (34 transitions, all 0.15 s, one easing, no layout property).
+
+**Consequence:** The next motion change should cite `transitions-polish` when tuning an existing transition and
+`transitions-dev` when adding a new one; neither skill may introduce a third duration or easing.

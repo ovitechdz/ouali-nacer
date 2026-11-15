@@ -147,7 +147,7 @@ export function RationPage() {
               <div className="overflow-x-auto rounded-xl border border-border">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border text-[11px] uppercase tracking-[0.06em] text-fg-muted">
+                    <tr className="ov-micro border-b border-border text-fg-muted">
                       <th scope="col" className="px-3 py-2 text-start">
                         {t('ration.rowAnimal')}
                       </th>

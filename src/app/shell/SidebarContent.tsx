@@ -37,7 +37,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
         />
         <span className="min-w-0">
           <span className="block truncate text-sm font-bold text-fg-strong">{t('app.name')}</span>
-          <span className="block truncate text-[11px] text-fg-muted">
+          <span className="block truncate text-xs text-fg-muted">
             {document?.settings.farmName ?? t('app.tagline')}
           </span>
         </span>
@@ -65,9 +65,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
 
         {NAV_GROUPS.map((group) => (
           <div key={group.id} className="flex flex-col gap-1">
-            <p className="px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-fg-subtle">
-              {t(group.labelKey)}
-            </p>
+            <p className="ov-micro px-3 text-fg-subtle">{t(group.labelKey)}</p>
             {group.items.map((item) => {
               const active = isActive(pathname, item);
               const Icon = item.icon;
@@ -88,7 +86,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
         ))}
       </nav>
 
-      <p className="mt-auto rounded-xl border border-border bg-surface-3/60 p-3 text-[11px] leading-relaxed text-fg-muted">
+      <p className="mt-auto rounded-xl border border-border bg-surface-3/60 p-3 text-xs leading-relaxed text-fg-muted">
         {t('footer.phase')}
       </p>
     </div>

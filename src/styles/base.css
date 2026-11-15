@@ -158,6 +158,22 @@
   animation: ov-page-in var(--duration-fast) var(--ease-out) both;
 }
 
+/* One micro-label step (D-0053): the uppercase label above a group, a table
+   header or a page title. 12 px is the smallest readable step; tracking is
+   reduced from the old 0.16em/0.14em so the label does not grow sideways.
+   Arabic is cursive, so tracking drops to zero there instead of spacing the
+   joined letters. */
+.ov-micro {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+html[lang='ar'] .ov-micro {
+  letter-spacing: 0;
+}
+
 /* Staggered list entry, capped at eight items. */
 .ov-stagger > * {
   animation: ov-rise var(--duration-fast) var(--ease-out) both;

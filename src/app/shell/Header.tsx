@@ -59,7 +59,7 @@ export function Header({ drawerOpen, onOpenMenu }: HeaderProps) {
 
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-fg-strong">{label}</p>
-          <p className="truncate text-[11px] text-fg-muted" title={farmName}>
+          <p className="truncate text-xs text-fg-muted" title={farmName}>
             {middleTruncate(farmName, 34)}
           </p>
         </div>
@@ -68,8 +68,8 @@ export function Header({ drawerOpen, onOpenMenu }: HeaderProps) {
           <span
             className={
               online
-                ? 'hidden items-center gap-1.5 rounded-lg border border-accent/30 bg-accent/10 px-2 py-1 text-[11px] font-semibold text-success sm:inline-flex'
-                : 'hidden items-center gap-1.5 rounded-lg border border-warn/40 bg-warn/10 px-2 py-1 text-[11px] font-semibold text-warn sm:inline-flex'
+                ? 'hidden items-center gap-1.5 rounded-lg border border-accent/30 bg-accent/10 px-2 py-1 text-xs font-semibold text-success sm:inline-flex'
+                : 'hidden items-center gap-1.5 rounded-lg border border-warn/40 bg-warn/10 px-2 py-1 text-xs font-semibold text-warn sm:inline-flex'
             }
             title={online ? t('common.online') : t('common.offline')}
           >
@@ -82,7 +82,7 @@ export function Header({ drawerOpen, onOpenMenu }: HeaderProps) {
           </span>
 
           {storage === 'memory' ? (
-            <span className="hidden rounded-lg border border-danger/40 bg-danger/10 px-2 py-1 text-[11px] font-semibold text-danger md:inline">
+            <span className="hidden rounded-lg border border-danger/40 bg-danger/10 px-2 py-1 text-xs font-semibold text-danger md:inline">
               {t('common.memoryOnly')}
             </span>
           ) : null}

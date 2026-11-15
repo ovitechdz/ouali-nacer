@@ -406,3 +406,28 @@ withdraw consent at any time; removal then takes priority over the published rec
 **Evidence:** `scripts/verify-services-chunk-abort.mjs` aborts `services-*.js` on the built `dist` (Playwright `route.abort`) on a cold load and on a later load with `Network.clearBrowserCache`; the pre-fix run showed the error state but two retry clicks produced **no second chunk request** and no recovery, while a manual reload recovered. After the fix the same script passes 14/14 checks and both scenarios recover to onboarding. Screenshots in `phase-5b-fixes/2026-11-13/chunk-abort/`.
 
 **Consequence:** "Retry" is now honest: a browser-cached import rejection cannot be retried, so the gate asks for the one action that works. No blank screen in either scenario; no uncaught page error.
+
+## D-0048 - One CSS page entrance for the ten shell-only routes (2026-11-14)
+
+**Decision:** Energy, KPI, the five ecosystem pages, Vision, Label and Status mount with a single CSS entrance: `.ov-page-enter` animates opacity 0 -> 1 and `translateY(6px)` -> 0 over `--duration-fast` (250 ms) with `--ease-out`, `animation-fill-mode: both`, declared once in `src/styles/base.css`. Travel is vertical only, so Arabic RTL and French LTR read the same direction instead of mirroring a horizontal slide. Only `opacity` and `transform` animate, so the entrance cannot shift layout. Energy and KPI stop using `useGsapReveal` (they were the only two listed routes that had it) and lose their `data-reveal` markers; home and herd keep their GSAP reveal untouched.
+
+**Evidence:** owner instruction "Approved: Batch 3, motion only (transitions-dev + transitions-polish)" with the ten routes named, "CSS-only page entrance (opacity + small translate, 200-300 ms)", "translate direction must not feel reversed", "animate only opacity and transform", "No GSAP for this tier"; `scripts/verify-motion.mjs` parks the animation at 0/125 ms and measures it (585/585 checks, 126 frames in `phase-5b-motion/2026-11-14/`); the page root's `offsetTop`/`offsetWidth`/`offsetHeight` are identical at start, mid and settled frames.
+
+**Consequence:** Ten routes that only had the shell fade now have a product entrance. Removing GSAP from Energy and KPI means those routes no longer fetch the GSAP chunk and no longer animate section by section; home and herd still do, which is open as a P3 candidate. Team page unchanged.
+
+## D-0049 - Two durations and one easing for every transition (2026-11-14)
+
+**Decision:** `src/styles/tokens.css` declares `--duration-quick: 150ms` (colour, border and opacity feedback), `--duration-fast: 250ms` (transform motion and entrances) and keeps the existing `--ease-out: cubic-bezier(0, 0, 0.2, 1)` as the only easing. Every existing hover/focus/colour transition (26 class strings in 20 files) and the three older entrance animations (`ov-fade` 160, `ov-pop` 200, `ov-rise` 220) reference those tokens. Nothing animates a layout property, and `transition: all` appears nowhere.
+
+**Evidence:** `transitions-polish` doctrine (match on usage; one scale); `scripts/verify-motion.mjs` walks every element with a non-zero transition on `/journee` and finds 34 transitions, all at `0.15s` with `cubic-bezier(0, 0, 0.2, 1)`, zero layout properties; probes prove both arbitrary utilities compile and report the token values 150 ms / 250 ms.
+
+**Consequence:** A hover can no longer drift from a focus ring or from a page entrance. The two new entries are durations, not design tokens: no colour, spacing, radius or type value changed. The chevron's 250 ms transform is the only transform transition left, and it is the `--duration-fast` case by design.
+
+## D-0050 - Reduced motion means no motion at all (2026-11-14)
+
+**Decision:** Under `prefers-reduced-motion: reduce`, `.ov-page-enter`, `.ov-fade`, `.ov-pop`, `.ov-rise` and `.ov-stagger > *` get `animation: none !important` with the finished state (`opacity: 1`, `transform: none`), and the skeleton pulse and loading spin (`.animate-pulse`, `.animate-spin`) are switched off as well. The pre-existing layered guard (0.01 ms duration) stays as a backstop; the new rule is unlayered so it wins outright.
+
+**Evidence:** `scripts/verify-motion.mjs` reduced-motion pass at 420 in ar and fr for `energie`, `ecosysteme`, `etat`: `animation-name` is `none`, `root.getAnimations()` is empty, `document.getAnimations()` is empty, and injected `.animate-pulse` / `.animate-spin` probes report `animation-name: none`.
+
+**Consequence:** A reader who asked for reduced motion gets the finished layout immediately, not a 0.01 ms version of the animation. The loading spinner becomes a static icon; the adjacent loading text remains the progress signal.
+

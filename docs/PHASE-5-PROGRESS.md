@@ -113,3 +113,19 @@ Read-only taste review of 24 screens x {420, 1440} x {ar, fr}. No page modified.
   animal-code links 55-63 x 17 px, amber notice stacking; P2/P3 polish listed with fixes inside
   existing tokens.
 - Gate: docs only, no build needed; `git status` clean except this doc. Awaiting approval for Batch 3.
+
+## Phase 5b - Batch 2b closed and Batch 3 complete (2026-11-14, OpenCode)
+
+- Batch 2b (7 code commits + docs `b09d95c`): screenshot locale/parity guard, one KPI grid rule,
+  journal cards below `sm`, h23 + year in `formatDateTime` with a pinned timezone, 24 px animal-code
+  targets, amber reserved for the demo banner with the phase number removed, and a reload action when
+  the services chunk cannot load. `npm run ci` exit 0; entry 132.8 kB gzip / 180.
+- Batch 3 (motion, `72dbaef` -> `81d3ce0` -> `c6fb235`): `.ov-page-enter` on Energy, KPI, the five
+  ecosystem pages, Vision, Label and Status (opacity + `translateY(6px)`, 250 ms, vertical in both
+  locales); every transition and entrance on `--duration-quick` 150 ms / `--duration-fast` 250 ms /
+  `--ease-out`; reduced motion turns off the entrance, the stagger, the skeleton pulse and the spin.
+- Proof: `npm run verify:motion` 585/585 checks, 126 frames + manifest in
+  `phase-5b-motion/2026-11-14/`; first-paint CLS < 0.01, route-change CLS not worse than motion off,
+  no layout box moves, ar/fr frames differ.
+- Gate: `npm run ci` exit 0 after each commit; entry 132.8 kB gzip / 180 (delta 0.0), lazy 167.0 kB,
+  CSS 9.8 kB. Not merged, not pushed. Next: owner approval, then P2-1 (text under 12 px).

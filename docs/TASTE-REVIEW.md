@@ -166,3 +166,59 @@ the plot is readable only because the line is bright.
 7. P2-3 text floor, P2-4 empty states, P2-5 vision nesting — one commit each if time allows.
 
 Nothing in this list changes a token, a route, copy in the frozen team page, or the 14 CI gates.
+
+---
+
+## 6. Batch 3 — motion (2026-11-14)
+
+Owner-approved scope: **transitions-dev + transitions-polish, motion only**. No dependency, no design
+token (colour, spacing, radius, type), no font, no i18n key, no route, no schema change. Team page
+untouched; it keeps hover-only styling.
+
+### 6.1 What shipped
+
+| Commit | Change | Why |
+| --- | --- | --- |
+| `72dbaef` | One CSS page entrance (`.ov-page-enter`: opacity 0 → 1, `translateY(6px)` → 0, 250 ms) on Energy, KPI, the five ecosystem pages, Vision, Label and Status | These ten routes only had the shell fade. The travel is vertical, so Arabic RTL and French LTR read the same direction; only opacity and transform animate |
+| `81d3ce0` | Every existing transition on one scale: `--duration-quick` 150 ms for colour/border/opacity, `--duration-fast` 250 ms for transform, the existing `--ease-out` as the only easing; 26 class strings in 20 files; the three older entrance animations (160/200/220 ms) now use the same tokens | Hover, focus and page motion had six durations and two implied easings |
+| `c6fb235` | `scripts/verify-motion.mjs` (`npm run verify:motion`) + reduced-motion completeness | Proof, not assertion: 585 checks in a real browser |
+
+**One interpretation to confirm:** Energy and KPI were the only two listed routes that still used the
+GSAP reveal (`useGsapReveal`). The owner asked for a CSS-only entrance and "no GSAP for this tier", so
+both pages dropped the hook and their `data-reveal` markers; keeping both would have animated every
+section twice. Home and herd keep their GSAP reveal untouched (not in the approved list, and worth a
+P3 decision of their own).
+
+**Token note:** the only additions to `tokens.css` are two *durations*. They are not design tokens in
+the colour/spacing/radius sense; they exist so the polish request ("one shared set of durations and
+easings defined once") has exactly one definition. `--ease-out` already existed and is now the single
+easing for every transition and entrance.
+
+### 6.2 Evidence
+
+- `phase-5b-motion/2026-11-14/`: 126 PNG frames — for each of the ten routes × {420, 1440} × {ar, fr},
+  the entrance at 0 ms, 125 ms and settled, plus a reduced-motion frame per locale — and
+  `manifest.json` with all 585 checks.
+- The ar and fr shots of every route and width hash differently (checked, not assumed).
+- Entrance: `animation-name: ov-page-in`, duration 250 ms, starts at opacity ≤ 0.05, settles at
+  opacity 1 with no transform; `translateX` is 0 in both locales at the mid-frame, `translateY` is
+  between 0 and 6 px.
+- No layout shift: the page root's `offsetTop`/`offsetWidth`/`offsetHeight` are identical at the start,
+  mid and settled frames, and on a client-side route change; measured CLS on first paint is < 0.01 on
+  all 40 route/width/locale combinations, and route-change CLS never exceeds the same navigations with
+  motion turned off (control run). The residual route-change shift is pre-existing and *larger* with
+  motion off — the footer moves while the Suspense skeleton is replaced.
+- Reduced motion: entrance reports `animation-name: none`, the document has zero animations, and
+  probes confirm `animate-pulse` and `animate-spin` are off as well.
+- Transitions: 34 elements on `/journee` all use 150 ms, one easing (`cubic-bezier(0, 0, 0.2, 1)`) and
+  no layout property; probes confirm both arbitrary utilities compile, and the tokens report
+  150 ms / 250 ms.
+- Budget: entry **132.8 kB gzip / 180** (delta **0.0**), lazy 167.0 kB across 48 chunks, CSS 9.8 kB
+  (+0.2 kB), fonts 110.3 kB / 120.
+
+### 6.3 Still open (unchanged)
+
+P2-1 (text under 12 px, 684 instances) remains first in the P2 queue and is **not started**; the owner
+asked to wait for approval after this report. P2-2/P2-3/P2-4/P2-5 and P3-1/P3-2/P3-3/P3-4 are
+unchanged. New P3 candidate: home and herd still load GSAP for their reveal.
+

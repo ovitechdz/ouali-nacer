@@ -46,7 +46,7 @@ export function FilterChips<T extends string>({
             {option.count !== undefined ? (
               <span
                 className={cn(
-                  'rounded-full px-1.5 text-[10px] tabular-nums',
+                  'rounded-full px-1.5 py-0.5 text-xs leading-none tabular-nums',
                   active ? 'bg-accent/20 text-accent' : 'bg-surface-3 text-fg-subtle',
                 )}
               >

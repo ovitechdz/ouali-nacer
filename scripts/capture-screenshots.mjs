@@ -66,7 +66,11 @@ function parseArgs(argv) {
     else if (flag === '--pages') args.pages = next.split(',').map((name) => name.trim());
     else if (flag === '--widths') args.widths = next.split(',').map(Number);
     else if (flag === '--locales') args.locales = next.split(',').map((name) => name.trim());
-    else continue;
+    else if (flag === '--motion') {
+      // Settled pass: keep page motion on, let it finish, then shoot.
+      args.motion = true;
+      continue;
+    } else continue;
     i += 1;
   }
   return args;
@@ -196,10 +200,11 @@ async function capture(args, chromium) {
       if (!expectedDir) throw new Error(`unsupported locale ${locale}`);
       const context = await browser.newContext({
         viewport: { width: 420, height: 900 },
-        // Entrance motion must not race the shutter: with reduced motion the app
-        // renders its static state (see use-gsap-reveal), so frames are stable
-        // and no shot can capture a block that is still at opacity 0.
-        reducedMotion: 'reduce',
+        // Entrance motion must not race the shutter. By default the app renders
+        // its static state (see use-gsap-reveal), so frames are stable and no shot
+        // can capture a block that is still at opacity 0. `--motion` keeps the
+        // animations on and waits for them to settle instead.
+        reducedMotion: args.motion ? 'no-preference' : 'reduce',
       });
       await context.addInitScript((value) => {
         try {
@@ -210,20 +215,23 @@ async function capture(args, chromium) {
       }, locale);
       // The demo seed derives its timestamps from the current clock (`buildDemoDocument(new Date())`),
       // so two runs a minute apart render different text. Freeze the clock so a recapture is
-      // byte-comparable with the previous one.
-      await context.addInitScript((fixed) => {
-        const RealDate = Date;
-        class FrozenDate extends RealDate {
-          constructor(...params) {
-            if (params.length === 0) super(fixed);
-            else super(...params);
+      // byte-comparable with the previous one. GSAP times tweens from Date.now, so the settled
+      // (`--motion`) pass must keep the real clock or every tween would park at frame zero.
+      if (!args.motion) {
+        await context.addInitScript((fixed) => {
+          const RealDate = Date;
+          class FrozenDate extends RealDate {
+            constructor(...params) {
+              if (params.length === 0) super(fixed);
+              else super(...params);
+            }
+            static now() {
+              return fixed;
+            }
           }
-          static now() {
-            return fixed;
-          }
-        }
-        window.Date = FrozenDate;
-      }, FROZEN_NOW);
+          window.Date = FrozenDate;
+        }, FROZEN_NOW);
+      }
       const page = await context.newPage();
       page.on('pageerror', (error) => console.error(`[capture] pageerror ${locale}: ${error}`));
 
@@ -248,7 +256,16 @@ async function capture(args, chromium) {
               [...document.images].map((image) => image.decode().catch(() => undefined)),
             );
           });
-          await page.waitForTimeout(300);
+          if (args.motion) {
+            // Walk the page once so every ScrollTrigger batch plays, then return
+            // to the top and let the last tween finish before the shutter.
+            await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+            await page.waitForTimeout(900);
+            await page.evaluate(() => window.scrollTo(0, 0));
+            await page.waitForTimeout(700);
+          } else {
+            await page.waitForTimeout(300);
+          }
 
           const actual = await page.evaluate(() => ({
             lang: document.documentElement.lang,

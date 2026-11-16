@@ -129,3 +129,54 @@ Read-only taste review of 24 screens x {420, 1440} x {ar, fr}. No page modified.
   no layout box moves, ar/fr frames differ.
 - Gate: `npm run ci` exit 0 after each commit; entry 132.8 kB gzip / 180 (delta 0.0), lazy 167.0 kB,
   CSS 9.8 kB. Not merged, not pushed. Next: owner approval, then P2-1 (text under 12 px).
+
+## Phase 5b - Batch 4 (GSAP) in flight (2026-11-16, OpenCode)
+
+- Commit 1 `a640916` count-ups: new `src/motion/count-up.tsx` (+6 passed tests) and `stat.tsx` gains
+  `count`/`locale`. The settled value is in `.sr-only` from the first paint, an invisible sizer already
+  holds the final width (so the count can never reflow a neighbour) and an `aria-hidden` copy counts
+  over 550 ms through a lazily imported GSAP. Wired: home 4, feed 4, KPI 8, health 3, nutrition 5.
+  Herd has only a badge count and the energy cards are text, so neither counts (reported honestly).
+- Reduced motion, a zero/absent value and a failed chunk load all paint the settled value with no GSAP
+  import. `tabular-nums` keeps the glyph advance constant; only text changes, no transform or opacity.
+- Gate `npm run ci` exit 0: entry 132.8 kB gzip / 180 (delta 0.0), lazy 167.9 kB across 49 chunks
+  (largest 38.65 kB gzip), CSS 9.8 kB, precache 60 entries. 15 gates green, nothing merged or pushed.
+- Next command: commit 2, chart entry (`stroke-dashoffset` draw + area fade, IntersectionObserver).
+- Open problems: none. Intermediate frames must be proven inaudible to AT in commit 4 (verify:motion).- Commit 2 `17b9fdf` chart entry: `LineChart` draws with `stroke-dashoffset` (0.6 s) and fades the area to
+  the `opacity-15` its class declares; one `IntersectionObserver`, no ScrollTrigger on this route, no
+  layout property. Shared `src/motion/reduced-motion.ts` now backs both effects. Gate ci exit 0: entry
+  132.8 kB / 180 (delta 0.0), lazy 168.8 kB across 50 chunks, CSS 9.8 kB, precache 61 entries.
+- Next command: commit 3, `useGsapReveal({ scroll: true })` with `ScrollTrigger.batch` + `once: true`.
+- Commit 3 `7e9003f` scroll-linked reveal: `useGsapReveal({ scroll: true })` hides only the targets below
+  the first screen and plays them once through `ScrollTrigger.batch` (`top 88%`, `once`); targets on
+  screen keep the immediate entrance, so nothing is animated twice (D-0051). Used on home, herd and feed
+  rows and the four below-the-fold KPI cards. `ScrollTrigger` is a separate 17.68 kB gzip chunk, GSAP
+  core 27.06 kB gzip, both lazy and both precached (62 entries). Gate ci exit 0; entry 132.8 kB / 180.
+- Flake seen once: `interactions.test.tsx` "dialog closes" timed out at 1 s during a coverage run with a
+  loaded machine (environment 361 s); the same file passed standalone and the full ci passed on re-run.
+  Not caused by this change; noted for qa-automation.
+- Next command: commit 4, extend `scripts/verify-motion.mjs` + offline proof + AR/FR/reduced frames.
+- Commit 4 verification (2026-11-16): `scripts/verify-motion.mjs` gained a Batch 4 block and runs **667
+  checks, all green**. It records every text frame a count-up paints, the chart's dash/opacity/box, the
+  reveal state before and after a scroll, and a reduced-motion pass over 6 routes.
+- Two defects the pass found and fixed: (1) the verifier froze `Date`, and GSAP times tweens from
+  `Date.now`, so every tween parked at frame zero - Batch 4 contexts now run the real clock; (2) React
+  StrictMode re-ran the effects and the stale first run's `restore()` wiped the second run's hidden
+  state, so the scroll reveal was visible until scrolled in dev. Both effects now leave the DOM alone
+  when cancelled (the cleanup, or the next run, owns it).
+- Count-ups proven: the `.sr-only` value never changes, both visual copies are `aria-hidden`, no live
+  region, >=2 distinct frames, count span 0.55 s (<600 ms), aria-hidden copy == sr-only == sizer.
+- Chart proven: the dash draw starts above 0 and settles to 0 at opacity 1, the area lands on 0.15 and
+  no box moves. Reveal proven at 1440x520: below-the-fold targets start hidden and are all visible and
+  untransformed after a scroll; reduced motion hides nothing, draws no chart and paints no intermediate
+  number.
+- Frames: `phase-5b-motion4/2026-11-16/settled` (24, animations settled) and `.../reduced` (24), ar+fr x
+  {420,1440} x {home,troupeau,sante,nutrition,fourrage,indicateurs}; parity ar != fr on all 12 pairs.
+  `capture-screenshots.mjs` gained `--motion` (no reduced motion, scroll-through, 700 ms settle; the
+  frozen clock is skipped because GSAP times from `Date.now`).
+- Offline: `phase-5b-motion4/2026-11-16/offline/proof.json` - preview build, SW controls the client,
+  network off, `/fourrage` renders its row, its 3 count-ups settle, the count ran (lazy GSAP chunk from
+  the SW cache), every JS resource transferSize 0, no console or page errors; ScrollTrigger precached.
+- Budget after commit 4: entry **132.8 kB gzip / 180**, gsap core **27.06 kB gzip**, ScrollTrigger
+  **17.68 kB gzip** (both < 60 kB), CSS 9.8 kB, precache 66 entries.
+- Next command: commit 4, then commit 5 docs (D-0054, TASTE-REVIEW §8, EXECUTION-LOG, HANDOFF, memory).

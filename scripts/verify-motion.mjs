@@ -160,13 +160,15 @@ const INIT_CLOCK = (fixed) => {
   window.Date = FrozenDate;
 };
 
-async function newPage(browser, { locale, width, reduced }) {
+async function newPage(browser, { locale, width, reduced, clock = true }) {
   const context = await browser.newContext({
     viewport: { width, height: 900 },
     reducedMotion: reduced ? 'reduce' : 'no-preference',
   });
   await context.addInitScript(INIT_LOCALE, locale);
-  await context.addInitScript(INIT_CLOCK, Date.UTC(2026, 10, 14, 9, 0, 0));
+  // GSAP times its tweens from Date.now, so the frozen clock that the CSS checks
+  // need would park every GSAP tween at frame zero. Batch 4 runs with the real clock.
+  if (clock) await context.addInitScript(INIT_CLOCK, Date.UTC(2026, 10, 14, 9, 0, 0));
   await context.addInitScript(INIT_CLS);
   const page = await context.newPage();
   const errors = [];
@@ -371,6 +373,78 @@ async function measureControl(browser, args, locale, width) {
   }
   return { load, change };
 }
+
+/**
+ * Batch 4 watches: every text frame a count-up paints, the chart's dash state and
+ * the reveal state of the long-page targets. Kept as page functions so the same
+ * code stringifies into `page.evaluate`.
+ */
+const INIT_COUNT_WATCH = () => {
+  window.__counts = [];
+  const start = () => {
+    new MutationObserver((records) => {
+      for (const record of records) {
+        const host = record.target.nodeType === 3 ? record.target.parentElement : record.target;
+        const counter = host && host.closest ? host.closest('[data-count-up]') : null;
+        if (!counter) continue;
+        const copy = counter.querySelector('[aria-hidden="true"].absolute');
+        if (!copy) continue;
+        const text = copy.textContent ?? '';
+        const last = window.__counts[window.__counts.length - 1];
+        if (last && last.text === text) continue;
+        window.__counts.push({ t: performance.now(), text });
+      }
+    }).observe(document.body, { subtree: true, childList: true, characterData: true });
+  };
+  if (document.body) start();
+  else document.addEventListener('DOMContentLoaded', start, { once: true });
+};
+
+const READ_COUNTERS = () =>
+  Array.from(document.querySelectorAll('[data-count-up]')).map((node) => ({
+    sr: node.querySelector('.sr-only')?.textContent ?? '',
+    sizer: node.querySelector('[aria-hidden="true"].invisible')?.textContent ?? '',
+    copy: node.querySelector('[aria-hidden="true"].absolute')?.textContent ?? '',
+    hiddenCopies: node.querySelectorAll('[aria-hidden="true"]').length,
+    live: Boolean(node.closest('[aria-live]')),
+  }));
+
+const READ_CHART = () => {
+  const line = document.querySelector('[data-chart-line]');
+  const area = document.querySelector('[data-chart-area]');
+  if (!line) return { error: 'no [data-chart-line]' };
+  const style = getComputedStyle(line);
+  const box = line.getBoundingClientRect();
+  return {
+    dash: style.strokeDasharray,
+    offset: style.strokeDashoffset,
+    opacity: Number(style.opacity),
+    areaOpacity: area ? Number(getComputedStyle(area).opacity) : null,
+    length: typeof line.getTotalLength === 'function' ? line.getTotalLength() : null,
+    box: { top: Math.round(box.top), width: Math.round(box.width), height: Math.round(box.height) },
+  };
+};
+
+const READ_REVEAL = () => {
+  const nodes = Array.from(document.querySelectorAll('main [data-reveal], main table tbody tr'));
+  return {
+    total: nodes.length,
+    hidden: nodes.filter((node) => Number(getComputedStyle(node).opacity) < 1).length,
+    transformed: nodes.filter((node) => {
+      const transform = getComputedStyle(node).transform;
+      return transform !== 'none' && transform !== '';
+    }).length,
+  };
+};
+
+const BATCH4_ROUTES = {
+  home: '/',
+  troupeau: '/troupeau',
+  sante: '/sante',
+  nutrition: '/nutrition',
+  fourrage: '/fourrage',
+  indicateurs: '/indicateurs',
+};
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
@@ -592,6 +666,212 @@ async function main() {
         await page.screenshot({
           path: path.join(args.out, `${name}-420-${locale}-reduced.png`),
         });
+      }
+      await context.close();
+    }
+    // ---- Batch 4: count-ups, chart entry and the scroll-linked reveal ----
+    for (const locale of Object.keys(LOCALES)) {
+      const { context, page, errors } = await newPage(browser, {
+        locale,
+        width: 1440,
+        reduced: false,
+        clock: false,
+      });
+      pageErrors.push(...errors);
+      await page.addInitScript(INIT_COUNT_WATCH);
+
+      // Count-ups: the accessibility tree keeps one settled number while an
+      // aria-hidden copy counts for less than 600 ms.
+      await page.goto(args.base + '/', { waitUntil: 'domcontentloaded' });
+      await settle(page, '[data-count-up]');
+      const countersStart = await page.evaluate(READ_COUNTERS);
+      await page.waitForTimeout(900);
+      const countersEnd = await page.evaluate(READ_COUNTERS);
+      const sampled = await page.evaluate(() => window.__counts ?? []);
+      // Measure from the first frame whose text actually changes: the "0" the
+      // component paints before the GSAP chunk resolves is not counting time.
+      const countingFrom = sampled.findIndex((frame) => frame.text !== sampled[0]?.text);
+      const span =
+        countingFrom === -1 ? 0 : sampled[sampled.length - 1].t - sampled[countingFrom].t;
+
+      check(`${locale}: count-ups exist on home`, countersStart.length >= 4, countersStart.length);
+      check(
+        `${locale}: no counter sits in a live region`,
+        countersStart.every((counter) => !counter.live),
+        countersStart.filter((counter) => counter.live).length,
+      );
+      check(
+        `${locale}: both visual copies of a counter are aria-hidden`,
+        countersStart.every((counter) => counter.hiddenCopies === 2),
+        countersStart.map((counter) => counter.hiddenCopies),
+      );
+      check(
+        `${locale}: the announced value never changes during the count`,
+        countersStart.length === countersEnd.length &&
+          countersStart.every((counter, index) => counter.sr === countersEnd[index].sr),
+        countersStart.map((counter, index) => [counter.sr, countersEnd[index]?.sr]),
+      );
+      check(
+        `${locale}: the announced value is the settled value`,
+        countersEnd.every((counter) => counter.sr === counter.copy && counter.sr === counter.sizer),
+        countersEnd,
+      );
+      check(
+        `${locale}: the count actually ran`,
+        sampled.length > 1 && sampled.some((frame) => frame.text !== countersEnd[0]?.copy),
+        {
+          frames: sampled.length,
+          first: sampled[0]?.text,
+          last: sampled[sampled.length - 1]?.text,
+        },
+      );
+      check(`${locale}: the count finishes inside 600 ms`, span <= 600, span);
+
+      // Chart entry: the line is drawn along its own length.
+      await page.goto(args.base + '/indicateurs', { waitUntil: 'domcontentloaded' });
+      const drewAway = await page
+        .waitForFunction(
+          () => {
+            const line = document.querySelector('[data-chart-line]');
+            if (!line) return false;
+            return Number.parseFloat(getComputedStyle(line).strokeDasharray) > 0;
+          },
+          null,
+          { timeout: 15000 },
+        )
+        .then(() => true)
+        .catch(() => false);
+      const chartMid = await page.evaluate(READ_CHART);
+      await page.waitForTimeout(1400);
+      const chartDone = await page.evaluate(READ_CHART);
+      check(`${locale}: the KPI chart draws itself`, drewAway && !chartMid.error, chartMid);
+      if (!chartMid.error && !chartDone.error) {
+        check(
+          `${locale}: the draw works through a dash offset`,
+          Number.parseFloat(chartMid.dash) > 0 &&
+            Number.parseFloat(chartMid.offset) >= 0 &&
+            Number.parseFloat(chartMid.offset) <= Number.parseFloat(chartMid.dash) + 1,
+          { dash: chartMid.dash, offset: chartMid.offset },
+        );
+        check(
+          `${locale}: the drawn line settles complete`,
+          chartDone.opacity === 1 &&
+            (chartDone.offset === '0px' || chartDone.offset === '0' || chartDone.offset === ''),
+          { opacity: chartDone.opacity, offset: chartDone.offset },
+        );
+        check(
+          `${locale}: the area lands on the opacity its class declares`,
+          chartDone.areaOpacity !== null &&
+            chartDone.areaOpacity > 0.1 &&
+            chartDone.areaOpacity <= 0.2,
+          chartDone.areaOpacity,
+        );
+        check(
+          `${locale}: the chart draw moves no box`,
+          chartMid.box.width === chartDone.box.width &&
+            chartMid.box.height === chartDone.box.height,
+          { mid: chartMid.box, done: chartDone.box },
+        );
+      }
+
+      // Scroll-linked reveal: below-the-fold targets wait, then arrive once.
+      // A shorter viewport keeps real page content below the fold on both routes.
+      await page.setViewportSize({ width: 1440, height: 520 });
+      for (const [name, route] of Object.entries({ home: '/', fourrage: '/fourrage' })) {
+        await page.goto(args.base + route, { waitUntil: 'domcontentloaded' });
+        await settle(page, 'main h1');
+        await page.waitForTimeout(400);
+        const revealBefore = await page.evaluate(READ_REVEAL);
+        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+        await page.waitForTimeout(1100);
+        const revealAfter = await page.evaluate(READ_REVEAL);
+        check(
+          `${name}@1440x520 ${locale}: below-the-fold targets start hidden`,
+          revealBefore.total > 0 && revealBefore.hidden > 0,
+          revealBefore,
+        );
+        check(
+          `${name}@1440x520 ${locale}: scrolling reveals every target once`,
+          revealAfter.hidden === 0 && revealAfter.transformed === 0,
+          revealAfter,
+        );
+      }
+
+      await context.close();
+    }
+
+    // Reduced motion: every Batch 4 effect is off and the settled state is drawn.
+    for (const locale of Object.keys(LOCALES)) {
+      const { context, page, errors } = await newPage(browser, {
+        locale,
+        width: 1440,
+        reduced: true,
+        clock: false,
+      });
+      pageErrors.push(...errors);
+      await page.addInitScript(INIT_COUNT_WATCH);
+      for (const [name, route] of Object.entries(BATCH4_ROUTES)) {
+        await page.goto(args.base + route, { waitUntil: 'domcontentloaded' });
+        await settle(page, 'main h1');
+        await page.waitForTimeout(300);
+        const state = await page.evaluate(() => {
+          const chart = document.querySelector('[data-chart-line]');
+          const counters = Array.from(document.querySelectorAll('[data-count-up]'));
+          const settled = counters.map((node) => node.querySelector('.sr-only')?.textContent ?? '');
+          const sampleTexts = (window.__counts ?? []).map((frame) => frame.text);
+          const targets = Array.from(
+            document.querySelectorAll('main [data-reveal], main table tbody tr'),
+          );
+          return {
+            samples: sampleTexts.length,
+            sampleTexts: sampleTexts.slice(0, 6),
+            settled: settled.slice(0, 6),
+            // With reduced motion the component may repaint the settled value
+            // (React remounts it), but it must never paint an intermediate one.
+            intermediate: sampleTexts.filter((text) => !settled.includes(text)).slice(0, 6),
+            countersSettled: counters.every(
+              (node) =>
+                (node.querySelector('.sr-only')?.textContent ?? '') ===
+                (node.querySelector('[aria-hidden="true"].absolute')?.textContent ?? ''),
+            ),
+            chart: chart
+              ? {
+                  dash: getComputedStyle(chart).strokeDasharray,
+                  opacity: Number(getComputedStyle(chart).opacity),
+                }
+              : null,
+            hiddenTargets: targets.filter((node) => Number(getComputedStyle(node).opacity) < 1)
+              .length,
+            animations: document.getAnimations().length,
+          };
+        });
+        check(
+          `${name} ${locale}: reduced motion paints no intermediate number`,
+          state.intermediate.length === 0,
+          { samples: state.samples, intermediate: state.intermediate, settled: state.settled },
+        );
+        check(
+          `${name} ${locale}: reduced motion shows the settled number`,
+          state.countersSettled,
+          state.countersSettled,
+        );
+        if (state.chart) {
+          check(
+            `${name} ${locale}: reduced motion draws no chart`,
+            state.chart.opacity === 1 && (state.chart.dash === 'none' || state.chart.dash === ''),
+            state.chart,
+          );
+        }
+        check(
+          `${name} ${locale}: reduced motion hides no content`,
+          state.hiddenTargets === 0,
+          state.hiddenTargets,
+        );
+        check(
+          `${name} ${locale}: reduced motion leaves nothing animating`,
+          state.animations === 0,
+          state.animations,
+        );
       }
       await context.close();
     }

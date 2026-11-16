@@ -72,6 +72,7 @@ export function HerdPage() {
     stagger: 0.015,
     duration: 0.3,
     watch: filter,
+    scroll: true,
   });
 
   return (

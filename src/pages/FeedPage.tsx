@@ -16,6 +16,7 @@ import { Table, TableWrap, Td, Th } from '@/components/ui/table';
 import { FEED_KINDS, type FeedKind } from '@/domain';
 import type { MessageKey } from '@/i18n/messages';
 import { formatCurrency, formatDate, formatNumber } from '@/lib/format';
+import { useGsapReveal } from '@/motion/use-gsap-reveal';
 import { useFarm } from '@/store/use-farm';
 
 const KIND_KEY: Record<FeedKind, MessageKey> = {
@@ -29,6 +30,13 @@ export function FeedPage() {
   const { t, i18n } = useTranslation();
   const { document, kpis, busy, execute } = useFarm();
   const toast = useToast();
+  const reveal = useGsapReveal<HTMLDivElement>({
+    selector: 'tbody tr',
+    offsetY: 8,
+    stagger: 0.02,
+    duration: 0.3,
+    scroll: true,
+  });
   const locale = i18n.resolvedLanguage ?? 'ar';
 
   const [addOpen, setAddOpen] = useState(false);
@@ -86,7 +94,7 @@ export function FeedPage() {
   };
 
   return (
-    <div className="space-y-5">
+    <div ref={reveal} className="space-y-5">
       <PageHeader
         kicker={t('feed.kicker')}
         title={t('feed.title')}

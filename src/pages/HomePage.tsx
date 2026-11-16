@@ -45,7 +45,7 @@ export function HomePage() {
 
   const alerts = rows.filter((row) => row.health.status === 'alerte').length;
   const ready = rows.filter((row) => row.rec?.approvedBy && !row.rec.servedAt).length;
-  const reveal = useGsapReveal<HTMLDivElement>({ stagger: 0.06 });
+  const reveal = useGsapReveal<HTMLDivElement>({ stagger: 0.06, scroll: true });
 
   return (
     <div ref={reveal} className="space-y-6">

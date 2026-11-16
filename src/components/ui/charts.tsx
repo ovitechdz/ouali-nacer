@@ -1,6 +1,7 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { cn } from '@/lib/cn';
+import { prefersReducedMotion } from '@/motion/reduced-motion';
 
 export interface ChartSeries {
   id: string;
@@ -105,6 +106,108 @@ export function LineChart({
     return () => observer.disconnect();
   }, []);
 
+  /**
+   * Batch 4: the line draws itself the first time the chart reaches the screen.
+   * `stroke-dashoffset` and `opacity` only — no layout property, so the axis and
+   * the plot box never move. IntersectionObserver starts it instead of
+   * ScrollTrigger because a single "in view once" trigger needs neither the
+   * plugin nor its weight on this route.
+   */
+  useEffect(() => {
+    const node = figureRef.current;
+    if (!node) return;
+    const lines = Array.from(node.querySelectorAll<SVGPathElement>('[data-chart-line]'));
+    const areas = Array.from(node.querySelectorAll<SVGPathElement>('[data-chart-area]'));
+    if (lines.length === 0) return;
+    // jsdom has no SVG geometry, so there is no length to draw along.
+    if (typeof lines[0]?.getTotalLength !== 'function') return;
+    if (prefersReducedMotion()) return;
+
+    // Hide the finished line from the first paint: a draw starts from a full
+    // dash offset, and a line that appears then jumps back to zero glitches.
+    for (const line of lines) line.style.opacity = '0';
+
+    const restore = (): void => {
+      for (const line of lines) {
+        line.style.removeProperty('opacity');
+        line.style.removeProperty('stroke-dasharray');
+        line.style.removeProperty('stroke-dashoffset');
+      }
+      for (const area of areas) area.style.removeProperty('opacity');
+    };
+
+    let cancelled = false;
+    let revert: (() => void) | undefined;
+    let observer: IntersectionObserver | undefined;
+
+    const draw = (): void => {
+      void import('gsap')
+        .then(({ gsap }) => {
+          if (cancelled) {
+            restore();
+            return;
+          }
+          const context = gsap.context(() => {
+            lines.forEach((line, index) => {
+              const length = line.getTotalLength();
+              gsap.set(line, { strokeDasharray: length, strokeDashoffset: length, opacity: 1 });
+              gsap.to(line, {
+                strokeDashoffset: 0,
+                duration: 0.6,
+                ease: 'power2.out',
+                delay: index * 0.12,
+                clearProps: 'strokeDasharray,strokeDashoffset,opacity',
+              });
+            });
+            areas.forEach((area, index) => {
+              // The class carries the resting opacity (`opacity-15`); read it so
+              // the fade lands exactly on the design value instead of 1.
+              const resting = Number.parseFloat(getComputedStyle(area).opacity) || 0;
+              gsap.fromTo(
+                area,
+                { opacity: 0 },
+                {
+                  opacity: resting,
+                  duration: 0.4,
+                  ease: 'power2.out',
+                  delay: 0.25 + index * 0.12,
+                  clearProps: 'opacity',
+                },
+              );
+            });
+          }, node);
+          revert = () => context.revert();
+        })
+        .catch(() => {
+          // A failed chunk load must leave the finished chart on screen.
+          restore();
+        });
+    };
+
+    if (typeof IntersectionObserver === 'undefined') {
+      // jsdom: draw at once rather than never.
+      draw();
+    } else {
+      observer = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          observer?.disconnect();
+          observer = undefined;
+          draw();
+        },
+        { rootMargin: '0px 0px -8% 0px' },
+      );
+      observer.observe(node);
+    }
+
+    return () => {
+      cancelled = true;
+      observer?.disconnect();
+      revert?.();
+      restore();
+    };
+  }, []);
+
   const unit = textUnitsFor(width);
   const { min, max } = build(series.map((entry) => entry.points));
   const ticks = [0, 0.5, 1].map((ratio) => {
@@ -157,6 +260,7 @@ export function LineChart({
         {series.map((entry) => (
           <path
             key={`${entry.id}-area`}
+            data-chart-area=""
             d={pathFor(entry.points, min, max, height, pad, true)}
             fill="currentColor"
             className={cn('opacity-15', entry.tone)}
@@ -166,6 +270,7 @@ export function LineChart({
         {series.map((entry) => (
           <path
             key={entry.id}
+            data-chart-line=""
             d={pathFor(entry.points, min, max, height, pad, false)}
             fill="none"
             stroke="currentColor"

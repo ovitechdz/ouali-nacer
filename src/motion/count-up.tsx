@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef } from 'react';
 
 import { cn } from '@/lib/cn';
 import { formatNumber } from '@/lib/format';
+import { prefersReducedMotion } from '@/motion/reduced-motion';
 
 /**
  * Batch 4, the one number effect CSS cannot express: a KPI value that counts up
@@ -22,14 +23,6 @@ import { formatNumber } from '@/lib/format';
  * layout property, and `tabular-nums` keeps the glyph advance constant.
  */
 const DURATION = 0.55; // seconds; the brief caps the effect at 600 ms
-
-function prefersReducedMotion(): boolean {
-  return (
-    typeof window !== 'undefined' &&
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
-}
 
 export interface CountUpProps {
   /** The settled value. Non-finite or non-positive values render statically. */
@@ -96,7 +89,7 @@ export function CountUp({ value, locale, className }: CountUpProps) {
   }, [value, locale, finalText]);
 
   return (
-    <span className={cn('relative inline-block tabular-nums', className)}>
+    <span data-count-up="" className={cn('relative inline-block tabular-nums', className)}>
       <span className="sr-only">{finalText}</span>
       <span aria-hidden="true" className="invisible">
         {finalText}

@@ -16,6 +16,7 @@ import { useToast } from '@/components/ui/toast-context';
 import type { MessageKey } from '@/i18n/messages';
 import { cn } from '@/lib/cn';
 import { formatDateTime, formatNumber } from '@/lib/format';
+import { CountUp } from '@/motion/count-up';
 import { useFarm } from '@/store/use-farm';
 
 type Status = 'all' | 'pending' | 'ready' | 'blocked' | 'served';
@@ -107,7 +108,7 @@ export function NutritionPage() {
           <Card key={String(key)} className="p-4">
             <p className="text-xs font-semibold text-fg-muted">{label}</p>
             <p className={`mt-1 text-2xl font-bold tabular-nums ${tone}`}>
-              {formatNumber(Number(value), locale)}
+              <CountUp value={Number(value)} locale={locale} />
             </p>
           </Card>
         ))}

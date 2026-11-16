@@ -71,26 +71,30 @@ export function KpiPage() {
       <div className={KPI_GRID}>
         <StatCard
           label={t('kpi.herdSize')}
-          value={formatNumber(rows.length, locale)}
+          count={rows.length}
+          locale={locale}
           unit={t('common.unitHead')}
           icon={Scale}
           tone="accent"
         />
         <StatCard
           label={t('kpi.alerts')}
-          value={formatNumber(health.alerte, locale)}
+          count={health.alerte}
+          locale={locale}
           icon={CircleAlert}
           tone={health.alerte > 0 ? 'warn' : 'neutral'}
         />
         <StatCard
           label={t('kpi.avgAdg')}
-          value={formatNumber(kpis.meanAdgKg * 1000, locale)}
+          count={Math.round(kpis.meanAdgKg * 1000)}
+          locale={locale}
           unit={`${t('common.unitG')}/${t('common.unitDay')}`}
           icon={Activity}
         />
         <StatCard
           label={t('kpi.rationCoverage')}
-          value={formatNumber(kpis.dataDrivenPct, locale)}
+          count={Math.round(kpis.dataDrivenPct)}
+          locale={locale}
           unit={t('common.unitPercent')}
           icon={Utensils}
           tone="accent"
@@ -98,27 +102,29 @@ export function KpiPage() {
         <StatCard
           label={t('kpi.feedDays')}
           value={kpis.coverDays === null ? '—' : formatNumber(kpis.coverDays, locale)}
+          count={kpis.coverDays === null ? null : Math.round(kpis.coverDays)}
+          locale={locale}
           unit={t('common.unitDay')}
           icon={Wheat}
           tone={kpis.coverDays !== null && kpis.coverDays < 7 ? 'warn' : 'neutral'}
         />
         <StatCard
           label={t('kpi.freshness')}
-          value={formatNumber(
-            Math.round(((rows.length - kpis.staleScanCount) / Math.max(1, rows.length)) * 100),
-            locale,
-          )}
+          count={Math.round(((rows.length - kpis.staleScanCount) / Math.max(1, rows.length)) * 100)}
+          locale={locale}
           unit={t('common.unitPercent')}
           icon={HeartPulse}
         />
         <StatCard
           label={t('kpi.lowBcs')}
-          value={formatNumber(kpis.lowBcsCount, locale)}
+          count={kpis.lowBcsCount}
+          locale={locale}
           tone={kpis.lowBcsCount > 0 ? 'warn' : 'neutral'}
         />
         <StatCard
           label={t('kpi.missingWeights')}
-          value={formatNumber(kpis.missingWeightCount, locale)}
+          count={kpis.missingWeightCount}
+          locale={locale}
           tone={kpis.missingWeightCount > 0 ? 'warn' : 'neutral'}
         />
       </div>

@@ -19,7 +19,6 @@ import { SpotlightCard } from '@/components/ui/spotlight-card';
 import { StatCard, KPI_GRID } from '@/components/ui/stat';
 import type { MessageKey } from '@/i18n/messages';
 import { cn } from '@/lib/cn';
-import { formatNumber } from '@/lib/format';
 import { useGsapReveal } from '@/motion/use-gsap-reveal';
 import { useFarm } from '@/store/use-farm';
 
@@ -82,26 +81,30 @@ export function HomePage() {
           <div className={cn(KPI_GRID, 'lg:grid-cols-2')}>
             <StatCard
               label={t('home.kpiHerd')}
-              value={formatNumber(rows.length, locale)}
+              count={rows.length}
+              locale={locale}
               unit={t('common.unitHead')}
               icon={Users}
               tone="accent"
             />
             <StatCard
               label={t('home.kpiAlerts')}
-              value={formatNumber(alerts, locale)}
+              count={alerts}
+              locale={locale}
               icon={FlaskConical}
               tone={alerts > 0 ? 'warn' : 'neutral'}
             />
             <StatCard
               label={t('home.kpiRations')}
-              value={formatNumber(ready, locale)}
+              count={ready}
+              locale={locale}
               icon={Utensils}
               tone={ready > 0 ? 'accent' : 'neutral'}
             />
             <StatCard
               label={t('home.kpiStock')}
-              value={formatNumber(kpis?.forageStockKg ?? 0, locale)}
+              count={Math.round(kpis?.forageStockKg ?? 0)}
+              locale={locale}
               unit={t('common.unitKg')}
               icon={Wheat}
             />

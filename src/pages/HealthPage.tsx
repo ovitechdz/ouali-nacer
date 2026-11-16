@@ -14,7 +14,8 @@ import { FilterChips, type FilterOption } from '@/components/ui/filter-chips';
 import { Field, Select, Textarea } from '@/components/ui/input';
 import { useToast } from '@/components/ui/toast-context';
 import { cn } from '@/lib/cn';
-import { formatDateTime, formatNumber } from '@/lib/format';
+import { formatDateTime } from '@/lib/format';
+import { CountUp } from '@/motion/count-up';
 import { useFarm } from '@/store/use-farm';
 import { HEALTH_EVENT_TYPES, type HealthEventType } from '@/domain';
 
@@ -113,7 +114,7 @@ export function HealthPage() {
             <div>
               <p className="text-xs font-semibold text-fg-muted">{label}</p>
               <p className={cn('mt-1 text-2xl font-bold tabular-nums', tone)}>
-                {formatNumber(value, locale)}
+                <CountUp value={value} locale={locale} />
               </p>
             </div>
             <HeartPulse className={cn('size-6', tone)} aria-hidden="true" />

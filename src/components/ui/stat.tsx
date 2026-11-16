@@ -2,6 +2,7 @@ import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import { cn } from '@/lib/cn';
+import { CountUp } from '@/motion/count-up';
 
 type Tone = 'neutral' | 'accent' | 'warn' | 'danger' | 'info';
 
@@ -21,7 +22,15 @@ export const KPI_GRID = 'grid grid-cols-2 gap-3 sm:grid-cols-4';
 
 export interface StatCardProps {
   label: string;
-  value: ReactNode;
+  /** Static value: text or a pre-formatted node. Ignored when `count` is set. */
+  value?: ReactNode;
+  /**
+   * A finite number worth counting up to (Batch 4). Needs `locale`; `null` or an
+   * absent value falls back to `value`, so "not measured" stays static text.
+   */
+  count?: number | null;
+  /** The active `resolvedLanguage` for the count-up formatting. */
+  locale?: string;
   unit?: string;
   hint?: string;
   icon?: LucideIcon;
@@ -32,6 +41,8 @@ export interface StatCardProps {
 export function StatCard({
   label,
   value,
+  count,
+  locale,
   unit,
   hint,
   icon: Icon,
@@ -61,7 +72,9 @@ export function StatCard({
           TONES[tone].value,
         )}
       >
-        <span>{value}</span>
+        <span>
+          {typeof count === 'number' && locale ? <CountUp value={count} locale={locale} /> : value}
+        </span>
         {unit ? <span className="text-xs font-medium text-fg-muted">{unit}</span> : null}
       </p>
       {hint ? <p className="mt-1 text-xs leading-relaxed text-fg-muted">{hint}</p> : null}

@@ -100,19 +100,23 @@ export function FeedPage() {
       />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label={t('feed.lotCount')} value={formatNumber(lots.length, locale)} />
+        <StatCard label={t('feed.lotCount')} count={lots.length} locale={locale} />
         <StatCard
           label={t('feed.totalStock')}
-          value={formatNumber(totalStock, locale)}
+          count={Math.round(totalStock)}
+          locale={locale}
           unit={t('common.unitKg')}
         />
         <StatCard
           label={t('feed.available')}
-          value={formatNumber(lots.filter((lot) => lot.available).length, locale)}
+          count={lots.filter((lot) => lot.available).length}
+          locale={locale}
         />
         <StatCard
           label={t('feed.daysLeft')}
           value={kpis.coverDays === null ? '—' : formatNumber(kpis.coverDays, locale)}
+          count={kpis.coverDays === null ? null : Math.round(kpis.coverDays)}
+          locale={locale}
           hint={t('feed.coverageBody')}
           tone={low ? 'warn' : 'accent'}
         />

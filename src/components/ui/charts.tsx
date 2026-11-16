@@ -144,7 +144,8 @@ export function LineChart({
       void import('gsap')
         .then(({ gsap }) => {
           if (cancelled) {
-            restore();
+            // The cleanup already restored the chart, or the next effect run
+            // owns it (React StrictMode); do not wipe the newer hidden state.
             return;
           }
           const context = gsap.context(() => {

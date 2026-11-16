@@ -78,7 +78,9 @@ export function useGsapReveal<T extends HTMLElement>(
     ])
       .then(([{ gsap }, plugin]) => {
         if (cancelled) {
-          restore();
+          // The cleanup already restored the DOM (unmount), or the next effect
+          // run owns it (React StrictMode). Restoring here would wipe the newer
+          // hidden state and leave the page visible before its scroll trigger.
           return;
         }
         const context = gsap.context(() => {

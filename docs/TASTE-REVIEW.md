@@ -277,3 +277,46 @@ apart, and no label collides or clips. **12 px is therefore the floor for both s
 
 `npm run check:text-size` is gate 15 in `npm run ci` (after `check:domain`); the allowlist starts empty and a
 stale entry fails. Documented gate count moved 14 -> 15 in `AGENTS.md`, this file and the audit `HANDOFF.md`.
+
+## 8. Batch 4 - GSAP where CSS cannot reach (2026-11-16)
+
+### 8.1 What shipped
+
+Four effects, each doing something CSS cannot express and each built on the same rule (D-0051): never
+animate an element that already has a CSS entrance.
+
+- **KPI count-ups** on home (4), feed (4), KPI (8), health (3) and nutrition (5). The settled value is in
+  `.sr-only` from the first paint; an invisible sizer holds its width, so the count can never reflow a
+  neighbour; an `aria-hidden` copy counts over 550 ms with `tabular-nums`. Only text changes.
+- **Chart entry**: `LineChart` draws its series with `stroke-dashoffset` (0.6 s) and fades the area up to the
+  `0.15` its class already declares, started once by an `IntersectionObserver`. No layout property, so the
+  axis and plot box never move. `Sparkline` stays static - a 32 px row sparkline does not deserve a draw.
+- **Scroll-linked reveal**: targets below the first screen wait for `ScrollTrigger.batch` (`top 88%`,
+  `once`) instead of the immediate entrance; targets already on screen keep the immediate entrance, so
+  nothing plays twice. Home, herd and feed rows, and the four KPI cards under the grid.
+- **Deliberately not animated**: herd (only a badge count), energy (text stat cards), nutrition list
+  (`.ov-stagger` already does it), and anything inside a form or a DDNE result - no motion delays or hides
+  information there.
+
+### 8.2 Accessibility and RTL
+
+Under `prefers-reduced-motion: reduce` every GSAP effect is off: no count frames, the settled number painted
+immediately, no chart draw, nothing hidden, `document.getAnimations()` empty. A screen reader hears one
+number per stat and never an intermediate value; no counter sits in a live region. Motion is vertical
+(14 px rise) so it needs no RTL flip; horizontal travel, where it exists, is the CSS page entrance that
+already flips with `dir`. Only `transform` and `opacity` move.
+
+### 8.3 Evidence
+
+`phase-5b-motion4/2026-11-16/`: `settled` and `reduced` frames (24 each, animations settled before the
+shutter, ar+fr x 420/1440 x six changed pages, parity ar != fr), and `offline/proof.json` - preview build,
+SW-controlled client, network off, `/fourrage` renders its row, its count-ups settle, the count ran from the
+SW-cached GSAP chunk, every JS resource `transferSize 0`, no console or page errors. `verify-motion.mjs`
+runs **667 checks, all green**; the proof found two defects, both fixed: the verifier's frozen `Date` parked
+every GSAP tween at frame zero, and React StrictMode's stale first run wiped the second run's hidden state
+(the reveal was visible before scrolling in dev).
+
+### 8.4 Budget
+
+Entry **132.8 kB gzip / 180** (delta 0.0); GSAP core **27.06 kB gzip** and ScrollTrigger **17.68 kB gzip**,
+both lazy, both under the 60 kB per-chunk limit and both precached (62 entries per audit-precache); CSS 9.8 kB.

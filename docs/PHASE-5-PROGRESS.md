@@ -178,5 +178,10 @@ Read-only taste review of 24 screens x {420, 1440} x {ar, fr}. No page modified.
   network off, `/fourrage` renders its row, its 3 count-ups settle, the count ran (lazy GSAP chunk from
   the SW cache), every JS resource transferSize 0, no console or page errors; ScrollTrigger precached.
 - Budget after commit 4: entry **132.8 kB gzip / 180**, gsap core **27.06 kB gzip**, ScrollTrigger
-  **17.68 kB gzip** (both < 60 kB), CSS 9.8 kB, precache 66 entries.
+  **17.68 kB gzip** (both < 60 kB), CSS 9.8 kB, precache 62 entries (audit-precache).
 - Next command: commit 4, then commit 5 docs (D-0054, TASTE-REVIEW §8, EXECUTION-LOG, HANDOFF, memory).
+- Commits: `b32d6f3` fix (StrictMode stale restore; the real dev-mode defect the proof found) and
+  `fda5d64` proof (verifier block + `--motion` capture). Full `npm run ci` exit 0 on the final tree:
+  entry 132.8 kB gzip / 180, lazy 187.1 kB across 51 chunks (gsap 27.1 + ScrollTrigger 17.7 gzip),
+  CSS 9.8 kB, precache 62 entries covering 22 routes.
+- Batch 4 is COMPLETE and awaiting owner approval. Nothing merged, nothing pushed, no Batch 5 started.

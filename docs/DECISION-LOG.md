@@ -488,3 +488,40 @@ entry fails too. Arabic stays at 12 px: it was checked on the densest surfaces (
 journal, etat) and needs no larger minimum, so no `TYPE-SCALE-PROPOSAL.md` is opened. The chart x-label row is
 pinned `dir="ltr"` because the plot is not mirrored for RTL; mirroring the plot itself is a separate decision for
 a later batch, not a text-size change.
+
+## D-0054 - Batch 4: what GSAP is allowed to animate, and the skills that shaped it (2026-11-16)
+
+**Decision:** Batch 4 keeps D-0051 intact: GSAP is used only for what CSS cannot express well, and no GSAP
+effect shares an element with a CSS entrance. Four effects shipped: (1) KPI count-ups, (2) chart line draw
+and area fade, (3) scroll-linked reveal for below-the-fold content, (4) card choreography only where the
+existing CSS did not already cover it (the four below-fold KPI cards inside `.ov-page-enter`). Herd has only
+a badge count and the Energy stat cards hold text, so neither got a count-up; `Sparkline` (a 32 px row chart)
+stays static; the nutrition list keeps its CSS `.ov-stagger` and got no GSAP. Honest negatives, not gaps.
+
+**Skills consulted, and what each drove:**
+
+- `gsap-core` - the tween API itself: `gsap.to`/`set`/`fromTo`, `clearProps` so the settled DOM carries no
+  inline style, and `gsap.context(..., scope)` for teardown.
+- `gsap-react` - the React lifecycle rule: create in an effect after refs exist, revert the context on
+  unmount. Its `useGSAP` hook is the recommended wrapper, but it is a static import and would pull GSAP into
+  the entry chunk; the hook's cleanup and scoping semantics were applied by hand around a dynamic import.
+- `gsap-scrolltrigger` - `ScrollTrigger.batch` with `start: 'top 88%'` and `once: true`, one stagger per
+  screenful, `kill()` per trigger on unmount, and registration only when a route actually has below-fold
+  targets.
+- `gsap-performance` - transforms and opacity only, zero layout properties, all boxes read before any style
+  is written, one lazy chunk per concern, no `will-change` spraying.
+
+**Evidence:** `scripts/verify-motion.mjs` Batch 4 block (667/667 checks at 1440 and 420 in ar and fr):
+count-up frames, chart dash/offset/opacity/box, reveal state before and after a scroll, and a reduced-motion
+pass over 6 routes. Frames `phase-5b-motion4/2026-11-16/settled` and `.../reduced` (24 each); offline proof
+`phase-5b-motion4/2026-11-16/offline/proof.json`. Budget: entry **132.8 kB gzip / 180**, GSAP core
+**27.06 kB gzip**, ScrollTrigger **17.68 kB gzip**, both lazy and precached (62 entries per audit-precache).
+
+**Consequence:** The count-up is the only number animation in the product: the settled value is in
+`.sr-only` from first paint, both visual copies are `aria-hidden`, the count lasts 550 ms and a screen reader
+never hears an intermediate frame. Reduced motion, a zero value and a failed chunk load all paint the
+settled value with no GSAP import. Any future GSAP use must name the effect CSS cannot do, cite one of these
+skills, and add its own verifier checks; a count-up on a currency or date string is not allowed (formatting
+must stay `Intl`-identical). The verifier itself had to stop freezing `Date` for GSAP contexts because GSAP
+times tweens from `Date.now`, and both effects now leave the DOM alone when a cancelled run loses to a newer
+one (React StrictMode), which was a real dev-mode defect the proof found.

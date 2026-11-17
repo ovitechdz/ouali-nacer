@@ -70,6 +70,12 @@ function PageHost() {
 
 /** Register the per-file fixture hooks. Call once at the top of a test file. */
 export function registerFixture(options: FixtureOptions = {}): void {
+  // The old single file gave all thirteen flows a 30 s ceiling. The split keeps
+  // that ceiling per file so a loaded worker cannot fail a flow it never failed
+  // before; the rest of the suite keeps the 20 s global default. A ceiling is
+  // not a wait: nothing here sleeps.
+  vi.setConfig({ testTimeout: 30_000 });
+
   beforeAll(async () => {
     // Use the app helper so the English bundle is actually loaded.
     await changeLanguage('en');

@@ -221,11 +221,14 @@ Read-only taste review of 24 screens x {420, 1440} x {ar, fr}. No page modified.
   (`expectDialogClosed`, `Unknown read`). No assertion weakened, no test deleted, no timeout raised
   first. Parity checked against the old file: 13 `it()` in both, 0 `skip`/`only` in both, and 28
   assertions executed in both (15 call sites + 13 shared dialog waits became 14 sites + 14 shared
-  waits; the one inline dialog wait the sync test repeated is now the shared helper). The old file also
-  lifted the ceiling for every test with `vi.setConfig({ testTimeout: 30_000 })`; the split restores the
-  global 20 s for twelve tests and keeps 30 s only on nutrition, the page that maps every ration row.
-  The fixture helper is `registerFixture` (a `use*` name trips `react-hooks/rules-of-hooks` at module
-  scope) and the fast-refresh rule is off for test utilities, where it does not apply.
+  waits; the one inline dialog wait the sync test repeated is now the shared helper). Each of the four
+  files keeps the 30 s ceiling the old file set with `vi.setConfig({ testTimeout: 30_000 })`; the rest
+  of the suite keeps the 20 s global default, and nothing sleeps. Parity had to be restored after the
+  second CI run: at 20 s the team flow timed out at 20.8 s on a machine running ~2.2x slower than usual
+  (`environment` 496 s vs 289-325 s, and two untouched files also timed out), so the ceiling is the one
+  the flow always had, not a new one. The fixture helper is `registerFixture` (a `use*` name trips
+  `react-hooks/rules-of-hooks` at module scope). The fast-refresh rule is off only for
+  `**/*.test.{ts,tsx}` and `src/test/**`, where a fast-refresh component boundary does not apply.
 - After: no coverage 51.14 s wall (13/13 pass); coverage 69.81 s wall / 84.94 s tests (13/13 pass),
   -23 % wall against the 91.25 s baseline.
 - Next command: three consecutive `npm run ci`, then item 3 (merge to `main`).

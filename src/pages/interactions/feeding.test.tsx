@@ -40,10 +40,7 @@ describe('nutrition page', () => {
       fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm' }));
       await expectDialogClosed();
     }
-    // The nutrition board maps every ration row and counts each status, so it
-    // stays the heaviest page in the suite. 30 s is the ceiling the old single
-    // file used for all thirteen tests; it is a ceiling, not a wait.
-  }, 30_000);
+  });
 });
 
 describe('ration page', () => {

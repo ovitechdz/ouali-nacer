@@ -198,5 +198,37 @@ Read-only taste review of 24 screens x {420, 1440} x {ar, fr}. No page modified.
   PDFs in `phase-5b-motion4/2026-11-16/verify/print-*`.
 - Next command: item 2 - measure per-test durations of `src/pages/interactions.test.tsx`.
 - Open problems: none for item 1; the known `interactions.test.tsx` timeout under coverage is item 2.
-- Gate: full `npm run ci` exit 0 at `ae8a374` (entry 133.1 kB gzip / 180, lazy 187.3 kB across 51
+- Gate: full `npm run ci` exit 0 at `26f13ea` (entry 133.1 kB gzip / 180, lazy 187.3 kB across 51
   chunks, CSS 10.0 kB, precache 62 entries).
+
+### Item 2 - the flaky slow interactions file (DONE)
+
+- Measured first, with the original file restored from `HEAD` and `performance.now` probes that were
+  never committed. Coverage provider v8; no `pool`/`maxWorkers`/`fileParallelism` override (default
+  forks pool); `css: false`; jsdom has no `matchMedia`, so `use-gsap-reveal` returns early on Herd and
+  Feed (no GSAP, no ScrollTrigger); `CountUp` on Health/Nutrition still imports gsap core lazily.
+  `renderPage` mounted `AppShell` + `ToastProvider` + a memory-history router per call.
+- Baseline: no coverage 58.84 s wall / 42.45 s tests; coverage 91.25 s wall / 69.86 s tests. Ten
+  slowest under coverage: nutrition 14.4, animal 10.4, herd 9.3, team 8.6, scan 7.0, feed 4.8,
+  journal 4.3, health 3.1, proof 2.4, ration 2.2 s. Render 0.2-0.7 s per page, `beforeEach` 6-10 ms,
+  router load 2-4 ms: ~90 % of the time was interaction and re-render work, not mounting.
+- Fix, in order of measured gain: (1) trim the fixture per file (18 -> 6 animals, 18 -> 6 audit
+  events) so each command writes and repaints a smaller table; (2) split the file by feature into
+  `src/pages/interactions/{forms,feeding,records,readonly}.test.tsx` over four workers, with a
+  minimal `<main>` host instead of `AppShell`; (3) one shared harness `src/test/interactions-harness.tsx`;
+  (4) clear toast timers on unmount (`src/components/ui/toast.tsx`) so a pending 4.2 s expiry cannot
+  touch a dead tree; (5) only after that, 3 s waits on the two awaits that actually flaked
+  (`expectDialogClosed`, `Unknown read`). No assertion weakened, no test deleted, no timeout raised
+  first. Parity checked against the old file: 13 `it()` in both, 0 `skip`/`only` in both, and 28
+  assertions executed in both (15 call sites + 13 shared dialog waits became 14 sites + 14 shared
+  waits; the one inline dialog wait the sync test repeated is now the shared helper). The old file also
+  lifted the ceiling for every test with `vi.setConfig({ testTimeout: 30_000 })`; the split restores the
+  global 20 s for twelve tests and keeps 30 s only on nutrition, the page that maps every ration row.
+  The fixture helper is `registerFixture` (a `use*` name trips `react-hooks/rules-of-hooks` at module
+  scope) and the fast-refresh rule is off for test utilities, where it does not apply.
+- After: no coverage 51.14 s wall (13/13 pass); coverage 69.81 s wall / 84.94 s tests (13/13 pass),
+  -23 % wall against the 91.25 s baseline.
+- Next command: three consecutive `npm run ci`, then item 3 (merge to `main`).
+- Open problems: totals move with machine load (an external process held one core at ~77 % during
+  part of the baseline), so the coverage wall figure is the comparable one.
+

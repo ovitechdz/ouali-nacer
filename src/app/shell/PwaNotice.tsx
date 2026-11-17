@@ -84,7 +84,7 @@ export function PwaNotice() {
         type="button"
         onClick={dismiss}
         aria-label={t('pwa.dismiss')}
-        className="grid size-7 shrink-0 place-items-center rounded-lg text-fg-muted transition-colors hover:bg-surface-3 hover:text-fg"
+        className="grid size-7 shrink-0 place-items-center rounded-lg text-fg-muted transition-colors duration-[var(--duration-quick)] ease-out hover:bg-surface-3 hover:text-fg"
       >
         <X className="size-4" aria-hidden="true" />
       </button>

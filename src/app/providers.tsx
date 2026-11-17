@@ -4,14 +4,14 @@ import { useEffect } from 'react';
 import { FarmGate } from '@/app/farm-gate';
 import { router } from '@/app/router';
 import { ToastProvider } from '@/components/ui/toast';
-import { registerServiceWorker } from '@/pwa/register-service-worker';
 import { useCrossTabSync } from '@/store/cross-tab';
 
 export function Providers() {
   useCrossTabSync();
 
   useEffect(() => {
-    registerServiceWorker();
+    // Registration is not needed for first paint; keep the PWA module out of the entry.
+    void import('@/pwa/register-service-worker').then((m) => m.registerServiceWorker());
   }, []);
 
   return (

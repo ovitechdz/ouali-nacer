@@ -117,12 +117,15 @@ export default tseslint.config(
     },
   },
   {
+    // Test utilities export fixture helpers next to the small host component
+    // they render; fast-refresh boundaries do not apply outside app source.
     files: ['**/*.test.{ts,tsx}', 'src/test/**/*.{ts,tsx}'],
-    rules: { 'no-restricted-imports': 'off' },
+    rules: { 'no-restricted-imports': 'off', 'react-refresh/only-export-components': 'off' },
   },
   {
+    // Scripts that drive a browser pass code into page.evaluate(), so browser globals are valid there.
     files: ['scripts/**/*.mjs'],
-    languageOptions: { globals: { ...globals.node } },
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
     rules: { 'no-console': 'off' },
   },
 );

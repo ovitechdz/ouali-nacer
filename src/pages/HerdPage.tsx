@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { services } from '@/app/services';
+import { AnimalCodeLink } from '@/components/AnimalCodeLink';
 import { AnimalForm } from '@/components/forms/AnimalForm';
 import { PageHeader } from '@/components/PageHeader';
 import { Badge } from '@/components/ui/badge';
@@ -71,6 +72,7 @@ export function HerdPage() {
     stagger: 0.015,
     duration: 0.3,
     watch: filter,
+    scroll: true,
   });
 
   return (
@@ -148,17 +150,15 @@ export function HerdPage() {
                 {visible.map(({ animal, rec, health }) => (
                   <tr
                     key={animal.id}
-                    className="transition-colors duration-150 hover:bg-surface-3/50"
+                    className="transition-colors duration-[var(--duration-quick)] ease-out hover:bg-surface-3/50"
                   >
                     <Td>
-                      <Link
-                        to="/troupeau/$id"
-                        params={{ id: animal.id }}
+                      <AnimalCodeLink
+                        id={animal.id}
+                        code={animal.code}
                         className="font-semibold text-fg-strong hover:text-accent"
-                      >
-                        {animal.code}
-                      </Link>
-                      <span className="block font-mono text-[10px] text-fg-subtle" dir="ltr">
+                      />
+                      <span className="block font-mono text-xs text-fg-subtle" dir="ltr">
                         {animal.rfid}
                       </span>
                     </Td>
@@ -212,7 +212,7 @@ export function HerdPage() {
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-fg-strong">{animal.code}</p>
-                      <p className="font-mono text-[10px] text-fg-subtle" dir="ltr">
+                      <p className="font-mono text-xs text-fg-subtle" dir="ltr">
                         {animal.rfid}
                       </p>
                     </div>

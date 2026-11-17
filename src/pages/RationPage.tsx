@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog } from '@/components/ui/dialog';
 import { EmptyState, Notice } from '@/components/ui/feedback';
-import { StatCard } from '@/components/ui/stat';
+import { StatCard, KPI_GRID } from '@/components/ui/stat';
 import { useToast } from '@/components/ui/toast-context';
 import { buildRationSheet } from '@/domain';
 import { formatCurrency, formatDate, formatNumber } from '@/lib/format';
@@ -65,7 +65,7 @@ export function RationPage() {
         </p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className={KPI_GRID}>
         <StatCard
           label={t('ration.forage')}
           value={formatNumber(sheet.forageKg, locale, 1)}
@@ -147,7 +147,7 @@ export function RationPage() {
               <div className="overflow-x-auto rounded-xl border border-border">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border text-[11px] uppercase tracking-[0.06em] text-fg-muted">
+                    <tr className="ov-micro border-b border-border text-fg-muted">
                       <th scope="col" className="px-3 py-2 text-start">
                         {t('ration.rowAnimal')}
                       </th>

@@ -74,7 +74,7 @@ export function InvestorsPage() {
               <p className="mt-1 text-xs text-fg-muted">{t('invest.labelNextBody')}</p>
             </div>
           </div>
-          <p className="text-[11px] text-fg-subtle">{t('invest.disclaimer')}</p>
+          <p className="text-xs text-fg-subtle">{t('invest.disclaimer')}</p>
         </Card>
       </div>
 

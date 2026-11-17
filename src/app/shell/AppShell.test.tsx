@@ -16,7 +16,7 @@ describe('application shell', () => {
       screen.getByRole('heading', { level: 1, name: 'قرارات القطيع، حتى دون شبكة' }),
     ).toBeInTheDocument();
     expect(
-      screen.getAllByText('المرحلة 5 — مكوّنات واجهة مشتركة وإعادة بناء الصفحات.').length,
+      screen.getAllByText('قيد التطوير — مكوّنات واجهة مشتركة وإعادة بناء الصفحات.').length,
     ).toBeGreaterThan(0);
   });
 

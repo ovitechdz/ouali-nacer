@@ -2,6 +2,7 @@ import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import { cn } from '@/lib/cn';
+import { CountUp } from '@/motion/count-up';
 
 type Tone = 'neutral' | 'accent' | 'warn' | 'danger' | 'info';
 
@@ -13,9 +14,23 @@ const TONES: Record<Tone, { value: string; icon: string; bar: string }> = {
   info: { value: 'text-info', icon: 'bg-info/10 text-info', bar: 'bg-info' },
 };
 
+/**
+ * The single KPI grid rule: two columns on a phone, four from `sm`.
+ * A page whose grid sits inside a narrower column (the home hero) re-narrows at `lg`.
+ */
+export const KPI_GRID = 'grid grid-cols-2 gap-3 sm:grid-cols-4';
+
 export interface StatCardProps {
   label: string;
-  value: ReactNode;
+  /** Static value: text or a pre-formatted node. Ignored when `count` is set. */
+  value?: ReactNode;
+  /**
+   * A finite number worth counting up to (Batch 4). Needs `locale`; `null` or an
+   * absent value falls back to `value`, so "not measured" stays static text.
+   */
+  count?: number | null;
+  /** The active `resolvedLanguage` for the count-up formatting. */
+  locale?: string;
   unit?: string;
   hint?: string;
   icon?: LucideIcon;
@@ -26,6 +41,8 @@ export interface StatCardProps {
 export function StatCard({
   label,
   value,
+  count,
+  locale,
   unit,
   hint,
   icon: Icon,
@@ -40,9 +57,7 @@ export function StatCard({
       )}
     >
       <div className="flex items-start justify-between gap-2">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-muted">
-          {label}
-        </span>
+        <span className="ov-micro text-fg-muted">{label}</span>
         {Icon ? (
           <span
             className={cn('grid size-8 shrink-0 place-items-center rounded-lg', TONES[tone].icon)}
@@ -57,7 +72,9 @@ export function StatCard({
           TONES[tone].value,
         )}
       >
-        <span>{value}</span>
+        <span>
+          {typeof count === 'number' && locale ? <CountUp value={count} locale={locale} /> : value}
+        </span>
         {unit ? <span className="text-xs font-medium text-fg-muted">{unit}</span> : null}
       </p>
       {hint ? <p className="mt-1 text-xs leading-relaxed text-fg-muted">{hint}</p> : null}

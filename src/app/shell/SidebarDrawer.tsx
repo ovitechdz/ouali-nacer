@@ -82,7 +82,7 @@ export function SidebarDrawer({ open, onClose }: SidebarDrawerProps) {
             type="button"
             onClick={onClose}
             aria-label={t('common.close')}
-            className="grid size-10 place-items-center rounded-xl border border-border text-fg-muted transition-colors hover:bg-surface-3 hover:text-fg"
+            className="grid size-10 place-items-center rounded-xl border border-border text-fg-muted transition-colors duration-[var(--duration-quick)] ease-out hover:bg-surface-3 hover:text-fg"
           >
             <X className="size-5" aria-hidden="true" />
           </button>

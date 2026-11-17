@@ -71,11 +71,11 @@ export function StatusPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="ov-page-enter space-y-6">
       <PageHeader
         title={t('status.title')}
         subtitle={t('status.subtitle')}
-        actions={<Badge tone="warn">{t('app.phase')}</Badge>}
+        actions={<Badge tone="neutral">{t('app.phase')}</Badge>}
       />
 
       <Card className="space-y-3">

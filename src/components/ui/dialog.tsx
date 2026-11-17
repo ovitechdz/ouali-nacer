@@ -122,7 +122,7 @@ export function Dialog({
             type="button"
             onClick={onClose}
             aria-label={closeLabel}
-            className="grid size-9 shrink-0 place-items-center rounded-xl border border-border bg-surface-3 text-fg-muted transition-colors duration-150 hover:text-fg"
+            className="grid size-9 shrink-0 place-items-center rounded-xl border border-border bg-surface-3 text-fg-muted transition-colors duration-[var(--duration-quick)] ease-out hover:text-fg"
           >
             <X className="size-4" aria-hidden="true" />
           </button>

@@ -135,7 +135,7 @@ export function Journee() {
                 <li key={task.key}>
                   <Link
                     to={task.to}
-                    className="flex h-full items-start gap-3 rounded-2xl border border-border bg-surface-2 p-4 transition-colors duration-150 hover:border-border-strong hover:bg-surface-3/60"
+                    className="flex h-full items-start gap-3 rounded-2xl border border-border bg-surface-2 p-4 transition-colors duration-[var(--duration-quick)] ease-out hover:border-border-strong hover:bg-surface-3/60"
                   >
                     <span
                       className={cn(
@@ -184,7 +184,7 @@ export function Journee() {
               <Link
                 key={action.to}
                 to={action.to}
-                className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface-2 px-3 py-2.5 text-sm font-medium text-fg transition-colors duration-150 hover:border-border-strong hover:bg-surface-3"
+                className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface-2 px-3 py-2.5 text-sm font-medium text-fg transition-colors duration-[var(--duration-quick)] ease-out hover:border-border-strong hover:bg-surface-3"
               >
                 <Icon className="size-4 text-accent" aria-hidden="true" />
                 {action.label}

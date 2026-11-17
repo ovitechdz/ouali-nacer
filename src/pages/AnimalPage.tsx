@@ -222,9 +222,7 @@ export function AnimalPage() {
               [t('common.bcs'), animal.bcs != null ? formatNumber(animal.bcs, locale, 1) : '—'],
             ].map(([label, value]) => (
               <div key={label}>
-                <dt className="text-[11px] font-semibold uppercase tracking-[0.06em] text-fg-muted">
-                  {label}
-                </dt>
+                <dt className="ov-micro text-fg-muted">{label}</dt>
                 <dd className="mt-0.5 text-fg">{value}</dd>
               </div>
             ))}
@@ -337,9 +335,7 @@ export function AnimalPage() {
               ],
             ].map(([label, value]) => (
               <div key={label} className="rounded-xl border border-border bg-surface-3/50 p-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-fg-muted">
-                  {label}
-                </p>
+                <p className="ov-micro text-fg-muted">{label}</p>
                 <p className="mt-1 text-lg font-bold tabular-nums text-fg-strong">{value}</p>
               </div>
             ))}
@@ -548,7 +544,7 @@ export function AnimalPage() {
         <p className="text-sm text-fg-muted">{t('ration.stockNote')}</p>
       </Dialog>
 
-      <p className="text-[11px] text-fg-subtle">
+      <p className="text-xs text-fg-subtle">
         <CircleAlert className="me-1 inline size-3" aria-hidden="true" />
         {t('health.ruleNote')}
       </p>

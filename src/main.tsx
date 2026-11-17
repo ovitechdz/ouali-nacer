@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 
 import { Providers } from '@/app/providers';
 import { initI18n } from '@/i18n';
+import { installPrintSafety } from '@/motion/print-safety';
 
 import '@/styles/base.css';
 
@@ -13,6 +14,8 @@ async function bootstrap(): Promise<void> {
   if (!container) {
     throw new Error('Root element #root is missing from index.html');
   }
+
+  installPrintSafety();
 
   createRoot(container).render(
     <StrictMode>

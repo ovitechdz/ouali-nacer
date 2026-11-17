@@ -16,9 +16,9 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Notice } from '@/components/ui/feedback';
 import { SpotlightCard } from '@/components/ui/spotlight-card';
-import { StatCard } from '@/components/ui/stat';
+import { StatCard, KPI_GRID } from '@/components/ui/stat';
 import type { MessageKey } from '@/i18n/messages';
-import { formatNumber } from '@/lib/format';
+import { cn } from '@/lib/cn';
 import { useGsapReveal } from '@/motion/use-gsap-reveal';
 import { useFarm } from '@/store/use-farm';
 
@@ -45,16 +45,14 @@ export function HomePage() {
 
   const alerts = rows.filter((row) => row.health.status === 'alerte').length;
   const ready = rows.filter((row) => row.rec?.approvedBy && !row.rec.servedAt).length;
-  const reveal = useGsapReveal<HTMLDivElement>({ stagger: 0.06 });
+  const reveal = useGsapReveal<HTMLDivElement>({ stagger: 0.06, scroll: true });
 
   return (
     <div ref={reveal} className="space-y-6">
       <SpotlightCard data-reveal className="overflow-hidden rounded-3xl p-5 sm:p-8">
         <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-center">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">
-              {t('home.kicker')}
-            </p>
+            <p className="ov-micro text-accent">{t('home.kicker')}</p>
             <h1 className="mt-2 text-3xl font-bold text-fg-strong sm:text-4xl">
               {t('home.title')}
             </h1>
@@ -64,45 +62,49 @@ export function HomePage() {
             <div className="mt-5 flex flex-wrap gap-2">
               <Link
                 to="/scan"
-                className="inline-flex h-[42px] items-center gap-2 rounded-xl bg-accent-strong px-4 text-sm font-semibold text-accent-contrast transition-colors duration-150 hover:bg-accent"
+                className="inline-flex h-[42px] items-center gap-2 rounded-xl bg-accent-strong px-4 text-sm font-semibold text-accent-contrast transition-colors duration-[var(--duration-quick)] ease-out hover:bg-accent"
               >
                 <ScanLine className="size-4" aria-hidden="true" />
                 {t('home.ctaScan')}
               </Link>
               <Link
                 to="/troupeau"
-                className="inline-flex h-[42px] items-center gap-2 rounded-xl border border-border bg-surface-3 px-4 text-sm font-semibold text-fg transition-colors duration-150 hover:border-border-strong hover:bg-surface-2"
+                className="inline-flex h-[42px] items-center gap-2 rounded-xl border border-border bg-surface-3 px-4 text-sm font-semibold text-fg transition-colors duration-[var(--duration-quick)] ease-out hover:border-border-strong hover:bg-surface-2"
               >
                 <Users className="size-4" aria-hidden="true" />
                 {t('home.ctaHerd')}
               </Link>
             </div>
-            <p className="mt-4 text-[11px] text-fg-subtle">{t('home.offlineNote')}</p>
+            <p className="mt-4 text-xs text-fg-subtle">{t('home.offlineNote')}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className={cn(KPI_GRID, 'lg:grid-cols-2')}>
             <StatCard
               label={t('home.kpiHerd')}
-              value={formatNumber(rows.length, locale)}
+              count={rows.length}
+              locale={locale}
               unit={t('common.unitHead')}
               icon={Users}
               tone="accent"
             />
             <StatCard
               label={t('home.kpiAlerts')}
-              value={formatNumber(alerts, locale)}
+              count={alerts}
+              locale={locale}
               icon={FlaskConical}
               tone={alerts > 0 ? 'warn' : 'neutral'}
             />
             <StatCard
               label={t('home.kpiRations')}
-              value={formatNumber(ready, locale)}
+              count={ready}
+              locale={locale}
               icon={Utensils}
               tone={ready > 0 ? 'accent' : 'neutral'}
             />
             <StatCard
               label={t('home.kpiStock')}
-              value={formatNumber(kpis?.forageStockKg ?? 0, locale)}
+              count={Math.round(kpis?.forageStockKg ?? 0)}
+              locale={locale}
               unit={t('common.unitKg')}
               icon={Wheat}
             />
@@ -129,7 +131,7 @@ export function HomePage() {
                 data-reveal
                 className="group block"
               >
-                <Card className="flex h-full flex-col gap-2 transition-colors duration-150 group-hover:border-border-strong group-hover:bg-surface-3/60">
+                <Card className="flex h-full flex-col gap-2 transition-colors duration-[var(--duration-quick)] ease-out group-hover:border-border-strong group-hover:bg-surface-3/60">
                   <span className="grid size-9 place-items-center rounded-lg bg-accent/10 text-accent">
                     <Icon className="size-4" aria-hidden="true" />
                   </span>
@@ -159,7 +161,7 @@ export function HomePage() {
           <ol className="space-y-3">
             {WORKFLOW.map((key, index) => (
               <li key={key} className="flex gap-3">
-                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-surface-3 text-[11px] font-bold text-accent">
+                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-surface-3 text-xs font-bold leading-none text-accent">
                   {index + 1}
                 </span>
                 <div className="min-w-0">

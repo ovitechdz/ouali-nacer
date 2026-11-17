@@ -10,6 +10,14 @@ function resolved(locale: string): string {
   return NUMBER_LOCALE[locale as Locale] ?? NUMBER_LOCALE.ar;
 }
 
+/**
+ * French and English read the clock on 24 hours (Algeria and the product's
+ * English copy both do), so they pin `h23` instead of relying on the ICU
+ * default that a browser may resolve to `h12` with a Latin "PM". Arabic keeps
+ * the day period (ص/م) it already used.
+ */
+const HOUR_CYCLE: Record<Locale, 'h23' | 'h12'> = { ar: 'h12', fr: 'h23', en: 'h23' };
+
 export function formatNumber(value: number, locale: string, digits = 0): string {
   if (!Number.isFinite(value)) return '—';
   return new Intl.NumberFormat(resolved(locale), {
@@ -45,8 +53,10 @@ export function formatDateTime(iso: string | null, locale: string): string {
   return new Intl.DateTimeFormat(resolved(locale), {
     day: '2-digit',
     month: 'short',
+    year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    hourCycle: HOUR_CYCLE[locale as Locale] ?? HOUR_CYCLE.ar,
   }).format(date);
 }
 

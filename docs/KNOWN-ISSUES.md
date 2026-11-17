@@ -127,3 +127,10 @@ belongs to another project or should be moved out of `docs/rebuild/`.
 | ID | Issue | Evidence | Impact | Mitigation |
 |---|---|---|---|---|
 | K-61 | The sticky header uses the solid `#101827` fallback because the 12 px backdrop blur has not been proven smooth on a low-end phone | `Header.tsx`; `tokens.css`; D-0035 | Slightly less translucent than the style site on capable devices | Keep the solid fallback; measure scroll frames under CPU/network throttling on a low-end profile before enabling `--color-surface-header` + `backdrop-filter: blur(12px)` |
+
+## Evidence integrity (2026-11-13)
+
+| ID | Issue | Evidence | Impact | Status |
+|---|---|---|---|---|
+| K-74 | Seven screenshot pairs in `docs/rebuild/phase-5-verification` were byte-identical across locales (`journal` 420/1440, `nutrition` 420/1440, `sante` 420/1440, `troupeau` 420); each `-ar` file holds the French LTR frame | file hashes on the 120 PNG; the `-ar` frame shows "Français" and `dir=ltr` | The RTL/locale check of those pairs was not proven at Phase 5 approval | Corrected: `scripts/capture-screenshots.mjs` asserts `lang`/`dir` before every shot and fails an identical ar/fr pair; the seven pairs were recaptured on 2026-11-13 and differ. Governance record: audit `KNOWN-ISSUES.md` K-74, `VISUAL-PARITY-REPORT.md` §9 |
+| K-75 | `playwright` is not a project dependency, so every scripted browser verification borrows it from the npx cache and pins `executablePath` | `scripts/capture-screenshots.mjs`, `scripts/verify-services-chunk-abort.mjs`; npx builds expect chromium 1248/1254, only 1234 is installed | Verification depends on machine state and can break on another machine | Use a Playwright from the npx cache or set `PLAYWRIGHT_PATH`/`PLAYWRIGHT_CHROMIUM`. Permanent fix needs an approved pinned dev dependency (security + performance review) |

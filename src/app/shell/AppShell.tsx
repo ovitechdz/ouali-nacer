@@ -50,7 +50,7 @@ export function AppShell() {
       <div className="ov-print-reset flex min-h-dvh flex-col lg:ms-64">
         <div className="sticky top-0 z-30">
           {demo ? (
-            <p className="flex items-center justify-center gap-2 border-b border-warn/30 bg-warn/10 px-3 py-1.5 text-center text-[11px] font-semibold text-warn">
+            <p className="flex items-center justify-center gap-2 border-b border-warn/30 bg-warn/10 px-3 py-1.5 text-center text-xs font-semibold text-warn">
               <FlaskConical className="size-3.5 shrink-0" aria-hidden="true" />
               {t('common.demoBanner')}
             </p>

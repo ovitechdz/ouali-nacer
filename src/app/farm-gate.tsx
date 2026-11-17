@@ -80,9 +80,7 @@ function Onboarding() {
 
       <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center px-4 py-10">
         <div className="ov-rise">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-            {t('onboarding.kicker')}
-          </p>
+          <p className="ov-micro text-accent">{t('onboarding.kicker')}</p>
           <h1 className="mt-2 text-2xl font-bold text-fg-strong sm:text-3xl">
             {t('onboarding.title')}
           </h1>
@@ -160,7 +158,7 @@ function Onboarding() {
         </div>
       </main>
 
-      <footer className="px-4 py-4 text-center text-[11px] text-fg-subtle">
+      <footer className="px-4 py-4 text-center text-xs text-fg-subtle">
         {t('app.name')} · {APP_VERSION}
       </footer>
     </div>
@@ -170,6 +168,8 @@ function Onboarding() {
 function FailureState() {
   const { t } = useTranslation();
   const initialize = useFarmStore((state) => state.initialize);
+  const errorKind = useFarmStore((state) => state.errorKind);
+  const chunkFailed = errorKind === 'chunk';
   return (
     <div className="grid min-h-dvh place-items-center bg-surface px-4">
       <Notice
@@ -177,9 +177,15 @@ function FailureState() {
         title={t('error.title')}
         className="max-w-md flex-col items-start gap-3"
       >
-        <p>{t('error.body')}</p>
-        <Button type="button" onClick={() => void initialize()}>
-          {t('common.retry')}
+        <p>{chunkFailed ? t('error.chunkBody') : t('error.body')}</p>
+        <Button
+          type="button"
+          onClick={() => {
+            if (chunkFailed) window.location.reload();
+            else void initialize();
+          }}
+        >
+          {chunkFailed ? t('common.reloadPage') : t('common.retry')}
         </Button>
       </Notice>
     </div>

@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { Card } from '@/components/ui/card';
 import { LineChart } from '@/components/ui/charts';
 import { EmptyState } from '@/components/ui/feedback';
-import { ProgressBar, StatCard } from '@/components/ui/stat';
+import { ProgressBar, StatCard, KPI_GRID } from '@/components/ui/stat';
 import { FEED_KINDS, type FeedKind } from '@/domain';
 import type { MessageKey } from '@/i18n/messages';
 import { formatDate, formatNumber } from '@/lib/format';
@@ -24,7 +24,9 @@ export function KpiPage() {
   const { t, i18n } = useTranslation();
   const { document, rows, kpis } = useFarm();
   const locale = i18n.resolvedLanguage ?? 'ar';
-  const reveal = useGsapReveal<HTMLDivElement>({ stagger: 0.08 });
+  // The four cards under the KPI grid arrive as the reader scrolls; the grid
+  // itself is already on screen and keeps the CSS page entrance.
+  const reveal = useGsapReveal<HTMLDivElement>({ scroll: true });
 
   const weightSeries = useMemo(() => {
     if (!document) return { points: [] as number[], labels: [] as string[] };
@@ -67,32 +69,36 @@ export function KpiPage() {
   const maxFeed = Math.max(1, ...feedByKind.map((entry) => entry.stock));
 
   return (
-    <div ref={reveal} className="space-y-5">
+    <div ref={reveal} className="ov-page-enter space-y-5">
       <PageHeader kicker={t('kpi.kicker')} title={t('kpi.title')} subtitle={t('kpi.subtitle')} />
 
-      <div data-reveal className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className={KPI_GRID}>
         <StatCard
           label={t('kpi.herdSize')}
-          value={formatNumber(rows.length, locale)}
+          count={rows.length}
+          locale={locale}
           unit={t('common.unitHead')}
           icon={Scale}
           tone="accent"
         />
         <StatCard
           label={t('kpi.alerts')}
-          value={formatNumber(health.alerte, locale)}
+          count={health.alerte}
+          locale={locale}
           icon={CircleAlert}
           tone={health.alerte > 0 ? 'warn' : 'neutral'}
         />
         <StatCard
           label={t('kpi.avgAdg')}
-          value={formatNumber(kpis.meanAdgKg * 1000, locale)}
+          count={Math.round(kpis.meanAdgKg * 1000)}
+          locale={locale}
           unit={`${t('common.unitG')}/${t('common.unitDay')}`}
           icon={Activity}
         />
         <StatCard
           label={t('kpi.rationCoverage')}
-          value={formatNumber(kpis.dataDrivenPct, locale)}
+          count={Math.round(kpis.dataDrivenPct)}
+          locale={locale}
           unit={t('common.unitPercent')}
           icon={Utensils}
           tone="accent"
@@ -100,33 +106,35 @@ export function KpiPage() {
         <StatCard
           label={t('kpi.feedDays')}
           value={kpis.coverDays === null ? '—' : formatNumber(kpis.coverDays, locale)}
+          count={kpis.coverDays === null ? null : Math.round(kpis.coverDays)}
+          locale={locale}
           unit={t('common.unitDay')}
           icon={Wheat}
           tone={kpis.coverDays !== null && kpis.coverDays < 7 ? 'warn' : 'neutral'}
         />
         <StatCard
           label={t('kpi.freshness')}
-          value={formatNumber(
-            Math.round(((rows.length - kpis.staleScanCount) / Math.max(1, rows.length)) * 100),
-            locale,
-          )}
+          count={Math.round(((rows.length - kpis.staleScanCount) / Math.max(1, rows.length)) * 100)}
+          locale={locale}
           unit={t('common.unitPercent')}
           icon={HeartPulse}
         />
         <StatCard
           label={t('kpi.lowBcs')}
-          value={formatNumber(kpis.lowBcsCount, locale)}
+          count={kpis.lowBcsCount}
+          locale={locale}
           tone={kpis.lowBcsCount > 0 ? 'warn' : 'neutral'}
         />
         <StatCard
           label={t('kpi.missingWeights')}
-          value={formatNumber(kpis.missingWeightCount, locale)}
+          count={kpis.missingWeightCount}
+          locale={locale}
           tone={kpis.missingWeightCount > 0 ? 'warn' : 'neutral'}
         />
       </div>
 
-      <div data-reveal className="grid gap-4 lg:grid-cols-2">
-        <Card className="space-y-3">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card data-reveal className="space-y-3">
           <div>
             <h2 className="text-base font-bold text-fg-strong">{t('kpi.weightTitle')}</h2>
             <p className="text-xs text-fg-muted">{t('kpi.weightBody')}</p>
@@ -150,7 +158,7 @@ export function KpiPage() {
           )}
         </Card>
 
-        <Card className="space-y-3">
+        <Card data-reveal className="space-y-3">
           <div>
             <h2 className="text-base font-bold text-fg-strong">{t('kpi.healthTitle')}</h2>
             <p className="text-xs text-fg-muted">{t('kpi.healthBody')}</p>
@@ -192,7 +200,7 @@ export function KpiPage() {
           </div>
         </Card>
 
-        <Card className="space-y-3">
+        <Card data-reveal className="space-y-3">
           <div>
             <h2 className="text-base font-bold text-fg-strong">{t('kpi.herdTitle')}</h2>
             <p className="text-xs text-fg-muted">{t('kpi.herdBody')}</p>
@@ -212,7 +220,7 @@ export function KpiPage() {
           </div>
         </Card>
 
-        <Card className="space-y-3">
+        <Card data-reveal className="space-y-3">
           <div>
             <h2 className="text-base font-bold text-fg-strong">{t('kpi.feedTitle')}</h2>
             <p className="text-xs text-fg-muted">{t('kpi.feedBody')}</p>
@@ -236,7 +244,7 @@ export function KpiPage() {
         </Card>
       </div>
 
-      <p className="text-[11px] text-fg-subtle">{t('kpi.targetNote')}</p>
+      <p className="text-xs text-fg-subtle">{t('kpi.targetNote')}</p>
     </div>
   );
 }

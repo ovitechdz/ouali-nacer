@@ -22,7 +22,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
 
   const itemClass = (active: boolean) =>
     cn(
-      'flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] font-medium transition-colors duration-150 ease-out',
+      'flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] font-medium transition-colors duration-[var(--duration-quick)] ease-out',
       active ? 'bg-accent/10 text-accent' : 'text-fg-muted hover:bg-surface-3 hover:text-fg',
     );
 
@@ -37,7 +37,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
         />
         <span className="min-w-0">
           <span className="block truncate text-sm font-bold text-fg-strong">{t('app.name')}</span>
-          <span className="block truncate text-[11px] text-fg-muted">
+          <span className="block truncate text-xs text-fg-muted">
             {document?.settings.farmName ?? t('app.tagline')}
           </span>
         </span>
@@ -46,7 +46,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
       <Link
         to="/scan"
         onClick={onNavigate}
-        className="flex items-center justify-center gap-2 rounded-xl bg-accent-strong px-3 py-2.5 text-sm font-semibold text-accent-contrast shadow-accent transition-colors duration-150 hover:bg-accent"
+        className="flex items-center justify-center gap-2 rounded-xl bg-accent-strong px-3 py-2.5 text-sm font-semibold text-accent-contrast shadow-accent transition-colors duration-[var(--duration-quick)] ease-out hover:bg-accent"
       >
         <NAV_SCAN.icon className="size-4" aria-hidden="true" />
         {t('nav.scan')}
@@ -65,9 +65,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
 
         {NAV_GROUPS.map((group) => (
           <div key={group.id} className="flex flex-col gap-1">
-            <p className="px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-fg-subtle">
-              {t(group.labelKey)}
-            </p>
+            <p className="ov-micro px-3 text-fg-subtle">{t(group.labelKey)}</p>
             {group.items.map((item) => {
               const active = isActive(pathname, item);
               const Icon = item.icon;
@@ -88,7 +86,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
         ))}
       </nav>
 
-      <p className="mt-auto rounded-xl border border-border bg-surface-3/60 p-3 text-[11px] leading-relaxed text-fg-muted">
+      <p className="mt-auto rounded-xl border border-border bg-surface-3/60 p-3 text-xs leading-relaxed text-fg-muted">
         {t('footer.phase')}
       </p>
     </div>

@@ -41,7 +41,7 @@ export function VisionPage() {
   const { t } = useTranslation();
 
   return (
-    <div className="space-y-5">
+    <div className="ov-page-enter space-y-5">
       <PageHeader
         kicker={t('vision.kicker')}
         title={t('vision.title')}
@@ -75,7 +75,7 @@ export function VisionPage() {
             {PILLARS.map(([name, role], index) => (
               <li key={name} className="rounded-xl border border-border bg-surface-3/50 p-3">
                 <p className="flex items-center gap-2 text-sm font-semibold text-fg">
-                  <span className="grid size-5 place-items-center rounded-full bg-accent/15 text-[10px] font-bold text-accent">
+                  <span className="grid size-5 place-items-center rounded-full bg-accent/15 text-xs font-bold leading-none text-accent">
                     {index + 1}
                   </span>
                   {t(name)}
@@ -111,7 +111,7 @@ export function VisionPage() {
           <ol className="space-y-3">
             {ROADMAP.map(([title, body], index) => (
               <li key={title} className="flex gap-3">
-                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-surface-3 text-[11px] font-bold text-accent">
+                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-surface-3 text-xs font-bold leading-none text-accent">
                   {index + 1}
                 </span>
                 <div>
@@ -149,7 +149,7 @@ export function VisionPage() {
         </div>
       </div>
 
-      <p className="text-[11px] leading-relaxed text-fg-subtle">{t('vision.footer')}</p>
+      <p className="text-xs leading-relaxed text-fg-subtle">{t('vision.footer')}</p>
     </div>
   );
 }

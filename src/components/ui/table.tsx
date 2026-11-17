@@ -27,7 +27,7 @@ export function Th({ className, ...props }: ThHTMLAttributes<HTMLTableCellElemen
     <th
       scope="col"
       className={cn(
-        'whitespace-nowrap border-b border-border px-3 py-2.5 text-start text-[11px] font-semibold uppercase tracking-[0.06em] text-fg-muted',
+        'ov-micro whitespace-nowrap border-b border-border px-3 py-2.5 text-start text-fg-muted',
         className,
       )}
       {...props}

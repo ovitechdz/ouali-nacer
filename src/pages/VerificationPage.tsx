@@ -148,7 +148,7 @@ export function VerificationPage() {
                 <li key={`${issue.code}-${issue.entityId ?? index}`}>
                   {t(issue.key)}
                   {issue.entityId ? (
-                    <span className="ms-1 font-mono text-[10px] text-fg-subtle">
+                    <span className="ms-1 font-mono text-xs text-fg-subtle">
                       ({issue.entityId})
                     </span>
                   ) : null}

@@ -1,5 +1,5 @@
 import { CircleAlert, CircleCheck, Info, X } from 'lucide-react';
-import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { cn } from '@/lib/cn';
@@ -21,6 +21,17 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
   const [items, setItems] = useState<ToastItem[]>([]);
   const nextId = useRef(1);
+  const timers = useRef<Set<number>>(new Set());
+
+  // A toast timer that fires after unmount would call setState on a dead tree
+  // (the tests tear the environment down before the 4.2 s expiry).
+  useEffect(() => {
+    const pending = timers.current;
+    return () => {
+      for (const timer of pending) window.clearTimeout(timer);
+      pending.clear();
+    };
+  }, []);
 
   const remove = useCallback((id: number) => {
     setItems((current) => current.filter((item) => item.id !== id));
@@ -30,7 +41,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     (message: string, tone: ToastTone = 'info') => {
       const id = nextId.current++;
       setItems((current) => [...current.slice(-3), { id, message, tone }]);
-      window.setTimeout(() => remove(id), 4200);
+      const timer = window.setTimeout(() => {
+        timers.current.delete(timer);
+        remove(id);
+      }, 4200);
+      timers.current.add(timer);
     },
     [remove],
   );
@@ -62,7 +77,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               <button
                 type="button"
                 onClick={() => remove(item.id)}
-                className="rounded-md p-0.5 text-fg-muted transition-colors duration-150 hover:text-fg"
+                className="rounded-md p-0.5 text-fg-muted transition-colors duration-[var(--duration-quick)] ease-out hover:text-fg"
                 aria-label={t('common.close')}
               >
                 <X className="size-3.5" aria-hidden="true" />

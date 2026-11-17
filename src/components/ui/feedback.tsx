@@ -7,7 +7,7 @@ export function SimulationBadge({ label, className }: { label: string; className
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-lg border border-warn/40 bg-warn/10 px-2 py-1 text-[11px] font-semibold text-warn',
+        'inline-flex items-center gap-1.5 rounded-lg border border-warn/40 bg-warn/10 px-2 py-1 text-xs font-semibold text-warn',
         className,
       )}
     >

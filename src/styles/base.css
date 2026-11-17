@@ -129,20 +129,54 @@
 }
 
 .ov-fade {
-  animation: ov-fade-in 160ms var(--ease-out) both;
+  animation: ov-fade-in var(--duration-quick) var(--ease-out) both;
 }
 
 .ov-pop {
-  animation: ov-pop-in 200ms var(--ease-out) both;
+  animation: ov-pop-in var(--duration-fast) var(--ease-out) both;
 }
 
 .ov-rise {
-  animation: ov-rise 220ms var(--ease-out) both;
+  animation: ov-rise var(--duration-fast) var(--ease-out) both;
+}
+
+/* Page entrance for routes that only had the shell fade (D-0048). Travel is
+   vertical, so Arabic and French read the same direction; only opacity and
+   transform animate, so the entrance cannot shift layout. */
+@keyframes ov-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ov-page-enter {
+  animation: ov-page-in var(--duration-fast) var(--ease-out) both;
+}
+
+/* One micro-label step (D-0053): the uppercase label above a group, a table
+   header or a page title. 12 px is the smallest readable step; tracking is
+   reduced from the old 0.16em/0.14em so the label does not grow sideways.
+   Arabic is cursive, so tracking drops to zero there instead of spacing the
+   joined letters. */
+.ov-micro {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+html[lang='ar'] .ov-micro {
+  letter-spacing: 0;
 }
 
 /* Staggered list entry, capped at eight items. */
 .ov-stagger > * {
-  animation: ov-rise 220ms var(--ease-out) both;
+  animation: ov-rise var(--duration-fast) var(--ease-out) both;
 }
 .ov-stagger > *:nth-child(2) {
   animation-delay: 30ms;
@@ -164,6 +198,28 @@
 }
 .ov-stagger > *:nth-child(8) {
   animation-delay: 210ms;
+}
+
+/* Reduced motion: no entrance, no stagger, no pop - not merely a short one.
+   The unlayered `!important` beats the layered guard above, so no animation
+   runs at all and the finished state is what paints first. */
+@media (prefers-reduced-motion: reduce) {
+  .ov-page-enter,
+  .ov-fade,
+  .ov-pop,
+  .ov-rise,
+  .ov-stagger > * {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Functional indicators (skeleton pulse, loading spin) stop as well: a
+     reduced-motion reader asked for no animation, not for a shorter one. */
+  .animate-pulse,
+  .animate-spin {
+    animation: none !important;
+  }
 }
 
 /* Print: ration sheets and reports. Shell chrome and controls never print. */
@@ -238,6 +294,53 @@
 
   .ov-stagger > * {
     animation: none !important;
+  }
+
+  /* Batch 4 effects are settled on paper (A-3, D-0055). These rules are the
+     fallback: they work with no GSAP loaded and before `beforeprint` runs. */
+  .ov-page-enter,
+  .ov-fade,
+  .ov-pop,
+  .ov-rise {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  [data-reveal],
+  main table tbody tr {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* The settled value lives in `.sr-only` from first paint; print shows it and
+     hides the invisible sizer plus the animated aria-hidden copy. */
+  [data-count-up] > .sr-only {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    white-space: normal !important;
+    border: 0 !important;
+  }
+
+  [data-count-up] > .invisible,
+  [data-count-up] > .absolute {
+    display: none !important;
+  }
+
+  [data-chart-line] {
+    opacity: 1 !important;
+    stroke-dasharray: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+
+  [data-chart-area].opacity-15 {
+    opacity: 0.15 !important;
   }
 
   a[href]::after {

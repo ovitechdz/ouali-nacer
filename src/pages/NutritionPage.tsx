@@ -1,9 +1,9 @@
-import { Link } from '@tanstack/react-router';
 import { BadgeCheck, Utensils } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { services } from '@/app/services';
+import { AnimalCodeLink } from '@/components/AnimalCodeLink';
 import { PageHeader } from '@/components/PageHeader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,9 +11,12 @@ import { Card } from '@/components/ui/card';
 import { Dialog } from '@/components/ui/dialog';
 import { EmptyState, Notice } from '@/components/ui/feedback';
 import { FilterChips, type FilterOption } from '@/components/ui/filter-chips';
+import { KPI_GRID } from '@/components/ui/stat';
 import { useToast } from '@/components/ui/toast-context';
 import type { MessageKey } from '@/i18n/messages';
+import { cn } from '@/lib/cn';
 import { formatDateTime, formatNumber } from '@/lib/format';
+import { CountUp } from '@/motion/count-up';
 import { useFarm } from '@/store/use-farm';
 
 type Status = 'all' | 'pending' | 'ready' | 'blocked' | 'served';
@@ -94,7 +97,7 @@ export function NutritionPage() {
         }
       />
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className={cn(KPI_GRID, 'lg:grid-cols-5')}>
         {[
           ['all', t('nutrition.total'), counts.all, 'text-fg-strong'],
           ['pending', t('nutrition.pending'), counts.pending, 'text-info'],
@@ -105,7 +108,7 @@ export function NutritionPage() {
           <Card key={String(key)} className="p-4">
             <p className="text-xs font-semibold text-fg-muted">{label}</p>
             <p className={`mt-1 text-2xl font-bold tabular-nums ${tone}`}>
-              {formatNumber(Number(value), locale)}
+              <CountUp value={Number(value)} locale={locale} />
             </p>
           </Card>
         ))}
@@ -137,13 +140,11 @@ export function NutritionPage() {
               <li key={rec.id} className="rounded-2xl border border-border bg-surface-2 p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <Link
-                      to="/troupeau/$id"
-                      params={{ id: animal.id }}
+                    <AnimalCodeLink
+                      id={animal.id}
+                      code={animal.code}
                       className="text-sm font-bold text-fg-strong hover:text-accent"
-                    >
-                      {animal.code}
-                    </Link>
+                    />
                     <p className="text-xs text-fg-muted">
                       {animal.pen} · {t(`domain.stage.${animal.stage}`)} ·{' '}
                       {formatDateTime(rec.createdAt, locale)}

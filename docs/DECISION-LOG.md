@@ -350,3 +350,203 @@ member to the page, or (b) adding any new contact field for an existing member. 
 withdraw consent at any time; removal then takes priority over the published record.
 
 **Confirmed by:** project owner (Nacer), 2026-11-12.
+
+## D-0041 - Screenshots must prove their locale (2026-11-13)
+
+**Decision:** A screenshot is only evidence if the capture proves the locale it claims. `scripts/capture-screenshots.mjs` now writes the requested language into `localStorage` before the first navigation, asserts `documentElement.lang` and `dir` before every shutter, refuses frames with a hidden `[data-reveal]`/`[data-enter]` block, freezes the clock (the demo seed derives its timestamps from `new Date()`), waits for `document.fonts.ready` and every `<img>` decode, and hashes each PNG into `manifest.json`; `--verify` re-hashes the files and fails when the ar and fr shots of the same page and width are byte-identical.
+
+**Evidence:** `scripts/capture-screenshots.mjs`; `docs/KNOWN-ISSUES.md` K-74; `ovitech-audit/docs/rebuild/VISUAL-PARITY-REPORT.md` §1b; seven pairs recaptured 2026-11-13 in `ovitech-audit/docs/rebuild/phase-5b-fixes/2026-11-13/recapture/`; negative control (a copied ar file verified as fr) exits 1; two identical capture runs produce 16/16 identical hashes.
+
+**Consequence:** The Phase 5 parity verdict no longer rests on seven pairs that were one locale captured twice; the correction is recorded rather than quietly overwritten. Any future capture inherits the assertion, and an identical ar/fr pair is a hard failure.
+
+## D-0042 - One KPI grid rule for the four editable pages (2026-11-13)
+
+**Decision:** Mobile KPI grids follow one rule, `grid-cols-2 sm:grid-cols-4`, imported as `KPI_GRID` from `src/components/ui/stat.tsx` and used by home, nutrition, ration and indicateurs. Home re-narrows at `lg` (`lg:grid-cols-2`) because its grid lives in the ~470 px hero column; nutrition widens at `lg` (`lg:grid-cols-5`) so the fifth metric is not orphaned. `src/pages/TeamPage.tsx` is **not** changed: its `grid-cols-2 md:grid-cols-4` is part of the frozen team page.
+
+**Evidence:** Review finding P1 "mobile KPI grid split" (`docs/TASTE-REVIEW.md`); `design-taste-frontend` §4 ("one system") and §5 checklist ("equal edges", "every visual renders at 390"); measured at 360/420 on all four pages, both locales: 2 cards per row, 158-188 px wide, `pageOverflow=0`, no clipped number, unit or label; before/after in `phase-5b-fixes/2026-11-13/{before-a,after-a}`.
+
+**Consequence:** Nutrition, ration and indicateurs no longer stack 1-up on a phone. The `equipe` grid stays frozen for the reason above, so it is the only page whose rule is `md`-based; that is a documented exception, not drift.
+
+## D-0043 - The audit journal is a labelled card list below `sm` (2026-11-13)
+
+**Decision:** Below `sm`, each audit event renders as a card: a date header, the severity, and a `<dl>` of type, entity and summary, so every value keeps its label for assistive tech. From `sm` up the five-column table is unchanged. Only one branch is in the DOM tree of the accessibility layer at a time (`display: none`), so nothing is announced twice.
+
+**Evidence:** Review finding "journal 5-column table at 386 px with 61 px rows"; before/after at 360/420/1440 in `phase-5b-fixes/2026-11-13/{before-b,after-b}` (1440 pixel-identical, 420/360 differ only below the filter row); `README`-level a11y rule in `harness/AGENTS.md` (accessibility is a merge gate).
+
+**Consequence:** The journal row semantics are now "label: value" pairs on a phone. The table branch is duplicated in JSX on purpose: a `display: block` table loses its table semantics in several screen readers.
+
+## D-0044 - French and English read the clock on 24 hours, dates keep the year (2026-11-13)
+
+**Decision:** `formatDateTime` pins `hourCycle: 'h23'` for `fr` and `en` and always includes the year; Arabic keeps its day period (ص/م) and the `ar-DZ-u-nu-latn` Latin digits the tabular columns align on. `formatNumber` is untouched.
+
+**Evidence:** Review finding "fr-DZ resolves to hourCycle h12 causing Latin PM plus missing year in formatDateTime"; the journal rendered `14 août, 10:00 PM`; `src/lib/format.test.ts` asserts fr/en/ar against fixed instants with `TZ=Africa/Algiers` pinned in `vitest.config.ts`; all 20 call sites are JSX text - no formatted string is persisted, hashed or exported.
+
+**Consequence:** A February entry can no longer read like today's, and a 22:00 schedule is no longer `10:00 PM`. Arabic output is unchanged by design.
+
+## D-0045 - Animal codes are 24 px touch targets (2026-11-13)
+
+**Decision:** `AnimalCodeLink` wraps the animal code with `inline-flex min-h-6`, 6 px inline padding and a matching negative inline margin, so the hit area is at least 24 px without shifting the column. Used by the herd table, the health history and the nutrition cards.
+
+**Evidence:** Review finding "animal-code links 55-63x17px"; measured 66x24 (ar) and 71x24 (fr) at 1440, row height still 59 px; before/after in `phase-5b-fixes/2026-11-13/{before-d,after-d}`.
+
+**Consequence:** The most-tapped control in the herd table meets the 24 px minimum while table density is unchanged.
+
+## D-0046 - Amber belongs to the demo banner only (2026-11-13)
+
+**Decision:** Amber (`warn`) is reserved for the global demo banner and for genuine states (not connected, low stock, blocked, refused, alerts). Page-level development pills - `app.phase`, `common.simulation`, `common.demonstration`, `scan.demoNote` - are neutral. Internal phase numbers are removed from user-facing copy: `app.phase`, `footer.phase` and `status.engineValue` read `en développement` / `قيد التطوير` / `in development` from the catalogue. The Simulation and Demonstration labels stay, only their tone changes.
+
+**Evidence:** Review finding "amber notice stacking"; before/after at 360/420/1440 for `etat`, `scan`, `label`, `ecosysteme`, `cameras` in `phase-5b-fixes/2026-11-13/{before-e,after-e}`; `npm run check:i18n` green (1001 keys per locale, 0 Latin leaks in ar).
+
+**Consequence:** The one banner that must never be missed is the only amber chrome on a page. The remaining `phase 4/6` wording in `offline`, `notFound`, `sync` and `export` copy is listed in `HANDOFF.md` P2, not silently rewritten.
+
+## D-0047 - A failed chunk offers a reload, not a dead retry (2026-11-14)
+
+**Decision:** When the deferred services chunk cannot be fetched, `FarmGate` shows a dedicated message and a "reload the page" action instead of the retry button. The store records `errorKind: 'chunk' | 'storage'`; a storage failure keeps the in-place retry, which does work.
+
+**Evidence:** `scripts/verify-services-chunk-abort.mjs` aborts `services-*.js` on the built `dist` (Playwright `route.abort`) on a cold load and on a later load with `Network.clearBrowserCache`; the pre-fix run showed the error state but two retry clicks produced **no second chunk request** and no recovery, while a manual reload recovered. After the fix the same script passes 14/14 checks and both scenarios recover to onboarding. Screenshots in `phase-5b-fixes/2026-11-13/chunk-abort/`.
+
+**Consequence:** "Retry" is now honest: a browser-cached import rejection cannot be retried, so the gate asks for the one action that works. No blank screen in either scenario; no uncaught page error.
+
+## D-0048 - One CSS page entrance for the ten shell-only routes (2026-11-14)
+
+**Decision:** Energy, KPI, the five ecosystem pages, Vision, Label and Status mount with a single CSS entrance: `.ov-page-enter` animates opacity 0 -> 1 and `translateY(6px)` -> 0 over `--duration-fast` (250 ms) with `--ease-out`, `animation-fill-mode: both`, declared once in `src/styles/base.css`. Travel is vertical only, so Arabic RTL and French LTR read the same direction instead of mirroring a horizontal slide. Only `opacity` and `transform` animate, so the entrance cannot shift layout. Energy and KPI stop using `useGsapReveal` (they were the only two listed routes that had it) and lose their `data-reveal` markers; home and herd keep their GSAP reveal untouched.
+
+**Evidence:** owner instruction "Approved: Batch 3, motion only (transitions-dev + transitions-polish)" with the ten routes named, "CSS-only page entrance (opacity + small translate, 200-300 ms)", "translate direction must not feel reversed", "animate only opacity and transform", "No GSAP for this tier"; `scripts/verify-motion.mjs` parks the animation at 0/125 ms and measures it (585/585 checks, 126 frames in `phase-5b-motion/2026-11-14/`); the page root's `offsetTop`/`offsetWidth`/`offsetHeight` are identical at start, mid and settled frames.
+
+**Consequence:** Ten routes that only had the shell fade now have a product entrance. Removing GSAP from Energy and KPI means those routes no longer fetch the GSAP chunk and no longer animate section by section; home and herd still do, which is open as a P3 candidate. Team page unchanged.
+
+## D-0049 - Two durations and one easing for every transition (2026-11-14)
+
+**Decision:** `src/styles/tokens.css` declares `--duration-quick: 150ms` (colour, border and opacity feedback), `--duration-fast: 250ms` (transform motion and entrances) and keeps the existing `--ease-out: cubic-bezier(0, 0, 0.2, 1)` as the only easing. Every existing hover/focus/colour transition (26 class strings in 20 files) and the three older entrance animations (`ov-fade` 160, `ov-pop` 200, `ov-rise` 220) reference those tokens. Nothing animates a layout property, and `transition: all` appears nowhere.
+
+**Evidence:** `transitions-polish` doctrine (match on usage; one scale); `scripts/verify-motion.mjs` walks every element with a non-zero transition on `/journee` and finds 34 transitions, all at `0.15s` with `cubic-bezier(0, 0, 0.2, 1)`, zero layout properties; probes prove both arbitrary utilities compile and report the token values 150 ms / 250 ms.
+
+**Consequence:** A hover can no longer drift from a focus ring or from a page entrance. The two new entries are durations, not design tokens: no colour, spacing, radius or type value changed. The chevron's 250 ms transform is the only transform transition left, and it is the `--duration-fast` case by design.
+
+## D-0050 - Reduced motion means no motion at all (2026-11-14)
+
+**Decision:** Under `prefers-reduced-motion: reduce`, `.ov-page-enter`, `.ov-fade`, `.ov-pop`, `.ov-rise` and `.ov-stagger > *` get `animation: none !important` with the finished state (`opacity: 1`, `transform: none`), and the skeleton pulse and loading spin (`.animate-pulse`, `.animate-spin`) are switched off as well. The pre-existing layered guard (0.01 ms duration) stays as a backstop; the new rule is unlayered so it wins outright.
+
+**Evidence:** `scripts/verify-motion.mjs` reduced-motion pass at 420 in ar and fr for `energie`, `ecosysteme`, `etat`: `animation-name` is `none`, `root.getAnimations()` is empty, `document.getAnimations()` is empty, and injected `.animate-pulse` / `.animate-spin` probes report `animation-name: none`.
+
+**Consequence:** A reader who asked for reduced motion gets the finished layout immediately, not a 0.01 ms version of the animation. The loading spinner becomes a static icon; the adjacent loading text remains the progress signal.
+
+## D-0051 - GSAP is reserved for what CSS cannot do well (2026-11-15)
+
+**Decision:** The owner approved removing the GSAP reveal from Energy and KPI, on the condition that GSAP is
+reserved for what CSS cannot do well - count-ups, chart entry, scroll-linked sequences - and never
+duplicates a CSS entrance on the same element. The CSS entrance (`.ov-page-enter`) is the default for a whole
+page; GSAP may only animate something CSS cannot express, and a page that already plays the CSS entrance must
+not also play a GSAP reveal.
+
+**Evidence:** Owner instruction 2026-11-15 (Batch 3 approval): "removing the GSAP reveal from Energy and KPI is
+approved, on the condition that GSAP is reserved for what CSS cannot do well (count-ups, chart entry,
+scroll-linked sequences) and never duplicates a CSS entrance on the same element." Batch 3 checks in
+`phase-5b-motion/2026-11-14/manifest.json`.
+
+**Consequence:** Home and herd keep `useGsapReveal` for now because they are not in the Batch 3 scope, but they
+are the only remaining users; any future GSAP addition must name the effect CSS cannot do and must not sit on an
+element inside `.ov-page-enter`. A single `.ov-page-enter` per page is the rule; the verifier already fails when
+the entrance is missing or duplicated per route.
+
+## D-0052 - Motion skill record for Batch 3 (2026-11-15)
+
+**Decision:** `transitions-polish` concretely drove Batch 3: its "match on usage, never on the nearest number"
+doctrine produced the two-duration scale (150 ms for colour/border/opacity feedback, 250 ms for transform and
+entrances) and the single `--ease-out` easing that replaced six ad-hoc durations in 26 class strings.
+`transitions-dev` was consulted only: no named `t-*` transition was installed, but its reduced-motion guard
+convention and portable CSS pattern informed the `.ov-page-enter` keyframes and the absolute
+`animation: none !important` block.
+
+**Evidence:** Repo `src/styles/tokens.css` and `src/styles/base.css`; 26 class strings in 20 files (`81d3ce0`);
+`scripts/verify-motion.mjs` transition audit (34 transitions, all 0.15 s, one easing, no layout property).
+
+**Consequence:** The next motion change should cite `transitions-polish` when tuning an existing transition and
+`transitions-dev` when adding a new one; neither skill may introduce a third duration or easing.
+
+## D-0053 - Twelve px is the text floor, and micro-labels get their own step (2026-11-15)
+
+**Decision:** No text renders below 12 px. The 44 sub-12 px utilities (33 x `text-[11px]`, 11 x `text-[10px]`)
+are raised to the existing `text-xs` step; no token changes, so the scale is unchanged. Uppercase micro-labels
+(paragraph kicker, table header, stat caption, sidebar group, farm-gate kicker, animal detail labels) share one
+class, `.ov-micro`: 12 px, weight 600, `0.06em` tracking instead of the old `0.06-0.16em`, and `letter-spacing: 0`
+under `html[lang='ar']` because Arabic is cursive. Density was fixed with layout (wrapping, `min-w-0`,
+`leading-none` on pills), never by shrinking text or dropping information. Chart axis text is the one place where
+a CSS size cannot hold the rendered size: an SVG `<text>` scales with its viewBox, so 10 px rendered at 4.5 px in
+a 286 px card. `LineChart` now measures its own width (ResizeObserver, jsdom-safe default) and sizes the ticks in
+viewBox units so they never render below 12 px, with the plot padding scaled by the same factor. `check:text-size`
+is now gate 15 and fails on any size below the floor outside an allowlist entry that must carry a reason.
+
+**Evidence:** `docs/rebuild/TEXT-SIZE-INVENTORY.md` (44 utilities in 25 files, 2,912 rendered text instances over
+24 routes x {420,1440} x {ar,fr}; 984 SVG icon internals excluded). Measured axis text 12.02 / 12.01 / 12.04 px at
+360 / 420 / 1440. Commits `0a97fb2`, `16d4fd1`, `de0f4fb`, `d864e56`, `0687404`, `750328e`, guard + gate, evidence
+in `phase-5b-text/2026-11-15/` (144 before shots, after shots per family, 6 chart close-ups, animal detail and
+farm gate outside the 24-route matrix).
+
+**Consequence:** Any future sub-12 px size needs an allowlist entry with a reason or the gate fails, and a stale
+entry fails too. Arabic stays at 12 px: it was checked on the densest surfaces (troupeau, ration, nutrition,
+journal, etat) and needs no larger minimum, so no `TYPE-SCALE-PROPOSAL.md` is opened. The chart x-label row is
+pinned `dir="ltr"` because the plot is not mirrored for RTL; mirroring the plot itself is a separate decision for
+a later batch, not a text-size change.
+
+## D-0054 - Batch 4: what GSAP is allowed to animate, and the skills that shaped it (2026-11-16)
+
+**Decision:** Batch 4 keeps D-0051 intact: GSAP is used only for what CSS cannot express well, and no GSAP
+effect shares an element with a CSS entrance. Four effects shipped: (1) KPI count-ups, (2) chart line draw
+and area fade, (3) scroll-linked reveal for below-the-fold content, (4) card choreography only where the
+existing CSS did not already cover it (the four below-fold KPI cards inside `.ov-page-enter`). Herd has only
+a badge count and the Energy stat cards hold text, so neither got a count-up; `Sparkline` (a 32 px row chart)
+stays static; the nutrition list keeps its CSS `.ov-stagger` and got no GSAP. Honest negatives, not gaps.
+
+**Skills consulted, and what each drove:**
+
+- `gsap-core` - the tween API itself: `gsap.to`/`set`/`fromTo`, `clearProps` so the settled DOM carries no
+  inline style, and `gsap.context(..., scope)` for teardown.
+- `gsap-react` - the React lifecycle rule: create in an effect after refs exist, revert the context on
+  unmount. Its `useGSAP` hook is the recommended wrapper, but it is a static import and would pull GSAP into
+  the entry chunk; the hook's cleanup and scoping semantics were applied by hand around a dynamic import.
+- `gsap-scrolltrigger` - `ScrollTrigger.batch` with `start: 'top 88%'` and `once: true`, one stagger per
+  screenful, `kill()` per trigger on unmount, and registration only when a route actually has below-fold
+  targets.
+- `gsap-performance` - transforms and opacity only, zero layout properties, all boxes read before any style
+  is written, one lazy chunk per concern, no `will-change` spraying.
+
+**Evidence:** `scripts/verify-motion.mjs` Batch 4 block (667/667 checks at 1440 and 420 in ar and fr):
+count-up frames, chart dash/offset/opacity/box, reveal state before and after a scroll, and a reduced-motion
+pass over 6 routes. Frames `phase-5b-motion4/2026-11-16/settled` and `.../reduced` (24 each); offline proof
+`phase-5b-motion4/2026-11-16/offline/proof.json`. Budget: entry **132.8 kB gzip / 180**, GSAP core
+**27.06 kB gzip**, ScrollTrigger **17.68 kB gzip**, both lazy and precached (62 entries per audit-precache).
+
+**Consequence:** The count-up is the only number animation in the product: the settled value is in
+`.sr-only` from first paint, both visual copies are `aria-hidden`, the count lasts 550 ms and a screen reader
+never hears an intermediate frame. Reduced motion, a zero value and a failed chunk load all paint the
+settled value with no GSAP import. Any future GSAP use must name the effect CSS cannot do, cite one of these
+skills, and add its own verifier checks; a count-up on a currency or date string is not allowed (formatting
+must stay `Intl`-identical). The verifier itself had to stop freezing `Date` for GSAP contexts because GSAP
+times tweens from `Date.now`, and both effects now leave the DOM alone when a cancelled run loses to a newer
+one (React StrictMode), which was a real dev-mode defect the proof found.
+## D-0055 - A printout is always the settled page (2026-11-16)
+
+**Decision:** Reports and ration sheets use `window.print()` (A-3). Every Batch 4 effect now settles for
+print: count-up, chart draw and scroll reveal listen for `beforeprint` and paint their finished state,
+and `src/motion/print-safety.ts` runs a document-wide sweep that (a) copies each counter's `.sr-only`
+value into its animated `aria-hidden` copy, (b) drops inline chart dash/opacity, and (c) drops inline
+reveal opacity/transform. `beforeprint` sets `data-printing` on `<html>`; `afterprint` removes it.
+CSS is the no-script fallback in `@media print`: entrance animations off, `[data-reveal]` and table
+rows visible and untransformed, counter `.sr-only` un-clipped while both visual copies are hidden,
+chart lines at opacity 1 with no dash, areas at 0.15. Nothing depends on GSAP being loaded: if the chunk
+resolves after the print event, the effect settles instead of animating.
+
+**Evidence:** `scripts/verify-motion.mjs` print block (773/773 checks): for `home`, `fourrage`,
+`sante`, `nutrition`, `indicateurs` and `preuve`, ar+fr at 1440, print media emulated before any
+scroll. Asserts the CSS-only state, then dispatches `beforeprint` and asserts every counter copy equals
+its settled `.sr-only` and no inline animation state remains. Printed stock on `fourrage` = 8750 = the
+table's four rows; printed herd size on `indicateurs` = 18 = the six pen counts. Frames and A4 PDFs in
+`phase-5b-motion4/2026-11-16/verify/print-*`. Full `npm run ci` exit 0 after the commit: entry
+133.1 kB gzip / 180, lazy 187.3 kB across 51 chunks, CSS 10.0 kB, precache 62 entries.
+
+**Consequence:** A reader who prints from the top of the page gets the same numbers as one who scrolled.
+`afterprint` only removes the marker, so a cancelled dialog leaves the in-page animation state as the
+global sweep left it (settled); a re-render repaints the component's own state. Future animated values
+must be in `.sr-only` (or equivalent) from first paint and must declare their print rule, or the sheet
+cannot be trusted.

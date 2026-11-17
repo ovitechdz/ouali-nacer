@@ -218,13 +218,13 @@ export function TeamPage() {
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate text-sm font-bold text-fg-strong">{member.name}</h3>
                   <p className="text-xs font-medium text-accent">{member.role}</p>
-                  <span className="mt-1 inline-block rounded-full border border-border bg-surface-3/60 px-2 py-0.5 text-[10px] text-fg-muted">
+                  <span className="mt-1 inline-block rounded-full border border-border bg-surface-3/60 px-2 py-0.5 text-xs text-fg-muted">
                     {member.department}
                   </span>
                 </div>
               </div>
               <p className="mb-3 line-clamp-2 text-xs text-fg-muted">{member.bio}</p>
-              <div className="mb-3 flex items-center gap-3 text-[11px] text-fg-subtle">
+              <div className="mb-3 flex items-center gap-3 text-xs text-fg-subtle">
                 <span className="inline-flex min-w-0 items-center gap-1">
                   <Mail className="size-3 shrink-0" aria-hidden="true" />
                   <span className="truncate">{member.email}</span>
@@ -255,7 +255,7 @@ export function TeamPage() {
         </button>
       </div>
 
-      <p className="text-[11px] text-fg-subtle">{t('team.demoNote')}</p>
+      <p className="text-xs text-fg-subtle">{t('team.demoNote')}</p>
 
       <Dialog
         open={detail !== null}
@@ -279,7 +279,7 @@ export function TeamPage() {
               <div className="min-w-0">
                 <h3 className="text-lg font-bold text-fg-strong">{detail.name}</h3>
                 <p className="text-sm font-medium text-accent">{detail.role}</p>
-                <span className="mt-1.5 inline-block rounded-full border border-border bg-surface-3/60 px-2 py-0.5 text-[10px] text-fg-muted">
+                <span className="mt-1.5 inline-block rounded-full border border-border bg-surface-3/60 px-2 py-0.5 text-xs text-fg-muted">
                   {detail.department}
                 </span>
               </div>

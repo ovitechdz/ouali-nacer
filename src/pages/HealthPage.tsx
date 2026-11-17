@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { services } from '@/app/services';
+import { AnimalCodeLink } from '@/components/AnimalCodeLink';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -13,7 +14,8 @@ import { FilterChips, type FilterOption } from '@/components/ui/filter-chips';
 import { Field, Select, Textarea } from '@/components/ui/input';
 import { useToast } from '@/components/ui/toast-context';
 import { cn } from '@/lib/cn';
-import { formatDateTime, formatNumber } from '@/lib/format';
+import { formatDateTime } from '@/lib/format';
+import { CountUp } from '@/motion/count-up';
 import { useFarm } from '@/store/use-farm';
 import { HEALTH_EVENT_TYPES, type HealthEventType } from '@/domain';
 
@@ -112,7 +114,7 @@ export function HealthPage() {
             <div>
               <p className="text-xs font-semibold text-fg-muted">{label}</p>
               <p className={cn('mt-1 text-2xl font-bold tabular-nums', tone)}>
-                {formatNumber(value, locale)}
+                <CountUp value={value} locale={locale} />
               </p>
             </div>
             <HeartPulse className={cn('size-6', tone)} aria-hidden="true" />
@@ -139,7 +141,7 @@ export function HealthPage() {
                 <Link
                   to="/troupeau/$id"
                   params={{ id: animal.id }}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-danger/30 bg-danger/5 p-3 transition-colors duration-150 hover:bg-danger/10"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-danger/30 bg-danger/5 p-3 transition-colors duration-[var(--duration-quick)] ease-out hover:bg-danger/10"
                 >
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-fg-strong">
@@ -183,7 +185,7 @@ export function HealthPage() {
           <div className="overflow-x-auto rounded-2xl border border-border bg-surface-2">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border text-start text-[11px] uppercase tracking-[0.06em] text-fg-muted">
+                <tr className="ov-micro border-b border-border text-start text-fg-muted">
                   <th scope="col" className="px-3 py-2.5 text-start">
                     {t('health.eventAnimal')}
                   </th>
@@ -208,13 +210,11 @@ export function HealthPage() {
                     <tr key={event.id} className="border-b border-border/60 last:border-0">
                       <td className="px-3 py-2.5 font-medium text-fg">
                         {animal ? (
-                          <Link
-                            to="/troupeau/$id"
-                            params={{ id: animal.id }}
+                          <AnimalCodeLink
+                            id={animal.id}
+                            code={animal.code}
                             className="hover:text-accent"
-                          >
-                            {animal.code}
-                          </Link>
+                          />
                         ) : (
                           '—'
                         )}

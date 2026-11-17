@@ -17,19 +17,19 @@ export function LabelPage() {
   const { t } = useTranslation();
 
   return (
-    <div className="space-y-5">
+    <div className="ov-page-enter space-y-5">
       <PageHeader
         kicker={t('label.kicker')}
         title={t('label.title')}
         subtitle={t('label.lead')}
-        actions={<Badge tone="warn">{t('common.demonstration')}</Badge>}
+        actions={<Badge tone="neutral">{t('common.demonstration')}</Badge>}
       />
 
       <div className="grid gap-3 sm:grid-cols-2">
         {CRITERIA.map(([title, now, need], index) => (
           <Card key={title} className="space-y-3">
             <p className="flex items-center gap-2 text-sm font-bold text-fg-strong">
-              <span className="grid size-6 place-items-center rounded-lg bg-accent/10 text-[11px] font-bold text-accent">
+              <span className="grid size-6 place-items-center rounded-lg bg-accent/10 text-xs font-bold leading-none text-accent">
                 {index + 1}
               </span>
               {t(title)}

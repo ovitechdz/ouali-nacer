@@ -1,9 +1,0 @@
-Clone the design language of this landing page and build a fresh equivalent.
-Visual feel: flat. Tone: playful · Headings: Sentence case · CTA verbs: [object Object], [object Object], [object Object]
-Primary palette: #e5e7eb, #6a7282, #ffffff, #4a5565, #99a1af.
-Typography: [object Object].
-Corner radius vocabulary: 12, 24.
-Shadow vocabulary: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.378 -0.0755699 0.0147714 / 0.4) 0px 10px 15px -3px, oklab(0.378 -0.0755699 0.0147714 / 0.4) 0px 4px 6px -4px | rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0 0 0 / 0.5) 0px 25px 50px -12px.
-Use: Use plain Tailwind CSS without a component library.
-Page structure:
-- hero — heading: "Connexion"

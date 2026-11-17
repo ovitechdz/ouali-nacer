@@ -21,6 +21,11 @@ npm-debug.log*
 # Designlang extraction output (generated tooling artefact, never application source).
 design-extract-output/
 
+# Audit evidence: progress logs, decision logs, reviews, screenshots and every verification
+# artefact live in the audit workspace, never in this repository. This entry keeps a script
+# that writes into docs/rebuild/ from re-adding evidence to the product tree.
+docs/rebuild/
+
 # Installed agent skills and design tooling: third-party, not application source.
 # Recorded in docs/DESIGN-TOOLING.md; reinstall from there, never commit the trees.
 .agents/

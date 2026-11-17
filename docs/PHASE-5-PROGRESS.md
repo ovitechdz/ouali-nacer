@@ -232,3 +232,15 @@ Read-only taste review of 24 screens x {420, 1440} x {ar, fr}. No page modified.
 - Open problems: totals move with machine load (an external process held one core at ~77 % during
   part of the baseline), so the coverage wall figure is the comparable one.
 
+### Repository backup (2026-11-17)
+
+- Remote: the only remote is `origin` -> `https://github.com/ovitechdz/ouali-nacer.git`; none was added,
+  replaced or force-pushed. Both pushes ran as the repo-local account `ovitechdz`
+  (`credential.https://github.com.username`, and `user.email` = `ovitech.dz@gmail.com` for future commits
+  only; no existing commit was rewritten).
+- Pushed and verified with `git ls-remote origin`: `phase-5b` =
+  `5016a7b6d7d7397e72c0f5cbad8f9fce88d51192`, `main` = `7fdbe514e3ea20a3374374aefb1c70e868998019`.
+  No tags exist yet, so `--tags` was skipped.
+- Pre-push check: `check:secrets` ok; no `.env*`, keys, tokens, local databases or `node_modules` are
+  tracked or in history (451 files, 50 commits); `.gitignore` plus `.git/info/exclude` cover the agent layer.
+

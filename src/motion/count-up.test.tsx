@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { formatNumber } from '@/lib/format';
@@ -82,6 +82,18 @@ describe('CountUp', () => {
     const counting = render(<CountUp value={9} locale="fr" />);
     expect(parts(counting.container).copy).toBe('0');
     expect(parts(counting.container).srOnly).toBe('9');
+  });
+
+  it('counts up through the lazy GSAP chunk and lands on the settled value', async () => {
+    // The chunk resolves on its own schedule, so the tween body only runs when
+    // the test actually waits for it. Without this wait, function coverage of
+    // count-up.tsx depended on whether the import won the race that run.
+    stubReducedMotion(false);
+    const { container } = render(<CountUp value={9} locale="fr" />);
+    await waitFor(() => expect(parts(container).copy).toBe(formatNumber(9, 'fr')), {
+      timeout: 3000,
+    });
+    expect(parts(container).srOnly).toBe(formatNumber(9, 'fr'));
   });
 
   it('still exposes the settled value when matchMedia does not exist', () => {

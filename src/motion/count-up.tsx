@@ -17,7 +17,10 @@ import { prefersReducedMotion } from '@/motion/reduced-motion';
  *   the final width (the counter can never reflow its neighbours) and the
  *   animated copy stacked on top of it;
  * - reduced motion, a zero/absent value and a failed chunk load all render the
- *   settled value immediately, with no GSAP import at all.
+ *   settled value immediately, with no GSAP import at all;
+ * - a printout paints the settled value too: `beforeprint` kills the tween and
+ *   the print stylesheet shows `.sr-only` while hiding both visual copies
+ *   (A-3, D-0055).
  *
  * Only the text of the animated copy changes: no transform, no opacity, no
  * layout property, and `tabular-nums` keeps the glyph advance constant.
@@ -54,17 +57,30 @@ export function CountUp({ value, locale, className }: CountUpProps) {
     target.textContent = formatNumber(0, locale);
 
     let cancelled = false;
+    let printed = false;
     let revert: (() => void) | undefined;
+    let tween: { kill: () => void } | undefined;
+
+    // A printout must show the settled value even when it happens mid-count or
+    // before the GSAP chunk has resolved (D-0055, A-3). Killing the tween and
+    // painting the final text needs no GSAP at print time; the print stylesheet
+    // hides both visual copies and reveals `.sr-only` as a second fallback.
+    const onPrint = (): void => {
+      printed = true;
+      tween?.kill();
+      settle();
+    };
+    window.addEventListener('beforeprint', onPrint);
 
     void import('gsap')
       .then(({ gsap }) => {
-        if (cancelled) {
+        if (cancelled || printed) {
           settle();
           return;
         }
         const context = gsap.context(() => {
           const state = { v: 0 };
-          gsap.to(state, {
+          tween = gsap.to(state, {
             v: value,
             duration: DURATION,
             ease: 'power2.out',
@@ -83,6 +99,8 @@ export function CountUp({ value, locale, className }: CountUpProps) {
 
     return () => {
       cancelled = true;
+      window.removeEventListener('beforeprint', onPrint);
+      tween?.kill();
       revert?.();
       settle();
     };

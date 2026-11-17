@@ -69,8 +69,20 @@ export function useGsapReveal<T extends HTMLElement>(
     };
 
     let cancelled = false;
+    let printed = false;
     let revert: (() => void) | undefined;
     let batches: { kill: () => void }[] = [];
+    let killTweens: ((targets: HTMLElement[]) => void) | undefined;
+
+    // A printout must show every block, not only what the reader has scrolled to
+    // (D-0055, A-3). Dropping the inline hidden state needs no GSAP; if the chunk
+    // resolves after the print event the entrance is skipped, never re-hidden.
+    const onPrint = (): void => {
+      printed = true;
+      killTweens?.(all);
+      restore();
+    };
+    window.addEventListener('beforeprint', onPrint);
 
     void Promise.all([
       import('gsap'),
@@ -81,6 +93,11 @@ export function useGsapReveal<T extends HTMLElement>(
           // The cleanup already restored the DOM (unmount), or the next effect
           // run owns it (React StrictMode). Restoring here would wipe the newer
           // hidden state and leave the page visible before its scroll trigger.
+          return;
+        }
+        killTweens = (targets) => gsap.killTweensOf(targets);
+        if (printed) {
+          restore();
           return;
         }
         const context = gsap.context(() => {
@@ -128,6 +145,7 @@ export function useGsapReveal<T extends HTMLElement>(
 
     return () => {
       cancelled = true;
+      window.removeEventListener('beforeprint', onPrint);
       for (const trigger of batches) trigger.kill();
       batches = [];
       revert?.();

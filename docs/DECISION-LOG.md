@@ -525,3 +525,28 @@ skills, and add its own verifier checks; a count-up on a currency or date string
 must stay `Intl`-identical). The verifier itself had to stop freezing `Date` for GSAP contexts because GSAP
 times tweens from `Date.now`, and both effects now leave the DOM alone when a cancelled run loses to a newer
 one (React StrictMode), which was a real dev-mode defect the proof found.
+## D-0055 - A printout is always the settled page (2026-11-16)
+
+**Decision:** Reports and ration sheets use `window.print()` (A-3). Every Batch 4 effect now settles for
+print: count-up, chart draw and scroll reveal listen for `beforeprint` and paint their finished state,
+and `src/motion/print-safety.ts` runs a document-wide sweep that (a) copies each counter's `.sr-only`
+value into its animated `aria-hidden` copy, (b) drops inline chart dash/opacity, and (c) drops inline
+reveal opacity/transform. `beforeprint` sets `data-printing` on `<html>`; `afterprint` removes it.
+CSS is the no-script fallback in `@media print`: entrance animations off, `[data-reveal]` and table
+rows visible and untransformed, counter `.sr-only` un-clipped while both visual copies are hidden,
+chart lines at opacity 1 with no dash, areas at 0.15. Nothing depends on GSAP being loaded: if the chunk
+resolves after the print event, the effect settles instead of animating.
+
+**Evidence:** `scripts/verify-motion.mjs` print block (773/773 checks): for `home`, `fourrage`,
+`sante`, `nutrition`, `indicateurs` and `preuve`, ar+fr at 1440, print media emulated before any
+scroll. Asserts the CSS-only state, then dispatches `beforeprint` and asserts every counter copy equals
+its settled `.sr-only` and no inline animation state remains. Printed stock on `fourrage` = 8750 = the
+table's four rows; printed herd size on `indicateurs` = 18 = the six pen counts. Frames and A4 PDFs in
+`phase-5b-motion4/2026-11-16/verify/print-*`. Full `npm run ci` exit 0 after the commit: entry
+133.1 kB gzip / 180, lazy 187.3 kB across 51 chunks, CSS 10.0 kB, precache 62 entries.
+
+**Consequence:** A reader who prints from the top of the page gets the same numbers as one who scrolled.
+`afterprint` only removes the marker, so a cancelled dialog leaves the in-page animation state as the
+global sweep left it (settled); a re-render repaints the component's own state. Future animated values
+must be in `.sr-only` (or equivalent) from first paint and must declare their print rule, or the sheet
+cannot be trusted.

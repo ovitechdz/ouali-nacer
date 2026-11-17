@@ -296,6 +296,53 @@ html[lang='ar'] .ov-micro {
     animation: none !important;
   }
 
+  /* Batch 4 effects are settled on paper (A-3, D-0055). These rules are the
+     fallback: they work with no GSAP loaded and before `beforeprint` runs. */
+  .ov-page-enter,
+  .ov-fade,
+  .ov-pop,
+  .ov-rise {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  [data-reveal],
+  main table tbody tr {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* The settled value lives in `.sr-only` from first paint; print shows it and
+     hides the invisible sizer plus the animated aria-hidden copy. */
+  [data-count-up] > .sr-only {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    white-space: normal !important;
+    border: 0 !important;
+  }
+
+  [data-count-up] > .invisible,
+  [data-count-up] > .absolute {
+    display: none !important;
+  }
+
+  [data-chart-line] {
+    opacity: 1 !important;
+    stroke-dasharray: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+
+  [data-chart-area].opacity-15 {
+    opacity: 0.15 !important;
+  }
+
   a[href]::after {
     content: '';
   }

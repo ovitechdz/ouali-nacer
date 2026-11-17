@@ -185,3 +185,18 @@ Read-only taste review of 24 screens x {420, 1440} x {ar, fr}. No page modified.
   entry 132.8 kB gzip / 180, lazy 187.1 kB across 51 chunks (gsap 27.1 + ScrollTrigger 17.7 gzip),
   CSS 9.8 kB, precache 62 entries covering 22 routes.
 - Batch 4 is COMPLETE and awaiting owner approval. Nothing merged, nothing pushed, no Batch 5 started.
+## Session 2026-11-16 - post-Batch-4 (print safety, flake, merge)
+
+### Item 1 - print safety (DONE)
+
+- Done: `beforeprint`/`afterprint` settle the count-ups, the chart draw and the reveals; the global
+  sweep `src/motion/print-safety.ts` is installed from `main.tsx`; `@media print` fallbacks show the
+  finished page with no GSAP loaded (D-0055, A-3).
+- Current: `scripts/verify-motion.mjs` print block - 773/773 checks, ar+fr x
+  {home, fourrage, sante, nutrition, indicateurs, preuve} at 1440 with print media and no scrolling;
+  printed feed stock 8750 = the four table rows, printed KPI herd 18 = the six pen counts. Frames and A4
+  PDFs in `phase-5b-motion4/2026-11-16/verify/print-*`.
+- Next command: item 2 - measure per-test durations of `src/pages/interactions.test.tsx`.
+- Open problems: none for item 1; the known `interactions.test.tsx` timeout under coverage is item 2.
+- Gate: full `npm run ci` exit 0 at `ae8a374` (entry 133.1 kB gzip / 180, lazy 187.3 kB across 51
+  chunks, CSS 10.0 kB, precache 62 entries).

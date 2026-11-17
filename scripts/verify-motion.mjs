@@ -12,7 +12,11 @@
  *      skeleton pulse and the loading spin;
  *   5. every existing hover/focus/colour transition uses the shared durations
  *      and easing, and none animates a layout property;
- *   6. the ar and fr screenshots of the same route and width differ.
+ *   6. the ar and fr screenshots of the same route and width differ;
+ *   7. a printout taken before any scroll shows the settled state (A-3,
+ *      D-0055): the print stylesheet alone paints the finished entrance,
+ *      counters, chart and reveals, and `beforeprint` settles the DOM, with the
+ *      printed stock and herd totals matching their tables.
  *
  * Usage: start `npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`, then
  *   node scripts/verify-motion.mjs --out <dir>
@@ -446,6 +450,111 @@ const BATCH4_ROUTES = {
   indicateurs: '/indicateurs',
 };
 
+/** A-3 / D-0055: sheets and reports, printed before the reader scrolls. */
+const PRINT_ROUTES = {
+  home: '/',
+  fourrage: '/fourrage',
+  sante: '/sante',
+  nutrition: '/nutrition',
+  indicateurs: '/indicateurs',
+  preuve: '/preuve',
+};
+
+/**
+ * The print stylesheet alone, with no script and no scrolling: every effect is
+ * already in its finished state because the rules are `!important`.
+ */
+const READ_PRINT_CSS = () => {
+  const counters = Array.from(document.querySelectorAll('[data-count-up]'));
+  const entry = document.querySelector('main .ov-page-enter');
+  const chart = document.querySelector('[data-chart-line]');
+  const area = document.querySelector('[data-chart-area]');
+  const reveals = Array.from(document.querySelectorAll('main [data-reveal], main table tbody tr'));
+  return {
+    counters: counters.length,
+    srOnlyVisible: counters.every((node) => {
+      const sr = node.querySelector('.sr-only');
+      if (!sr) return false;
+      const style = getComputedStyle(sr);
+      return (
+        style.position === 'static' && style.overflow === 'visible' && style.clipPath === 'none'
+      );
+    }),
+    copiesHidden: counters.every((node) =>
+      Array.from(node.querySelectorAll('[aria-hidden="true"]')).every(
+        (copy) => getComputedStyle(copy).display === 'none',
+      ),
+    ),
+    chart: chart
+      ? {
+          opacity: Number(getComputedStyle(chart).opacity),
+          dash: getComputedStyle(chart).strokeDasharray,
+        }
+      : null,
+    areaOpacity: area ? Number(getComputedStyle(area).opacity) : null,
+    reveals: reveals.length,
+    revealsHidden: reveals.filter(
+      (node) =>
+        Number(getComputedStyle(node).opacity) < 1 || getComputedStyle(node).transform !== 'none',
+    ).length,
+    entranceAnimation: entry ? getComputedStyle(entry).animationName : null,
+  };
+};
+
+/** After `beforeprint`: the DOM agrees with the printed sheet and holds no inline motion. */
+const READ_PRINT_SETTLED = () => {
+  const counters = Array.from(document.querySelectorAll('[data-count-up]'));
+  const animated = Array.from(
+    document.querySelectorAll(
+      '[data-chart-line], [data-chart-area], main [data-reveal], main table tbody tr',
+    ),
+  );
+  return {
+    printing: document.documentElement.hasAttribute('data-printing'),
+    counters: counters.length,
+    copiesMatch: counters.every((node) => {
+      const settled = node.querySelector('.sr-only')?.textContent ?? '';
+      const copy = node.querySelector('[aria-hidden="true"].absolute');
+      return copy !== null && copy.textContent === settled;
+    }),
+    inlineLeft: animated.filter((node) => (node.getAttribute('style') ?? '') !== '').length,
+  };
+};
+
+/** Feed stock stat against the table: both must print the same total. */
+const READ_FEED_NUMBERS = () => {
+  const digits = (text) => (text ?? '').replace(/\D/g, '');
+  const rows = Array.from(document.querySelectorAll('main table tbody tr'));
+  const cells = rows.map((row) => row.querySelector('td:nth-child(3)')?.textContent ?? '');
+  const unit = cells.length ? cells[0].replace(/[\d\s.,\u00a0\u202f]/g, '').trim() : '';
+  const cards = Array.from(document.querySelectorAll('main [data-count-up]'));
+  const stock = cards.find((node) => {
+    const cardUnit =
+      node.parentElement?.parentElement?.querySelector('span.text-xs.font-medium')?.textContent ??
+      '';
+    return unit !== '' && cardUnit.trim() === unit;
+  });
+  return {
+    rows: rows.length,
+    unit,
+    cellSum: cells.reduce((sum, text) => sum + Number(digits(text) || 0), 0),
+    printed: digits(stock?.querySelector('.sr-only')?.textContent),
+  };
+};
+
+/** Herd size stat against the by-pen list: the pen counts are the herd. */
+const READ_KPI_NUMBERS = () => {
+  const digits = (text) => (text ?? '').replace(/\D/g, '');
+  const pens = Array.from(document.querySelectorAll('main ul li span.tabular-nums.font-semibold'));
+  // The first count-up on this page is the herd-size card.
+  const herd = document.querySelector('main [data-count-up]');
+  return {
+    pens: pens.length,
+    penSum: pens.reduce((sum, node) => sum + Number(digits(node.textContent) || 0), 0),
+    printed: digits(herd?.querySelector('.sr-only')?.textContent),
+  };
+};
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (!args.out) throw new Error('--out <dir> is required');
@@ -873,6 +982,133 @@ async function main() {
           state.animations,
         );
       }
+      await context.close();
+    }
+
+    // Print (A-3, D-0055): a page printed before any scroll must still show the
+    // finished numbers, chart and reveals. `media: print` first proves the CSS
+    // fallback with no script; `beforeprint` then proves the DOM agrees.
+    for (const locale of Object.keys(LOCALES)) {
+      const { context, page, errors } = await newPage(browser, {
+        locale,
+        width: 1440,
+        reduced: false,
+        clock: false,
+      });
+      pageErrors.push(...errors);
+      await page.emulateMedia({ media: 'print' });
+
+      for (const [name, route] of Object.entries(PRINT_ROUTES)) {
+        await page.goto(args.base + route, { waitUntil: 'domcontentloaded' });
+        await settle(page, 'main h1');
+        // No scrolling on purpose: this is the reader who prints from the top.
+        await page.waitForTimeout(300);
+
+        const css = await page.evaluate(READ_PRINT_CSS);
+        check(
+          `${name} ${locale}: print paints the entrance finished`,
+          css.entranceAnimation === null || css.entranceAnimation === 'none',
+          css.entranceAnimation,
+        );
+        check(`${name} ${locale}: print shows every scrolled block`, css.revealsHidden === 0, {
+          targets: css.reveals,
+          hidden: css.revealsHidden,
+        });
+        if (name !== 'preuve') {
+          check(`${name} ${locale}: print has count-ups`, css.counters > 0, css.counters);
+        }
+        if (css.counters > 0) {
+          check(
+            `${name} ${locale}: print reveals the settled counter text`,
+            css.srOnlyVisible,
+            css,
+          );
+          check(
+            `${name} ${locale}: print hides the animated counter copies`,
+            css.copiesHidden,
+            css,
+          );
+        }
+        if (css.chart) {
+          check(
+            `${name} ${locale}: print draws the finished chart`,
+            css.chart.opacity === 1 && (css.chart.dash === 'none' || css.chart.dash === ''),
+            css.chart,
+          );
+        }
+        if (css.areaOpacity !== null) {
+          check(
+            `${name} ${locale}: print paints the area at its resting opacity`,
+            css.areaOpacity > 0.1 && css.areaOpacity <= 0.2,
+            css.areaOpacity,
+          );
+        }
+        if (name === 'indicateurs') {
+          check(`${name} ${locale}: the print route carries the chart`, css.chart !== null, css);
+          check(
+            `${name} ${locale}: the print route has a page entrance`,
+            css.entranceAnimation === 'none',
+            css.entranceAnimation,
+          );
+        }
+
+        const shot = path.join(args.out, `print-${name}-1440-${locale}.png`);
+        await page.screenshot({ path: shot, fullPage: true });
+        shots.push({ page: `print-${name}`, width: 1440, locale, sha256: sha256(shot) });
+
+        await page.evaluate(() => {
+          window.dispatchEvent(new Event('beforeprint'));
+        });
+        const settled = await page.evaluate(READ_PRINT_SETTLED);
+        check(
+          `${name} ${locale}: beforeprint marks the document`,
+          settled.printing,
+          settled.printing,
+        );
+        if (settled.counters > 0) {
+          check(
+            `${name} ${locale}: beforeprint settles every counter copy`,
+            settled.copiesMatch,
+            settled,
+          );
+        }
+        check(
+          `${name} ${locale}: beforeprint leaves no inline animation state`,
+          settled.inlineLeft === 0,
+          settled,
+        );
+
+        if (name === 'fourrage') {
+          const numbers = await page.evaluate(READ_FEED_NUMBERS);
+          check(
+            `${name} ${locale}: printed stock equals the table`,
+            numbers.rows > 0 && numbers.printed === String(numbers.cellSum),
+            numbers,
+          );
+        }
+        if (name === 'indicateurs') {
+          const numbers = await page.evaluate(READ_KPI_NUMBERS);
+          check(
+            `${name} ${locale}: printed herd size equals the pen list`,
+            numbers.pens > 0 && numbers.printed === String(numbers.penSum),
+            numbers,
+          );
+        }
+
+        await page.screenshot({
+          path: path.join(args.out, `print-${name}-1440-${locale}-settled.png`),
+        });
+        await page.pdf({
+          path: path.join(args.out, `print-${name}-1440-${locale}.pdf`),
+          format: 'A4',
+          printBackground: true,
+        });
+        await page.evaluate(() => {
+          window.dispatchEvent(new Event('afterprint'));
+        });
+      }
+
+      await page.emulateMedia({ media: 'screen' });
       await context.close();
     }
   } finally {

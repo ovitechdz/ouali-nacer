@@ -137,8 +137,24 @@ export function LineChart({
     };
 
     let cancelled = false;
+    let printed = false;
     let revert: (() => void) | undefined;
     let observer: IntersectionObserver | undefined;
+    let tweens: { kill: () => void }[] = [];
+
+    // A printout is always the finished chart (D-0055, A-3): kill the draw and
+    // drop every inline dash/opacity, so the stylesheet's values paint. Works
+    // with or without GSAP, including before the chunk has resolved; a run that
+    // resolves after the print event settles instead of animating.
+    const onPrint = (): void => {
+      printed = true;
+      observer?.disconnect();
+      observer = undefined;
+      for (const tween of tweens) tween.kill();
+      tweens = [];
+      restore();
+    };
+    window.addEventListener('beforeprint', onPrint);
 
     const draw = (): void => {
       void import('gsap')
@@ -148,32 +164,40 @@ export function LineChart({
             // owns it (React StrictMode); do not wipe the newer hidden state.
             return;
           }
+          if (printed) {
+            restore();
+            return;
+          }
           const context = gsap.context(() => {
             lines.forEach((line, index) => {
               const length = line.getTotalLength();
               gsap.set(line, { strokeDasharray: length, strokeDashoffset: length, opacity: 1 });
-              gsap.to(line, {
-                strokeDashoffset: 0,
-                duration: 0.6,
-                ease: 'power2.out',
-                delay: index * 0.12,
-                clearProps: 'strokeDasharray,strokeDashoffset,opacity',
-              });
+              tweens.push(
+                gsap.to(line, {
+                  strokeDashoffset: 0,
+                  duration: 0.6,
+                  ease: 'power2.out',
+                  delay: index * 0.12,
+                  clearProps: 'strokeDasharray,strokeDashoffset,opacity',
+                }),
+              );
             });
             areas.forEach((area, index) => {
               // The class carries the resting opacity (`opacity-15`); read it so
               // the fade lands exactly on the design value instead of 1.
               const resting = Number.parseFloat(getComputedStyle(area).opacity) || 0;
-              gsap.fromTo(
-                area,
-                { opacity: 0 },
-                {
-                  opacity: resting,
-                  duration: 0.4,
-                  ease: 'power2.out',
-                  delay: 0.25 + index * 0.12,
-                  clearProps: 'opacity',
-                },
+              tweens.push(
+                gsap.fromTo(
+                  area,
+                  { opacity: 0 },
+                  {
+                    opacity: resting,
+                    duration: 0.4,
+                    ease: 'power2.out',
+                    delay: 0.25 + index * 0.12,
+                    clearProps: 'opacity',
+                  },
+                ),
               );
             });
           }, node);
@@ -203,7 +227,10 @@ export function LineChart({
 
     return () => {
       cancelled = true;
+      window.removeEventListener('beforeprint', onPrint);
       observer?.disconnect();
+      for (const tween of tweens) tween.kill();
+      tweens = [];
       revert?.();
       restore();
     };

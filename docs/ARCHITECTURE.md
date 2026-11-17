@@ -185,7 +185,7 @@ ovitech-rebuild/
 │  ├─ e2e/                    # Playwright
 │  └─ visual/                 # screenshot baselines
 ├─ scripts/                   # build checks, fonts, precache audit
-├─ docs/                      # inherited audit + decisions
+├─ docs/                      # architecture and glossary; governance lives outside this repository
 └─ .github/workflows/         # CI
 ```
 
@@ -323,7 +323,7 @@ import caps. Shared by UI and tests.
   Gregorian calendar with Arabic month names.
 - Locale metadata lives in one file: `{ code, dir, label, numberSystem }`.
 
-Full typography, bidi and QA detail: `PHASE-2-ARABIC-RTL-STRATEGY.md`.
+Full typography, bidi and QA detail: `PHASE-2-ARABIC-RTL-STRATEGY.md` in the audit workspace.
 
 ---
 
@@ -430,7 +430,7 @@ dark-only explicitly instead of shipping an untested light mapping.
 ### 12.3 Typography
 
 Inter (Latin) + Cairo (Arabic), self-hosted. Full stack, weights, scale and
-RTL rules: `PHASE-2-ARABIC-RTL-STRATEGY.md` §3.
+RTL rules: `PHASE-2-ARABIC-RTL-STRATEGY.md` §3 in the audit workspace.
 
 ### 12.4 Shell and navigation
 

@@ -241,6 +241,7 @@ if (shotDir) fs.mkdirSync(shotDir, { recursive: true });
 
 const rows = [];
 const langFailures = [];
+const thinRenders = [];
 let routeList = [];
 
 for (const [locale, config] of Object.entries(LOCALES)) {
@@ -265,7 +266,16 @@ for (const [locale, config] of Object.entries(LOCALES)) {
       await page.goto(BASE_URL + route, { waitUntil: 'networkidle' });
       await page.evaluate(() => document.fonts.ready);
       await page.waitForTimeout(300);
-      const result = await page.evaluate(measurePage, FLOOR_PX);
+      let result = await page.evaluate(measurePage, FLOOR_PX);
+      // A lazy route can briefly show its skeleton while the dev server
+      // recompiles. Retry a census that would silently skip most of the page.
+      for (let attempt = 0; attempt < 3 && result.total < 10; attempt += 1) {
+        await page.waitForTimeout(500);
+        result = await page.evaluate(measurePage, FLOOR_PX);
+      }
+      if (result.total < 10) {
+        thinRenders.push({ route, locale, width, total: result.total });
+      }
       const langOk = result.lang === config.expectedLang;
       const dirOk = result.dir === config.expectedDir;
       if (!langOk || !dirOk) {
@@ -316,7 +326,7 @@ const svgFindings = findings.filter((entry) => entry.svg);
 const jsonFile = path.join(OUT_DIR, `effective-size-${LABEL}.json`);
 fs.writeFileSync(
   jsonFile,
-  `${JSON.stringify({ label: LABEL, baseUrl: BASE_URL, floor: FLOOR_PX, widths: WIDTHS, rows, findings, skips, langFailures }, null, 2)}\n`,
+  `${JSON.stringify({ label: LABEL, baseUrl: BASE_URL, floor: FLOOR_PX, widths: WIDTHS, rows, findings, skips, langFailures, thinRenders }, null, 2)}\n`,
 );
 
 const smallest = rows
@@ -341,6 +351,7 @@ const lines = [
   `- effective size below ${FLOOR_PX}px: ${findings.length} (of which SVG text: ${svgFindings.length})`,
   `- aria-hidden skips listed: ${skips.length}`,
   `- lang/dir assertion failures: ${langFailures.length}`,
+  `- thin renders after retries: ${thinRenders.length}`,
   '',
   '## Effective size census',
   '',
@@ -378,6 +389,12 @@ if (langFailures.length) {
     );
   }
 }
+if (thinRenders.length) {
+  lines.push('', '## thin renders after retries', '');
+  for (const entry of thinRenders) {
+    lines.push(`- ${entry.route} ${entry.locale} w${entry.width}: ${entry.total} text owners`);
+  }
+}
 fs.writeFileSync(mdFile, `${lines.join('\n')}\n`);
 
 console.log('');
@@ -386,6 +403,7 @@ console.log(`text owners: ${rows.reduce((sum, row) => sum + row.total, 0)}`);
 console.log(`effective < ${FLOOR_PX}px: ${findings.length} (svg ${svgFindings.length})`);
 console.log(`aria-hidden skips: ${skips.length}`);
 console.log(`lang/dir failures: ${langFailures.length}`);
+console.log(`thin renders after retries: ${thinRenders.length}`);
 console.log(`json: ${jsonFile}`);
 console.log(`md:   ${mdFile}`);
 process.exitCode = findings.length || langFailures.length ? 1 : 0;

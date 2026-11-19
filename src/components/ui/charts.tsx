@@ -36,14 +36,14 @@ export interface ChartPad {
  * 10 px label renders at 4.5 px. The axis labels are therefore sized in viewBox
  * units from the measured width, with the padding scaled by the same factor.
  */
-const MIN_TEXT_PX = 12;
+export const CHART_TEXT_MIN = 12;
 const MAX_TEXT_UNITS = 30;
 const DEFAULT_TEXT_UNITS = 19;
 
 function textUnitsFor(width: number): number {
   if (!Number.isFinite(width) || width <= 0) return DEFAULT_TEXT_UNITS;
-  const units = MIN_TEXT_PX / (width / WIDTH);
-  return Math.ceil(Math.min(MAX_TEXT_UNITS, Math.max(MIN_TEXT_PX, units)) * 10) / 10;
+  const units = CHART_TEXT_MIN / (width / WIDTH);
+  return Math.ceil(Math.min(MAX_TEXT_UNITS, Math.max(CHART_TEXT_MIN, units)) * 10) / 10;
 }
 
 function build(values: number[][]): { min: number; max: number } {

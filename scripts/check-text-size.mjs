@@ -2,9 +2,12 @@
 /**
  * P2-1 gate: no text below 12 px anywhere in src/.
  *
- * Fails on Tailwind arbitrary sizes, CSS font-size and inline fontSize below
- * the floor, unless `scripts/text-size-allowlist.json` names the file and value
- * with a reason. A stale allowlist entry also fails, so the list cannot rot.
+ * Fails on Tailwind arbitrary sizes, CSS font-size declarations, numeric
+ * `fontSize` props, ternaries, and constants resolved in the same file. A
+ * dynamic value such as `fontSize={unit}` fails unless
+ * `scripts/text-size-allowlist.json` names the file and value *and* points at
+ * a constant exported by that file that guarantees the 12 px floor. A stale
+ * allowlist entry also fails, so the list cannot rot.
  */
 import path from 'node:path';
 
@@ -16,19 +19,27 @@ const allowlistFile = path.join(root, 'scripts', 'text-size-allowlist.json');
 
 const files = listSources(sourceRoot);
 const allowlist = loadAllowlist(allowlistFile);
-const { violations, allowed, stale } = checkFiles(files, allowlist);
+const { violations, allowed, stale, unguarded } = checkFiles(files, allowlist);
 
 for (const entry of allowed) {
-  console.log(`[text-size] allowed ${entry.file}:${entry.line} ${entry.value} - ${entry.reason}`);
+  const proof = entry.constant ? ` via ${entry.constant}` : '';
+  console.log(
+    `[text-size] allowed ${entry.file}:${entry.line} ${entry.value}${proof} - ${entry.reason}`,
+  );
 }
 for (const entry of stale) {
   console.error(
     `[text-size] stale allowlist entry ${entry.file} ${entry.value} - remove it or fix the line`,
   );
 }
+for (const { entry, problem } of unguarded) {
+  console.error(`[text-size] unguarded allowlist entry ${entry.file} ${entry.value} - ${problem}`);
+}
 for (const entry of violations) {
+  const spoken = Number.isNaN(entry.px) ? 'unresolved dynamic size' : `${entry.px}px`;
+  const why = entry.reason ? ` - ${entry.reason}` : '';
   console.error(
-    `[text-size] ${entry.file}:${entry.line} ${entry.value} = ${entry.px}px (floor ${FLOOR_PX}px)`,
+    `[text-size] ${entry.file}:${entry.line} ${entry.value} = ${spoken} (floor ${FLOOR_PX}px)${why}`,
   );
 }
 

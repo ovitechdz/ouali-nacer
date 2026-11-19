@@ -31,12 +31,14 @@ export interface ChartPad {
 }
 
 /**
- * The product text floor (D-0053). An SVG `<text>` scales with its viewBox, so a
- * CSS size alone cannot guarantee the rendered size: at a 286 px container a
- * 10 px label renders at 4.5 px. The axis labels are therefore sized in viewBox
- * units from the measured width, with the padding scaled by the same factor.
+ * The minimum painted size for an SVG axis label. An SVG `<text>` scales with
+ * its viewBox, so a CSS size alone cannot guarantee the rendered size: at a
+ * 286 px container a 10 px label renders at 4.5 px. The labels are therefore
+ * sized in viewBox units from the measured width, with the padding scaled by
+ * the same factor. Raised 12 -> 13 px under D-0056 so the Arabic informational
+ * floor holds for chart ticks too; the static gate proves this constant.
  */
-export const CHART_TEXT_MIN = 12;
+export const CHART_TEXT_MIN = 13;
 const MAX_TEXT_UNITS = 30;
 const DEFAULT_TEXT_UNITS = 19;
 

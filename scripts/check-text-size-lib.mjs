@@ -20,6 +20,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 export const FLOOR_PX = 12;
+/** D-0056: Cairo at 12 px loses optical height, so Arabic informational text
+ *  has one shared step override at 13 px. The guard verifies that rule exists
+ *  and that nothing else in CSS declares a smaller size that bypasses it. */
+export const ARABIC_FLOOR_PX = 13;
+export const ARABIC_COVERED_STEPS = ['.text-xs', '.ov-micro'];
 export const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.css']);
 
 const UNIT_TO_PX = { px: 1, rem: 16, em: 16, pt: 4 / 3 };
@@ -191,14 +196,90 @@ export function toPosix(file) {
  *
  * @returns {string|null} a problem description, or null when the proof holds
  */
-export function checkGuarantee(text, entry) {
+export function checkGuarantee(text, entry, floor = FLOOR_PX) {
   const constant = collectConstants(text).get(entry.constant);
   if (!constant) return `constant ${entry.constant} is not declared in ${entry.file}`;
   if (!constant.exported) return `constant ${entry.constant} in ${entry.file} is not exported`;
-  if (constant.px < FLOOR_PX) {
-    return `constant ${entry.constant} in ${entry.file} is ${constant.px}px, below the ${FLOOR_PX}px floor`;
+  if (constant.px < floor) {
+    return `constant ${entry.constant} in ${entry.file} is ${constant.px}px, below the ${floor}px floor`;
   }
   return null;
+}
+
+/**
+ * Arabic floor: one shared `:lang(ar)` rule must raise every smallest text step
+ * to at least 13 px. Any other sub-13 px CSS declaration would bypass it, and
+ * an allowlisted dynamic size marked `arabic` must prove the higher floor too.
+ *
+ * @returns {string[]} problems (empty means the Arabic minimum holds)
+ */
+export function checkArabicMinimum(files, allowlist = { allow: [] }) {
+  const problems = [];
+  const cssFiles = files.filter((file) => file.endsWith('.css'));
+  const ruleRe = /:lang\(ar\)\s*:is\(([^)]+)\)\s*\{([^}]*)\}/g;
+  const rules = [];
+  for (const file of cssFiles) {
+    const text = fs.readFileSync(file, 'utf8');
+    ruleRe.lastIndex = 0;
+    let match;
+    while ((match = ruleRe.exec(text)) !== null) {
+      const size = match[2].match(/font-size\s*:\s*(\d+(?:\.\d+)?)(px|rem|em|pt)\b/);
+      rules.push({
+        file: toPosix(file),
+        line: lineOf(text, match.index),
+        classes: match[1]
+          .split(',')
+          .map((name) => name.trim())
+          .filter(Boolean),
+        px: size ? round(toPx(size[1], size[2])) : Number.NaN,
+      });
+    }
+  }
+
+  if (rules.length !== 1) {
+    problems.push(`expected exactly one :lang(ar) :is(...) override, found ${rules.length}`);
+  } else {
+    const [rule] = rules;
+    for (const step of ARABIC_COVERED_STEPS) {
+      if (!rule.classes.includes(step)) {
+        problems.push(`Arabic override at ${rule.file}:${rule.line} must cover ${step}`);
+      }
+    }
+    if (!(rule.px >= ARABIC_FLOOR_PX)) {
+      problems.push(
+        `Arabic override at ${rule.file}:${rule.line} is ${rule.px}px, below ${ARABIC_FLOOR_PX}px`,
+      );
+    }
+  }
+
+  const covered = rules[0]?.classes ?? ARABIC_COVERED_STEPS;
+  for (const file of cssFiles) {
+    const text = fs.readFileSync(file, 'utf8');
+    const pattern = /font-size\s*:\s*(\d+(?:\.\d+)?)\s*(px|rem|em|pt)\b/g;
+    let match;
+    while ((match = pattern.exec(text)) !== null) {
+      const px = round(toPx(match[1], match[2]));
+      if (px >= ARABIC_FLOOR_PX) continue;
+      const before = text.slice(0, match.index);
+      const selector = before.slice(before.lastIndexOf('}') + 1).split('{')[0];
+      if (covered.some((step) => selector.includes(step))) continue;
+      problems.push(
+        `${toPosix(file)}:${lineOf(text, match.index)} ${match[1]}${match[2]} = ${px}px bypasses the Arabic ${ARABIC_FLOOR_PX}px rule`,
+      );
+    }
+  }
+
+  for (const entry of allowlist.allow ?? []) {
+    if (!entry.arabic) continue;
+    const file = files.find((candidate) => toPosix(candidate) === entry.file);
+    if (!file) {
+      problems.push(`Arabic allowlist file is missing: ${entry.file}`);
+      continue;
+    }
+    const problem = checkGuarantee(fs.readFileSync(file, 'utf8'), entry, ARABIC_FLOOR_PX);
+    if (problem) problems.push(`${entry.file} ${entry.value}: ${problem}`);
+  }
+  return problems;
 }
 
 /**

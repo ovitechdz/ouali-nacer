@@ -5,13 +5,16 @@ import path from 'node:path';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import {
+  ARABIC_FLOOR_PX,
   FLOOR_PX,
+  checkArabicMinimum,
   checkFiles,
   checkGuarantee,
   collectConstants,
   listSources,
   loadAllowlist,
   scanSource,
+  toPosix,
   toPx,
 } from './check-text-size-lib.mjs';
 
@@ -244,5 +247,73 @@ describe('checkGuarantee', () => {
   it('rejects a constant below the floor', () => {
     const text = 'export const CHART_TEXT_MIN = 11;';
     expect(checkGuarantee(text, { file: 'a.tsx', constant: 'CHART_TEXT_MIN' })).toMatch(/11px/);
+  });
+
+  it('accepts an explicit higher floor for Arabic', () => {
+    expect(ARABIC_FLOOR_PX).toBe(13);
+    expect(
+      checkGuarantee('export const CHART_TEXT_MIN = 12;', { constant: 'CHART_TEXT_MIN' }, 13),
+    ).toMatch(/below the 13px floor/);
+    expect(
+      checkGuarantee('export const CHART_TEXT_MIN = 13;', { constant: 'CHART_TEXT_MIN' }, 13),
+    ).toBeNull();
+  });
+});
+
+describe('checkArabicMinimum', () => {
+  let directory;
+  const override = (size) => `.ov-micro { font-size: 0.75rem; }
+:lang(ar) :is(.text-xs, .ov-micro) { font-size: ${size}; }
+`;
+
+  beforeEach(() => {
+    directory = fs.mkdtempSync(path.join(os.tmpdir(), 'arabic-size-'));
+  });
+
+  it('accepts one shared override that covers both smallest steps at 13 px', () => {
+    const css = path.join(directory, 'base.css');
+    fs.writeFileSync(css, override('0.8125rem'));
+    expect(checkArabicMinimum([css])).toEqual([]);
+  });
+
+  it('fails a missing, undersized or incomplete override', () => {
+    const css = path.join(directory, 'base.css');
+    const cases = [
+      '.ov-micro { font-size: 0.75rem; }',
+      override('0.75rem'),
+      ':lang(ar) :is(.ov-micro) { font-size: 0.8125rem; }',
+    ];
+    for (const source of cases) {
+      fs.writeFileSync(css, source);
+      expect(checkArabicMinimum([css]).length).toBeGreaterThan(0);
+    }
+  });
+
+  it('fails a small CSS size that bypasses the covered steps', () => {
+    const css = path.join(directory, 'base.css');
+    fs.writeFileSync(css, `${override('0.8125rem')}.bypass { font-size: 11px; }`);
+    expect(checkArabicMinimum([css]).join(' ')).toMatch(/bypasses/);
+  });
+
+  it('requires an Arabic allowlisted dynamic size to prove 13 px', () => {
+    const chart = path.join(directory, 'chart.tsx');
+    const css = path.join(directory, 'base.css');
+    fs.writeFileSync(css, override('0.8125rem'));
+    const files = [chart, css];
+    const allowlist = {
+      allow: [
+        {
+          file: toPosix(chart),
+          value: 'fontSize={unit}',
+          constant: 'CHART_TEXT_MIN',
+          arabic: true,
+          reason: 'svg axis label',
+        },
+      ],
+    };
+    fs.writeFileSync(chart, 'export const CHART_TEXT_MIN = 12;\n<text fontSize={unit}>1</text>');
+    expect(checkArabicMinimum(files, allowlist).join(' ')).toMatch(/below the 13px floor/);
+    fs.writeFileSync(chart, 'export const CHART_TEXT_MIN = 13;\n<text fontSize={unit}>1</text>');
+    expect(checkArabicMinimum(files, allowlist)).toEqual([]);
   });
 });

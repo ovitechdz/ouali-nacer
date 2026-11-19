@@ -119,7 +119,7 @@ export function JournalPage() {
                 aria-pressed={severity === value}
                 onClick={() => setSeverity(value)}
                 className={cn(
-                  'rounded-full border px-3 py-1 text-xs font-semibold transition-colors duration-[var(--duration-quick)] ease-out',
+                  'rounded-full border px-3 py-1 text-sm font-semibold transition-colors duration-[var(--duration-quick)] ease-out',
                   severity === value
                     ? 'border-accent/50 bg-accent/10 text-accent'
                     : 'border-border bg-surface-2 text-fg-muted hover:text-fg',

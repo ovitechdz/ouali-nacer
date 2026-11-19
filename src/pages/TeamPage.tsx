@@ -169,7 +169,7 @@ export function TeamPage() {
           onClick={() => setDepartment('all')}
           aria-pressed={department === 'all'}
           className={cn(
-            'shrink-0 rounded-lg border px-3 py-1.5 text-xs font-medium',
+            'shrink-0 rounded-lg border px-3 py-1.5 text-sm font-medium',
             department === 'all'
               ? 'border-accent/40 bg-accent/20 text-accent'
               : 'border-transparent text-fg-muted hover:bg-surface-3 hover:text-fg-strong',
@@ -184,7 +184,7 @@ export function TeamPage() {
             onClick={() => setDepartment(value)}
             aria-pressed={department === value}
             className={cn(
-              'shrink-0 rounded-lg border px-3 py-1.5 text-xs font-medium',
+              'shrink-0 rounded-lg border px-3 py-1.5 text-sm font-medium',
               department === value
                 ? 'border-accent/40 bg-accent/20 text-accent'
                 : 'border-transparent text-fg-muted hover:bg-surface-3 hover:text-fg-strong',

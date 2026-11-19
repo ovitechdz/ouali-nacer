@@ -27,6 +27,7 @@
     "check:seed": "node scripts/check-seed.mjs",
     "check:domain": "node scripts/check-domain.mjs",
     "check:text-size": "node scripts/check-text-size.mjs",
+    "audit:text-size": "node scripts/audit-text-effective-size.mjs",
     "check:origins": "node scripts/audit-external-origins.mjs",
     "audit:bundle": "node scripts/audit-bundle.mjs",
     "audit:precache": "node scripts/audit-precache.mjs",

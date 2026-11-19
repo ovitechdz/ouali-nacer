@@ -1,3 +1,11 @@
 {
-  "allow": []
+  "allow": [
+    {
+      "file": "src/components/ui/charts.tsx",
+      "value": "fontSize={unit}",
+      "constant": "CHART_TEXT_MIN",
+      "arabic": true,
+      "reason": "SVG axis labels are sized in viewBox units from the measured container width, so the painted size is >= CHART_TEXT_MIN at every viewport; the guard verifies that this constant is exported and at or above the Arabic 13 px floor."
+    }
+  ]
 }

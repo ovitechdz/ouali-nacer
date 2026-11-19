@@ -22,7 +22,7 @@ export function SidebarContent({ onNavigate }: SidebarContentProps) {
 
   const itemClass = (active: boolean) =>
     cn(
-      'flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] font-medium transition-colors duration-[var(--duration-quick)] ease-out',
+      'flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors duration-[var(--duration-quick)] ease-out',
       active ? 'bg-accent/10 text-accent' : 'text-fg-muted hover:bg-surface-3 hover:text-fg',
     );
 

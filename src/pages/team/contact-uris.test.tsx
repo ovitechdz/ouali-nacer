@@ -1,7 +1,8 @@
 import { fireEvent, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { TeamPage, mailtoHref, telHref, whatsappHref } from '@/pages/TeamPage';
+import { TeamPage } from '@/pages/TeamPage';
+import { mailtoHref, telHref, whatsappHref } from '@/pages/team/contact-uris';
 import {
   expectDialogClosed,
   panel,

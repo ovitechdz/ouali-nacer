@@ -2,6 +2,7 @@ import type { FarmDocument } from '@/domain/types';
 import { CURRENT_SCHEMA_VERSION, ENGINE_VERSION, farmDocumentSchema } from '@/domain/types';
 import { MigrationError, migrateDocument } from '@/domain/migrations';
 import type { MessageDescriptor } from '@/domain/messages';
+import { checkImportLimits } from '@/domain/validation';
 import type {
   BackupCodec,
   BackupCounts,
@@ -23,12 +24,19 @@ export type BackupErrorCode =
 export class BackupError extends Error {
   readonly code: BackupErrorCode;
   readonly key: MessageDescriptor['key'];
+  readonly params?: MessageDescriptor['params'];
 
-  constructor(code: BackupErrorCode, key: MessageDescriptor['key'], detail?: string) {
+  constructor(
+    code: BackupErrorCode,
+    key: MessageDescriptor['key'],
+    detail?: string,
+    params?: MessageDescriptor['params'],
+  ) {
     super(detail ? `${code}: ${detail}` : code);
     this.name = 'BackupError';
     this.code = code;
     this.key = key;
+    this.params = params;
   }
 }
 
@@ -82,9 +90,52 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
+const IMPORT_COLLECTIONS = [
+  'animals',
+  'weights',
+  'healthEvents',
+  'recommendations',
+  'feedLots',
+  'auditEvents',
+  'signoffs',
+] as const;
+
+/** Import limits apply to the raw envelope and to decrypted state alike. */
+function assertImportLimits(raw: string, state: unknown): void {
+  const arrayLengths = isRecord(state)
+    ? IMPORT_COLLECTIONS.map((key) => {
+        const value = state[key];
+        return Array.isArray(value) ? value.length : 0;
+      })
+    : [];
+  const issue = checkImportLimits({
+    bytes: ENCODER.encode(raw).byteLength,
+    arrayLengths,
+  });
+  if (issue !== null) throw new BackupError('structure', issue.key, undefined, issue.params);
+}
+
+/**
+ * Duplicate ids make command lookups and updates ambiguous after restore, so
+ * an imported document must have unique ids inside every collection.
+ */
+function assertUniqueIds(document: FarmDocument): void {
+  for (const key of IMPORT_COLLECTIONS) {
+    const seen = new Set<string>();
+    for (const item of document[key] as ReadonlyArray<{ id: string }>) {
+      if (seen.has(item.id)) {
+        throw new BackupError('structure', 'domain.error.duplicate', `${key}:${item.id}`);
+      }
+      seen.add(item.id);
+    }
+  }
+}
+
 function migrate(raw: unknown, now: Date): FarmDocument {
   try {
-    return migrateDocument(raw, now).document;
+    const document = migrateDocument(raw, now).document;
+    assertUniqueIds(document);
+    return document;
   } catch (error) {
     if (error instanceof MigrationError) {
       if (error.code === 'newer-schema') {
@@ -167,6 +218,7 @@ export class JsonBackupCodec implements BackupCodec {
       throw new BackupError('structure', 'domain.error.malformed');
     }
     if (!isRecord(parsed)) throw new BackupError('structure', 'domain.error.malformed');
+    assertImportLimits(raw, parsed.state);
     if (parsed.format !== BACKUP_FORMAT) throw new BackupError('format', 'domain.backup.format');
 
     const now = new Date();
@@ -212,6 +264,7 @@ export class JsonBackupCodec implements BackupCodec {
       } catch {
         throw new BackupError('structure', 'domain.error.malformed');
       }
+      assertImportLimits(raw, state);
     } else {
       if (!isRecord(parsed.state)) {
         throw new BackupError('structure', 'domain.error.malformed');

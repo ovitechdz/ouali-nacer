@@ -1,0 +1,15 @@
+OVITECH - All rights reserved. Proprietary software.
+
+Copyright (c) 2026 Ovitech. All rights reserved.
+
+The source code, design, documentation and related assets in this repository are
+the proprietary property of Ovitech. No licence is granted to use, copy, modify,
+merge, publish, distribute, sublicense or sell copies, in whole or in part,
+except with the prior written permission of the owner.
+
+This file is a notice of ownership, not an open-source licence. The
+"UNLICENSED" value in package.json is intentional.
+
+Third-party packages remain subject to their own licence terms. GSAP 3.15.1 is
+used under Webflow's Standard "No Charge" GSAP License, and its proprietary
+notices are retained.

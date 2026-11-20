@@ -8,6 +8,7 @@ import { Notice } from '@/components/ui/feedback';
 import { Field, Input, Select, Textarea } from '@/components/ui/input';
 import { useToast } from '@/components/ui/toast-context';
 import { cn } from '@/lib/cn';
+import { mailtoHref, telHref, whatsappHref } from '@/pages/team/contact-uris';
 import {
   initialsOf,
   TEAM_ARCHIVE_STATS,
@@ -55,10 +56,6 @@ const EMPTY_FORM: FormState = {
   bio: '',
 };
 
-function whatsappHref(link: string): string {
-  return `https://${link}`;
-}
-
 export function TeamPage() {
   const { t } = useTranslation();
   const toast = useToast();
@@ -84,6 +81,8 @@ export function TeamPage() {
     (member) => department === 'all' || member.department === department,
   );
   const detail = members.find((member) => member.id === detailId) ?? null;
+  const detailEmailHref = detail ? mailtoHref(detail.email) : null;
+  const detailPhoneHref = detail?.phone ? telHref(detail.phone) : null;
 
   const setField = <Key extends keyof FormState>(key: Key, value: FormState[Key]): void => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -288,22 +287,22 @@ export function TeamPage() {
             <p className="text-sm leading-relaxed text-fg-muted">{detail.bio}</p>
 
             <div className="space-y-2">
-              {detail.email ? (
+              {detailEmailHref ? (
                 <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface-3/50 px-3 py-2.5">
                   <span className="text-xs text-fg-muted">{t('team.email')}</span>
                   <a
-                    href={`mailto:${detail.email}`}
+                    href={detailEmailHref}
                     className="truncate text-xs font-semibold text-fg hover:text-accent"
                   >
                     {detail.email}
                   </a>
                 </div>
               ) : null}
-              {detail.phone ? (
+              {detailPhoneHref ? (
                 <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface-3/50 px-3 py-2.5">
                   <span className="text-xs text-fg-muted">{t('team.phone')}</span>
                   <a
-                    href={`tel:${detail.phone.replace(/\s+/g, '')}`}
+                    href={detailPhoneHref}
                     className="truncate text-xs font-semibold text-fg hover:text-accent"
                     dir="ltr"
                   >
@@ -325,9 +324,9 @@ export function TeamPage() {
                   {t('team.contactWhatsApp')}
                 </a>
               ) : null}
-              {detail.email ? (
+              {detailEmailHref ? (
                 <a
-                  href={`mailto:${detail.email}`}
+                  href={detailEmailHref}
                   className="inline-flex h-10 items-center gap-2 rounded-xl border border-border bg-surface-3 px-3 text-sm font-semibold text-fg hover:border-border-strong"
                 >
                   <Mail className="size-4" aria-hidden="true" />

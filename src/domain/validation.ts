@@ -9,10 +9,15 @@ export const MAX_BCS = 5;
 export const MAX_NOTE_LENGTH = 500;
 export const MAX_NAME_LENGTH = 120;
 
+/**
+ * Sized to import a 5,000-head flock with one year of records (measured
+ * 108,259,448 bytes / 256,026 records). See D-0061 for the byte-per-record
+ * measurements and the rationale for each ceiling.
+ */
 export const IMPORT_LIMITS = {
-  maxFileBytes: 25 * 1024 * 1024,
-  maxArrayLength: 50_000,
-  maxTotalRecords: 200_000,
+  maxFileBytes: 128 * 1024 * 1024,
+  maxArrayLength: 200_000,
+  maxTotalRecords: 320_000,
   maxCodeLength: 32,
   maxRfidLength: 64,
 } as const;

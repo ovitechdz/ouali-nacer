@@ -91,16 +91,25 @@ describe('import limits', () => {
     expect(checkImportLimits({ bytes: 1024, arrayLengths: [10, 20] })).toBeNull();
   });
 
-  it('rejects oversized files, arrays and totals', () => {
-    expect(checkImportLimits({ bytes: 26 * 1024 * 1024, arrayLengths: [] })?.key).toBe(
-      'domain.error.importSize',
-    );
-    expect(checkImportLimits({ bytes: 1, arrayLengths: [50_001] })?.key).toBe(
-      'domain.error.importSize',
-    );
+  it('accepts the documented 5,000-head/one-year upper case (D-0061)', () => {
     expect(
-      checkImportLimits({ bytes: 1, arrayLengths: [50_000, 50_000, 50_000, 50_000, 1] })?.key,
-    ).toBe('domain.error.importSize');
+      checkImportLimits({
+        bytes: 108_259_448,
+        arrayLengths: [6_000, 50_000, 15_000, 60_000, 24, 125_000, 2],
+      }),
+    ).toBeNull();
+  });
+
+  it('rejects oversized files, arrays and totals', () => {
+    expect(checkImportLimits({ bytes: 129 * 1024 * 1024, arrayLengths: [] })?.key).toBe(
+      'domain.error.importSize',
+    );
+    expect(checkImportLimits({ bytes: 1, arrayLengths: [200_001] })?.key).toBe(
+      'domain.error.importSize',
+    );
+    expect(checkImportLimits({ bytes: 1, arrayLengths: [200_000, 200_000] })?.key).toBe(
+      'domain.error.importSize',
+    );
   });
 
   it('rejects malformed lengths', () => {

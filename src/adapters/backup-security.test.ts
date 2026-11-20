@@ -45,19 +45,21 @@ describe('backup import hardening', () => {
     const valid = JSON.parse(await codec.encode(makeDocument(), { exportedAt: NOW.toISOString() }));
     const oversized = JSON.stringify({
       ...valid,
-      padding: 'x'.repeat(26 * 1024 * 1024),
+      padding: 'x'.repeat(129 * 1024 * 1024),
     });
     const error = await expectRejected(oversized);
     expect(error.key).toBe('domain.error.importSize');
+    expect(error.params).toEqual({ limit: 128 * 1024 * 1024 });
   });
 
   it('rejects an enormous array of animals', async () => {
-    const animals = Array.from({ length: 50_001 }, (_, index) =>
+    const animals = Array.from({ length: 200_001 }, (_, index) =>
       makeAnimal({ id: `an-${index}`, code: `OV-${index}` }),
     );
     const raw = await codec.encode(makeDocument({ animals }), { exportedAt: NOW.toISOString() });
     const error = await expectRejected(raw);
     expect(error.key).toBe('domain.error.importSize');
+    expect(error.params).toEqual({ limit: 200_000 });
   });
 
   it('rejects a wrong schema version', async () => {
@@ -142,7 +144,7 @@ describe('failed restore keeps the previous document', () => {
     );
     const badPayloads: Array<[string, string]> = [
       ['malformed JSON', '{'],
-      ['oversized file', JSON.stringify({ ...valid, padding: 'x'.repeat(26 * 1024 * 1024) })],
+      ['oversized file', JSON.stringify({ ...valid, padding: 'x'.repeat(129 * 1024 * 1024) })],
       ['duplicated ids', duplicated],
     ];
 

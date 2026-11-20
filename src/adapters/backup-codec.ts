@@ -24,12 +24,19 @@ export type BackupErrorCode =
 export class BackupError extends Error {
   readonly code: BackupErrorCode;
   readonly key: MessageDescriptor['key'];
+  readonly params?: MessageDescriptor['params'];
 
-  constructor(code: BackupErrorCode, key: MessageDescriptor['key'], detail?: string) {
+  constructor(
+    code: BackupErrorCode,
+    key: MessageDescriptor['key'],
+    detail?: string,
+    params?: MessageDescriptor['params'],
+  ) {
     super(detail ? `${code}: ${detail}` : code);
     this.name = 'BackupError';
     this.code = code;
     this.key = key;
+    this.params = params;
   }
 }
 
@@ -105,7 +112,7 @@ function assertImportLimits(raw: string, state: unknown): void {
     bytes: ENCODER.encode(raw).byteLength,
     arrayLengths,
   });
-  if (issue !== null) throw new BackupError('structure', issue.key);
+  if (issue !== null) throw new BackupError('structure', issue.key, undefined, issue.params);
 }
 
 /**

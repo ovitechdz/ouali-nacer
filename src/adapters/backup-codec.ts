@@ -2,6 +2,7 @@ import type { FarmDocument } from '@/domain/types';
 import { CURRENT_SCHEMA_VERSION, ENGINE_VERSION, farmDocumentSchema } from '@/domain/types';
 import { MigrationError, migrateDocument } from '@/domain/migrations';
 import type { MessageDescriptor } from '@/domain/messages';
+import { checkImportLimits } from '@/domain/validation';
 import type {
   BackupCodec,
   BackupCounts,
@@ -80,6 +81,31 @@ function canonical(document: FarmDocument): string {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+const IMPORT_COLLECTIONS = [
+  'animals',
+  'weights',
+  'healthEvents',
+  'recommendations',
+  'feedLots',
+  'auditEvents',
+  'signoffs',
+] as const;
+
+/** Import limits apply to the raw envelope and to decrypted state alike. */
+function assertImportLimits(raw: string, state: unknown): void {
+  const arrayLengths = isRecord(state)
+    ? IMPORT_COLLECTIONS.map((key) => {
+        const value = state[key];
+        return Array.isArray(value) ? value.length : 0;
+      })
+    : [];
+  const issue = checkImportLimits({
+    bytes: ENCODER.encode(raw).byteLength,
+    arrayLengths,
+  });
+  if (issue !== null) throw new BackupError('structure', issue.key);
 }
 
 function migrate(raw: unknown, now: Date): FarmDocument {
@@ -167,6 +193,7 @@ export class JsonBackupCodec implements BackupCodec {
       throw new BackupError('structure', 'domain.error.malformed');
     }
     if (!isRecord(parsed)) throw new BackupError('structure', 'domain.error.malformed');
+    assertImportLimits(raw, parsed.state);
     if (parsed.format !== BACKUP_FORMAT) throw new BackupError('format', 'domain.backup.format');
 
     const now = new Date();
@@ -212,6 +239,7 @@ export class JsonBackupCodec implements BackupCodec {
       } catch {
         throw new BackupError('structure', 'domain.error.malformed');
       }
+      assertImportLimits(raw, state);
     } else {
       if (!isRecord(parsed.state)) {
         throw new BackupError('structure', 'domain.error.malformed');

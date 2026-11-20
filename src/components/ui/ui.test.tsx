@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { Badge } from './badge';
 import { Button } from './button';
 import { Card } from './card';
+import { Input, Select, Textarea } from './input';
 
 describe('ui primitives', () => {
   it('renders a button with an explicit non-submitting type', () => {
@@ -29,5 +30,25 @@ describe('ui primitives', () => {
     );
     expect(screen.getByTestId('card').className).toContain('rounded-2xl');
     expect(screen.getByText('Phase').className).toContain('text-success');
+  });
+
+  it('keeps the visible focus ring on every form control', () => {
+    // A `focus:outline-none` class used to override the global :focus-visible
+    // outline on inputs, selects and textareas (browser audit, 2026-11-19).
+    render(
+      <>
+        <Input aria-label="text" />
+        <Select aria-label="select" />
+        <Textarea aria-label="textarea" />
+      </>,
+    );
+    for (const control of [
+      screen.getByLabelText('text'),
+      screen.getByLabelText('select'),
+      screen.getByLabelText('textarea'),
+    ]) {
+      expect(control.className).not.toContain('focus:outline-none');
+      expect(control.className).toContain('focus-visible:outline-2');
+    }
   });
 });

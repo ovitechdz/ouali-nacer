@@ -109,6 +109,17 @@ describe('backup import hardening', () => {
     expect(document).not.toHaveProperty('constructor');
     expect(document.animals).toHaveLength(0);
   });
+
+  it('rejects duplicated ids', async () => {
+    const document = makeDocument({
+      animals: [makeAnimal({ id: 'same-id' }), makeAnimal({ id: 'same-id', code: 'OV-2' })],
+    });
+    const error = await expectRejected(
+      await codec.encode(document, { exportedAt: NOW.toISOString() }),
+    );
+    expect(error.code).toBe('structure');
+    expect(error.key).toBe('domain.error.duplicate');
+  });
 });
 
 describe('failed restore keeps the previous document', () => {
@@ -123,9 +134,16 @@ describe('failed restore keeps the previous document', () => {
     });
 
     const valid = JSON.parse(await codec.encode(original, { exportedAt: NOW.toISOString() }));
+    const duplicated = await codec.encode(
+      makeDocument({
+        animals: [makeAnimal({ id: 'dup' }), makeAnimal({ id: 'dup', code: 'OV-2' })],
+      }),
+      { exportedAt: NOW.toISOString() },
+    );
     const badPayloads: Array<[string, string]> = [
       ['malformed JSON', '{'],
       ['oversized file', JSON.stringify({ ...valid, padding: 'x'.repeat(26 * 1024 * 1024) })],
+      ['duplicated ids', duplicated],
     ];
 
     for (const [label, raw] of badPayloads) {

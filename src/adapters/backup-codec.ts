@@ -108,9 +108,27 @@ function assertImportLimits(raw: string, state: unknown): void {
   if (issue !== null) throw new BackupError('structure', issue.key);
 }
 
+/**
+ * Duplicate ids make command lookups and updates ambiguous after restore, so
+ * an imported document must have unique ids inside every collection.
+ */
+function assertUniqueIds(document: FarmDocument): void {
+  for (const key of IMPORT_COLLECTIONS) {
+    const seen = new Set<string>();
+    for (const item of document[key] as ReadonlyArray<{ id: string }>) {
+      if (seen.has(item.id)) {
+        throw new BackupError('structure', 'domain.error.duplicate', `${key}:${item.id}`);
+      }
+      seen.add(item.id);
+    }
+  }
+}
+
 function migrate(raw: unknown, now: Date): FarmDocument {
   try {
-    return migrateDocument(raw, now).document;
+    const document = migrateDocument(raw, now).document;
+    assertUniqueIds(document);
+    return document;
   } catch (error) {
     if (error instanceof MigrationError) {
       if (error.code === 'newer-schema') {

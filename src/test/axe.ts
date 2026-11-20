@@ -26,6 +26,9 @@ export interface AxeRunSummary {
   violations: Result[];
 }
 
+/** axe-core is a singleton: never let two runs overlap, even after a timed-out test. */
+let pending: Promise<unknown> = Promise.resolve();
+
 /** Run axe on one rendered container, disabling only the rules listed above. */
 export async function runAxe(container: Element): Promise<AxeRunSummary> {
   const options: RunOptions = {
@@ -33,8 +36,13 @@ export async function runAxe(container: Element): Promise<AxeRunSummary> {
       Object.keys(JSDOM_DISABLED_RULES).map((id) => [id, { enabled: false }]),
     ),
   };
-  const result = await axe.run(container, options);
-  return { violations: result.violations };
+  const run = pending.then(async () => {
+    const result = await axe.run(container, options);
+    return { violations: result.violations };
+  });
+  // A rejected or timed-out test must not block every later route in the matrix.
+  pending = run.catch(() => undefined);
+  return run;
 }
 
 /** Actionable, one-line-per-node description used in a failed assertion. */

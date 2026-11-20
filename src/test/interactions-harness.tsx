@@ -114,7 +114,7 @@ export async function renderPage(
   path: string,
   page: RouteComponent,
   routePath?: string,
-): Promise<void> {
+): Promise<HTMLElement> {
   const rootRoute = createRootRoute({ component: PageHost, notFoundComponent: NotFoundPage });
   const route = createRoute({
     getParentRoute: () => rootRoute,
@@ -126,11 +126,12 @@ export async function renderPage(
     history: createMemoryHistory({ initialEntries: [path] }),
   });
   await router.load();
-  render(
+  const { container } = render(
     <ToastProvider>
       <RouterProvider router={router} />
     </ToastProvider>,
   );
+  return container;
 }
 
 export function panel(): HTMLElement {

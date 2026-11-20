@@ -315,7 +315,7 @@ export function LineChart({
         // The plot is not mirrored for RTL, so the labels must run in the same
         // direction as the line; otherwise an Arabic reader reads the trend
         // backwards.
-        <div dir="ltr" className="mt-1 flex justify-between gap-1 text-xs text-fg-subtle">
+        <div dir="ltr" className="mt-1 flex justify-between gap-1 text-xs text-fg-muted">
           <span>{labels[0]}</span>
           <span>{labels[Math.floor(labels.length / 2)]}</span>
           <span>{labels[labels.length - 1]}</span>
@@ -345,7 +345,7 @@ export function Sparkline({
   tone?: string;
   summary: string;
 }) {
-  if (points.length < 2) return <span className="text-xs text-fg-subtle">—</span>;
+  if (points.length < 2) return <span className="text-xs text-fg-muted">—</span>;
   const { min, max } = build([points]);
   const span = max - min || 1;
   const step = 120 / (points.length - 1);

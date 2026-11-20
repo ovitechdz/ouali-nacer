@@ -216,7 +216,7 @@ export function TeamPage() {
                   {member.initials}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="truncate text-sm font-bold text-fg-strong">{member.name}</h3>
+                  <h2 className="truncate text-sm font-bold text-fg-strong">{member.name}</h2>
                   <p className="text-xs font-medium text-accent">{member.role}</p>
                   <span className="mt-1 inline-block rounded-full border border-border bg-surface-3/60 px-2 py-0.5 text-xs text-fg-muted">
                     {member.department}
@@ -277,7 +277,7 @@ export function TeamPage() {
                 {detail.initials}
               </div>
               <div className="min-w-0">
-                <h3 className="text-lg font-bold text-fg-strong">{detail.name}</h3>
+                <h2 className="text-lg font-bold text-fg-strong">{detail.name}</h2>
                 <p className="text-sm font-medium text-accent">{detail.role}</p>
                 <span className="mt-1.5 inline-block rounded-full border border-border bg-surface-3/60 px-2 py-0.5 text-xs text-fg-muted">
                   {detail.department}

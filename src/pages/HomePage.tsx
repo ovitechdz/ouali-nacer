@@ -75,7 +75,7 @@ export function HomePage() {
                 {t('home.ctaHerd')}
               </Link>
             </div>
-            <p className="mt-4 text-xs text-fg-subtle">{t('home.offlineNote')}</p>
+            <p className="mt-4 text-xs text-fg-muted">{t('home.offlineNote')}</p>
           </div>
 
           <div className={cn(KPI_GRID, 'lg:grid-cols-2')}>

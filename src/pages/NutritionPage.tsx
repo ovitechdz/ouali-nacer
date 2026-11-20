@@ -83,6 +83,12 @@ export function NutritionPage() {
   };
 
   const engine = document?.settings.engineVersion ?? '—';
+  // The confirmation must name the animal: the list can hold many pending
+  // rations, and "Servir" alone gives a keyboard/screen-reader user no target.
+  const serveTarget = rows.find((row) => row.rec?.id === serveId);
+  const serveLabel = serveTarget
+    ? `${t('nutrition.serve')} — ${serveTarget.animal.code}`
+    : t('nutrition.serve');
 
   return (
     <div className="space-y-5">
@@ -221,7 +227,7 @@ export function NutritionPage() {
                     </Button>
                   ) : null}
                   {status === 'pending' ? (
-                    <span className="self-center text-xs text-fg-subtle">
+                    <span className="self-center text-xs text-fg-muted">
                       {t('animal.needsProduction')}
                     </span>
                   ) : null}
@@ -235,8 +241,8 @@ export function NutritionPage() {
       <Dialog
         open={serveId !== null}
         onClose={() => setServeId(null)}
-        title={t('nutrition.serve')}
-        description={t('nutrition.serve')}
+        title={serveLabel}
+        description={t('ration.serveConfirm')}
         closeLabel={t('common.close')}
         size="sm"
         footer={

@@ -158,7 +158,7 @@ export function HerdPage() {
                         code={animal.code}
                         className="font-semibold text-fg-strong hover:text-accent"
                       />
-                      <span className="block font-mono text-xs text-fg-subtle" dir="ltr">
+                      <span className="block font-mono text-xs text-fg-muted" dir="ltr">
                         {animal.rfid}
                       </span>
                     </Td>
@@ -184,7 +184,7 @@ export function HerdPage() {
                     </Td>
                     <Td>
                       {rec === null ? (
-                        <span className="text-xs text-fg-subtle">{t('herd.recNone')}</span>
+                        <span className="text-xs text-fg-muted">{t('herd.recNone')}</span>
                       ) : rec.ration === null ? (
                         <Badge tone="warn">{t('herd.recBlocked')}</Badge>
                       ) : rec.servedAt ? (
@@ -212,7 +212,7 @@ export function HerdPage() {
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-fg-strong">{animal.code}</p>
-                      <p className="font-mono text-xs text-fg-subtle" dir="ltr">
+                      <p className="font-mono text-xs text-fg-muted" dir="ltr">
                         {animal.rfid}
                       </p>
                     </div>
@@ -236,7 +236,7 @@ export function HerdPage() {
                     </span>
                   </div>
                   <div className="mt-2 flex items-center justify-between text-xs">
-                    <span className="text-fg-subtle">
+                    <span className="text-fg-muted">
                       {t('animal.lastScan')}: {formatDate(animal.lastScanAt, locale)}
                     </span>
                     {rec?.ration === null ? (

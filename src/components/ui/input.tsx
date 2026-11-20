@@ -9,7 +9,7 @@ import {
 import { cn } from '@/lib/cn';
 
 const control =
-  'w-full rounded-xl border border-border bg-surface-3/70 px-3 py-2 text-sm text-fg placeholder:text-fg-subtle transition-colors duration-[var(--duration-quick)] ease-out hover:border-border-strong focus:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50';
+  'w-full rounded-xl border border-border bg-surface-3/70 px-3 py-2 text-sm text-fg placeholder:text-fg-muted transition-colors duration-[var(--duration-quick)] ease-out hover:border-border-strong focus:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50';
 
 export interface FieldProps {
   label: string;
@@ -34,7 +34,7 @@ export function Field({ label, htmlFor, hint, error, required, children, classNa
           {error}
         </p>
       ) : hint ? (
-        <p className="text-xs text-fg-subtle">{hint}</p>
+        <p className="text-xs text-fg-muted">{hint}</p>
       ) : null}
     </div>
   );

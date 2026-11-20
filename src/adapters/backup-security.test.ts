@@ -41,6 +41,8 @@ describe('backup import hardening', () => {
     await expectRejected('{');
   });
 
+  // These two cases build 100+ MB payloads; under the full CI coverage run
+  // they can exceed Vitest's 20 s default even though they pass in isolation.
   it('rejects an oversized file before reading its state', async () => {
     const valid = JSON.parse(await codec.encode(makeDocument(), { exportedAt: NOW.toISOString() }));
     const oversized = JSON.stringify({
@@ -50,7 +52,7 @@ describe('backup import hardening', () => {
     const error = await expectRejected(oversized);
     expect(error.key).toBe('domain.error.importSize');
     expect(error.params).toEqual({ limit: 128 * 1024 * 1024 });
-  });
+  }, 90_000);
 
   it('rejects an enormous array of animals', async () => {
     const animals = Array.from({ length: 200_001 }, (_, index) =>
@@ -60,7 +62,7 @@ describe('backup import hardening', () => {
     const error = await expectRejected(raw);
     expect(error.key).toBe('domain.error.importSize');
     expect(error.params).toEqual({ limit: 200_000 });
-  });
+  }, 90_000);
 
   it('rejects a wrong schema version', async () => {
     const valid = JSON.parse(await codec.encode(makeDocument(), { exportedAt: NOW.toISOString() }));

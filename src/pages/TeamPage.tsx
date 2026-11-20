@@ -55,8 +55,27 @@ const EMPTY_FORM: FormState = {
   bio: '',
 };
 
-function whatsappHref(link: string): string {
+export function whatsappHref(link: string): string {
   return `https://${link}`;
+}
+
+const EMAIL_PATTERN =
+  /^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$/;
+
+/** Validate an address and encode its local part; invalid input gets no link. */
+export function mailtoHref(email: string): string | null {
+  const value = email.trim();
+  if (!EMAIL_PATTERN.test(value)) return null;
+  const at = value.lastIndexOf('@');
+  return `mailto:${encodeURIComponent(value.slice(0, at))}@${value.slice(at + 1)}`;
+}
+
+/** Digits plus one optional leading +; encodeURIComponent would turn + into %2B. */
+export function telHref(phone: string): string | null {
+  const value = phone.trim();
+  const digits = value.replace(/\D/g, '');
+  if (digits === '') return null;
+  return `tel:${value.startsWith('+') ? '+' : ''}${digits}`;
 }
 
 export function TeamPage() {
@@ -84,6 +103,8 @@ export function TeamPage() {
     (member) => department === 'all' || member.department === department,
   );
   const detail = members.find((member) => member.id === detailId) ?? null;
+  const detailEmailHref = detail ? mailtoHref(detail.email) : null;
+  const detailPhoneHref = detail?.phone ? telHref(detail.phone) : null;
 
   const setField = <Key extends keyof FormState>(key: Key, value: FormState[Key]): void => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -288,22 +309,22 @@ export function TeamPage() {
             <p className="text-sm leading-relaxed text-fg-muted">{detail.bio}</p>
 
             <div className="space-y-2">
-              {detail.email ? (
+              {detailEmailHref ? (
                 <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface-3/50 px-3 py-2.5">
                   <span className="text-xs text-fg-muted">{t('team.email')}</span>
                   <a
-                    href={`mailto:${detail.email}`}
+                    href={detailEmailHref}
                     className="truncate text-xs font-semibold text-fg hover:text-accent"
                   >
                     {detail.email}
                   </a>
                 </div>
               ) : null}
-              {detail.phone ? (
+              {detailPhoneHref ? (
                 <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface-3/50 px-3 py-2.5">
                   <span className="text-xs text-fg-muted">{t('team.phone')}</span>
                   <a
-                    href={`tel:${detail.phone.replace(/\s+/g, '')}`}
+                    href={detailPhoneHref}
                     className="truncate text-xs font-semibold text-fg hover:text-accent"
                     dir="ltr"
                   >
@@ -325,9 +346,9 @@ export function TeamPage() {
                   {t('team.contactWhatsApp')}
                 </a>
               ) : null}
-              {detail.email ? (
+              {detailEmailHref ? (
                 <a
-                  href={`mailto:${detail.email}`}
+                  href={detailEmailHref}
                   className="inline-flex h-10 items-center gap-2 rounded-xl border border-border bg-surface-3 px-3 text-sm font-semibold text-fg hover:border-border-strong"
                 >
                   <Mail className="size-4" aria-hidden="true" />
